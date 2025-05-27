@@ -143,7 +143,7 @@ export default function CalculatorPage() {
                     name="atecoCode"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>📋 Codice ATECO</FormLabel>
+                        <FormLabel>📋 Codice ATECO (facoltativo)</FormLabel>
                         <FormControl>
                           <Input placeholder="es: 62.01.00" {...field} />
                         </FormControl>
