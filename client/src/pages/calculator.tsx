@@ -16,6 +16,7 @@ import { apiRequest } from "@/lib/queryClient";
 
 const calculationSchema = z.object({
   revenue: z.number().min(0, "Il fatturato deve essere positivo").optional(),
+  revenue2025: z.number().min(0, "Il fatturato presunto deve essere positivo").optional(),
   category: z.string().min(1, "Seleziona una categoria"),
   atecoCode: z.string().optional(),
   startDate: z.string().min(1, "Inserisci la data di inizio attività"),
@@ -42,6 +43,7 @@ export default function CalculatorPage() {
     resolver: zodResolver(calculationSchema),
     defaultValues: {
       revenue: undefined,
+      revenue2025: undefined,
       category: "",
       atecoCode: "",
       startDate: "",
@@ -130,6 +132,25 @@ export default function CalculatorPage() {
                             type="number"
                             placeholder="es: 50000"
                             className="text-lg font-medium border-blue-200"
+                            {...field}
+                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                            value={field.value || ""}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="revenue2025"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-green-700 font-medium">🎯 Fatturato Presunto 2025 (€)</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="es: 55000"
+                            className="text-lg font-medium border-green-200"
                             {...field}
                             onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
                             value={field.value || ""}
@@ -503,43 +524,92 @@ export default function CalculatorPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Calendar className="h-5 w-5 text-red-600" />
-                  Prossime Scadenze 2025
+                  Calendario Scadenze Fiscali
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center p-3 bg-red-50 rounded-lg">
-                    <div>
-                      <p className="font-medium text-red-900">30 Giugno 2025</p>
-                      <p className="text-sm text-red-700">Saldo 2024 + 1° Acconto 2025</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-bold text-red-900">
-                        {formatCurrency(results.taxAmount + results.inpsAmount * 0.4)}
-                      </p>
+                <div className="space-y-4">
+                  {/* Scadenze 2025 */}
+                  <div>
+                    <h4 className="font-medium text-gray-800 mb-2">📅 Scadenze 2025</h4>
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center p-2 bg-red-50 rounded-lg text-sm">
+                        <div>
+                          <p className="font-medium text-red-900">30 Giugno 2025</p>
+                          <p className="text-xs text-red-700">Saldo 2024 + 1° Acconto 2025</p>
+                        </div>
+                        <p className="font-bold text-red-900">
+                          {formatCurrency(results.taxAmount + results.inpsAmount * 0.4)}
+                        </p>
+                      </div>
+                      <div className="flex justify-between items-center p-2 bg-orange-50 rounded-lg text-sm">
+                        <div>
+                          <p className="font-medium text-orange-900">30 Novembre 2025</p>
+                          <p className="text-xs text-orange-700">2° Acconto 2025</p>
+                        </div>
+                        <p className="font-bold text-orange-900">
+                          {formatCurrency(results.taxAmount * 0.4)}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex justify-between items-center p-3 bg-orange-50 rounded-lg">
+
+                  {/* Scadenze 2026 - se c'è fatturato 2025 */}
+                  {form.getValues('revenue2025') && (
                     <div>
-                      <p className="font-medium text-orange-900">30 Novembre 2025</p>
-                      <p className="text-sm text-orange-700">2° Acconto 2025</p>
+                      <h4 className="font-medium text-gray-800 mb-2">📅 Scadenze 2026 Previste</h4>
+                      {(() => {
+                        const revenue2025 = form.getValues('revenue2025') || 0;
+                        const startDate = form.getValues('startDate');
+                        const isStartup2025 = startDate ? 
+                          (2025 - new Date(startDate).getFullYear()) < 5 : false;
+                        
+                        // Calcola tasse 2025 per scadenze 2026
+                        const taxableIncome2025 = revenue2025 * 0.78; // Assumendo stessa categoria
+                        const taxRate2025 = isStartup2025 ? 0.05 : 0.15;
+                        const taxAmount2025 = taxableIncome2025 * taxRate2025;
+                        const inpsAmount2025 = taxableIncome2025 * 0.26;
+
+                        return (
+                          <div className="space-y-2">
+                            <div className="flex justify-between items-center p-2 bg-purple-50 rounded-lg text-sm">
+                              <div>
+                                <p className="font-medium text-purple-900">30 Giugno 2026</p>
+                                <p className="text-xs text-purple-700">Saldo 2025 + 1° Acconto 2026</p>
+                              </div>
+                              <p className="font-bold text-purple-900">
+                                {formatCurrency(taxAmount2025 + inpsAmount2025 * 0.4)}
+                              </p>
+                            </div>
+                            <div className="flex justify-between items-center p-2 bg-indigo-50 rounded-lg text-sm">
+                              <div>
+                                <p className="font-medium text-indigo-900">30 Novembre 2026</p>
+                                <p className="text-xs text-indigo-700">2° Acconto 2026</p>
+                              </div>
+                              <p className="font-bold text-indigo-900">
+                                {formatCurrency(taxAmount2025 * 0.4)}
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      })()}
                     </div>
-                    <div className="text-right">
-                      <p className="font-bold text-orange-900">
-                        {formatCurrency(results.taxAmount * 0.4)}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
-                    <div>
-                      <p className="font-medium text-blue-900">Trimestrali INPS</p>
-                      <p className="text-sm text-blue-700">16 Gen, 16 Mag, 20 Ago, 16 Nov</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-bold text-blue-900">
-                        {formatCurrency(results.inpsAmount / 4)}
-                      </p>
-                      <p className="text-xs text-blue-700">per rata</p>
+                  )}
+
+                  {/* Rate INPS */}
+                  <div>
+                    <h4 className="font-medium text-gray-800 mb-2">🏥 Rate INPS Ricorrenti</h4>
+                    <div className="flex justify-between items-center p-2 bg-blue-50 rounded-lg text-sm">
+                      <div>
+                        <p className="font-medium text-blue-900">Trimestrali 2025</p>
+                        <p className="text-xs text-blue-700">16 Gen, 16 Mag, 20 Ago, 16 Nov</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-blue-900">
+                          {formatCurrency(results.inpsAmount / 4)}
+                        </p>
+                        <p className="text-xs text-blue-700">per rata</p>
+                      </div>
                     </div>
                   </div>
                 </div>
