@@ -46,7 +46,9 @@ export class AuthManager {
     const response = await apiRequest('POST', '/api/auth/register', { email, password, name });
     const data: AuthResponse = await response.json();
     
+    console.log('Registration successful:', data);
     this.setAuth(data.user, data.token);
+    console.log('Auth set after registration:', this.isAuthenticated());
     return data;
   }
 
