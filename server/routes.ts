@@ -232,6 +232,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { businessId, revenue, year, macroCategory, isStartup, startDate, contributionRegime, hasOtherCoverage } = req.body;
       
+      console.log('RECEIVED DATA:', {
+        isStartup,
+        startDate,
+        macroCategory,
+        contributionRegime,
+        hasOtherCoverage,
+        revenue
+      });
+      
       // Use the actual data from the frontend
       const business = {
         macroCategory: macroCategory || 'PROFESSIONAL',
@@ -240,6 +249,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         contributionRegime: contributionRegime || 'GESTIONE_SEPARATA',
         hasOtherCoverage: hasOtherCoverage || false
       };
+      
+      console.log('BUSINESS OBJECT:', business);
 
       // Calculate taxes based on Italian forfettario regime
       const coefficients = {
