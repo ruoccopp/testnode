@@ -15,13 +15,13 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 
 const calculationSchema = z.object({
-  revenue: z.number().min(0, "Il fatturato deve essere positivo"),
+  revenue: z.number().min(0, "Il fatturato deve essere positivo").optional(),
   category: z.string().min(1, "Seleziona una categoria"),
   atecoCode: z.string().optional(),
   year: z.number().int().min(2020).max(2030),
   isStartup: z.boolean().default(false),
   contributionRegime: z.string().min(1, "Seleziona il regime contributivo"),
-  currentBalance: z.number().min(0, "Il saldo deve essere positivo").default(0),
+  currentBalance: z.number().min(0, "Il saldo deve essere positivo").optional(),
 });
 
 type CalculationForm = z.infer<typeof calculationSchema>;
@@ -40,13 +40,13 @@ export default function CalculatorPage() {
   const form = useForm<CalculationForm>({
     resolver: zodResolver(calculationSchema),
     defaultValues: {
-      revenue: 0,
+      revenue: undefined,
       category: "",
       atecoCode: "",
       year: 2024,
       isStartup: false,
       contributionRegime: "",
-      currentBalance: 0,
+      currentBalance: undefined,
     },
   });
 
@@ -126,10 +126,11 @@ export default function CalculatorPage() {
                         <FormControl>
                           <Input
                             type="number"
-                            placeholder="50000"
+                            placeholder="es: 50000"
                             className="text-lg font-medium border-blue-200"
                             {...field}
-                            onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                            value={field.value || ""}
                           />
                         </FormControl>
                       </FormItem>
@@ -239,10 +240,11 @@ export default function CalculatorPage() {
                       <FormControl>
                         <Input
                           type="number"
-                          placeholder="0"
+                          placeholder="es: 5000"
                           className="text-lg"
                           {...field}
-                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                          onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                          value={field.value || ""}
                         />
                       </FormControl>
                     </FormItem>
@@ -331,7 +333,7 @@ export default function CalculatorPage() {
                   <div className="bg-blue-50 p-3 rounded-lg">
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-sm font-medium">💰 Saldo Attuale:</span>
-                      <span className="text-lg font-bold text-blue-700">{formatCurrency(form.getValues('currentBalance'))}</span>
+                      <span className="text-lg font-bold text-blue-700">{formatCurrency(form.getValues('currentBalance') || 0)}</span>
                     </div>
                   </div>
 
@@ -341,7 +343,7 @@ export default function CalculatorPage() {
                     const prossima = new Date('2025-06-30');
                     const mesiMancanti = Math.max(1, Math.ceil((prossima.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 30)));
                     const importoProssimo = results.taxAmount + results.inpsAmount * 0.4;
-                    const servePerProssimo = Math.max(0, importoProssimo - form.getValues('currentBalance'));
+                    const servePerProssimo = Math.max(0, importoProssimo - (form.getValues('currentBalance') || 0));
                     const rataMessileProssimo = servePerProssimo / mesiMancanti;
 
                     return (
@@ -417,7 +419,7 @@ export default function CalculatorPage() {
                     const prossima = new Date('2025-06-30');
                     const mesiMancanti = Math.max(1, Math.ceil((prossima.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 30)));
                     const importoProssimo = results.taxAmount + results.inpsAmount * 0.4;
-                    const servePerProssimo = Math.max(0, importoProssimo - form.getValues('currentBalance'));
+                    const servePerProssimo = Math.max(0, importoProssimo - (form.getValues('currentBalance') || 0));
                     const rataMessileProssimo = servePerProssimo / mesiMancanti;
                     const rataMessileSecondo = (results.taxAmount * 0.4) / 5; // 5 mesi da luglio a novembre
                     const rataMessileINPS = (results.inpsAmount / 4) / 3; // ogni 3 mesi
