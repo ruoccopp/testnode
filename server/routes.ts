@@ -275,21 +275,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         };
         
         let minimum = minimums[business.contributionRegime as keyof typeof minimums] || 4427.04;
-        if (business.contributionReduction === '35') minimum *= 0.65;
-        else if (business.contributionReduction === '50') minimum *= 0.50;
+        
+        // Applicazione delle riduzioni contributive
+        if (business.contributionReduction === 'REDUCTION_35') {
+          minimum *= 0.65; // Riduzione 35%
+        } else if (business.contributionReduction === 'REDUCTION_50') {
+          minimum *= 0.50; // Riduzione 50% per nuovi iscritti 2025
+        }
         
         inpsAmount = minimum;
-        
-        // Contributo maternità sempre dovuto (€7.44)
-        if (business.contributionReduction === '35' || business.contributionReduction === '50') {
-          inpsAmount += 7.44;
-        }
         
         // Eccedenza oltre minimale €18.324
         if (taxableIncome > 18324) {
           const excess = (taxableIncome - 18324) * 0.24;
-          const reductionFactor = business.contributionReduction === '35' ? 0.65 : 
-                                 business.contributionReduction === '50' ? 0.50 : 1;
+          let reductionFactor = 1;
+          
+          if (business.contributionReduction === 'REDUCTION_35') {
+            reductionFactor = 0.65;
+          } else if (business.contributionReduction === 'REDUCTION_50') {
+            reductionFactor = 0.50;
+          }
+          
           inpsAmount += excess * reductionFactor;
         }
         
