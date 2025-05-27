@@ -1,0 +1,341 @@
+1) Imposta sostitutiva IRPEF (regime forfettario) – I titolari di partita IVA in regime forfettario
+versano un’imposta sostitutiva (aliquota ordinaria 15%, ridotta al 5% per i primi 5 anni di nuova attività
+1
+) in luogo di IRPEF, addizionali regionali/comunali e IRAP. Il saldo dell’anno fiscale precedente e il
+primo acconto dell’anno corrente vanno pagati entro il 30 giugno dell’anno successivo 2
+(salvo
+proroghe – ad esempio, è possibile differire al 30 luglio con una maggiorazione dello 0,40% a titolo
+d’interesse 3
+). Il secondo acconto va versato entro il 30 novembre dell’anno in corso, in un’unica
+soluzione (non rateizzabile) 4
+. I versamenti vanno effettuati tramite Modello F24 telematico
+(obbligatorio per i titolari di P.IVA 5
+), utilizzando i codici tributo istituiti con Risoluzione AE 59/2015:
+“1792” – saldo imposta sostitutiva forfettari, “1790” – acconto prima rata, e “1791” – acconto seconda rata (o
+unica soluzione) 6
+. In caso l’imposta dovuta per l’anno precedente sia inferiore a €52, non sono dovuti
+acconti per l’anno corrente; se l’acconto totale calcolato è compreso tra €52 e €257,52 si versa in
+un’unica rata a novembre, mentre oltre tale soglia si applica la ripartizione in due rate (40% entro
+giugno, 60% entro novembre) 7 8
+. L’eventuale ravvedimento (ritardo) sui versamenti sconta
+sanzioni ridotte e interessi legali, e se si opta per il pagamento entro 30 giorni dalla scadenza
+(differimento al 30 luglio) va applicata la maggiorazione dello 0,40% separatamente in F24 come
+9 10
+“interessi” (codice tributo 1668 per gli interessi da differimento/rateazione) .
+2) Contributi INPS – Gestione separata – I professionisti senza cassa iscritti alla Gestione Separata
+INPS versano i contributi previdenziali sulle stesse scadenze dell’IRPEF. In sede di dichiarazione dei
+redditi, dal quadro RR si determinano il saldo contributivo dell’anno precedente e gli acconti dovuti per
+l’anno corrente 11
+. Gli importi a saldo e primo acconto vanno versati entro il 30 giugno (con
+possibilità di differimento al 30 luglio con 0,40% in più, analogamente alle imposte) 3
+, mentre
+l’eventuale secondo acconto si versa entro il 30 novembre 4
+. Anche questi pagamenti avvengono
+tramite modello F24, sezione INPS, indicando la sede e il codice INPS personali, e i codici causale
+appositi: “P10” per i contribuenti tenuti all’aliquota ridotta (già pensionati o assicurati presso altre
+gestioni), “PXX” per quelli con aliquota piena (senza altra previdenza) 12
+. In caso di rateizzazione, si
+utilizzano le causali “P10R” o “PXXR” per le rate successive alla prima, e la causale “DPPI” per gli interessi
+13 14
+dovuti sulle rate (interessi calcolati al tasso del 4% annuo, equivalenti a ~0,33% mensile) .
+L’aliquota contributiva Gestione Separata per il 2025 è fissata al 25% del reddito professionale per i
+soggetti privi di altra copertura previdenziale, più un’aliquota aggiuntiva dello 0,72% per maternità e
+altre tutele 15 16
+(quindi 25,72% totale, arrotondata al 26,07% ai fini del minimale ). Per i soggetti già
+17 18
+pensionati o con altra previdenza obbligatoria, l’aliquota resta al 24% (senza contributi aggiuntivi) .
+Minimale e massimale: in Gestione Separata non c’è contributo fisso minimo, ma esiste un minimale di
+reddito (€18.555 per il 2025) sotto il quale l’accredito contributivo annuo è comunque garantito
+versando un importo minimo (es. €4.453,20 annui per chi ha aliquota 24%) 19
+. Oltre il massimale di
+reddito (€120.607 per il 2025), i redditi eccedenti non sono assoggettati a contributi 19
+. I contributi di
+Gestione Separata versati entro le scadenze si dichiarano nel quadro RR sez. I, ed è ammessa la
+5 20
+compensazione di eventuali crediti d’imposta in F24 a scomputo dei contributi dovuti .
+3) Contributi INPS – Gestione artigiani e commercianti – I forfettari iscritti alle Gestioni IVS artigiani o
+commercianti versano i contributi fissi trimestrali sul minimale di reddito e, se hanno reddito
+superiore al minimale, contributi sul reddito eccedente. Le scadenze fisse trimestrali (importi
+calcolati sul minimale annuo, frazionato in 4 tranche) sono: 16 maggio, 20 agosto, 16 novembre
+dell’anno di competenza e 16 febbraio dell’anno successivo 21
+. Gli importi vengono comunicati
+dall’INPS (anche nel Cassetto previdenziale) e versati con modello F24 usando la causale “AF” (artigiani)
+o “CF” (commercianti) per i contributi sul minimale 22
+. In caso di prima iscrizione in corso d’anno,
+l’INPS può emettere avvisi con scadenze differite (es. iniziando dal 20 agosto) 23
+. Sull’eventuale
+reddito eccedente il minimale annuo (nel 2025 il minimale è €18.324 di reddito imponibile per
+1
+artigiani/commercianti 19
+), sono dovuti contributi aggiuntivi nella misura della relativa aliquota (es.
+24% circa per artigiani commercianti in 2025, al netto di eventuali agevolazioni) calcolati in sede di
+dichiarazione dei redditi. Tali contributi eccedenti il minimale vanno versati entro gli stessi termini dei
+saldi e acconti IRPEF 24
+: quindi il saldo e primo acconto sui redditi eccedentari entro il 30 giugno
+dell’anno successivo, e l’acconto successivo (seconda rata) entro il 30 novembre. Per questi versamenti
+si utilizzano in F24 le causali “AP” (artigiani) o “CP” (commercianti) – indicate nella sezione INPS – per
+contributi eccedenti in acconto/saldo a debito, oppure “APR” / “CPR” se gli importi eccedenti vengono
+rateizzati in più pagamenti 25
+. Gli importi eventualmente a credito (eccedenze versate in più rispetto
+al dovuto, risultanti dalla dichiarazione) si indicano con le stesse causali AP/CP in F24, portandoli in
+compensazione 26
+. Riduzione 35%: la Legge di Stabilità 2015 (L. 190/2014) ha introdotto per i
+contribuenti forfettari uno sconto contributivo del 35% sui contributi dovuti sia sul minimale che
+sull’eventuale eccedenza di reddito 27
+. Tale agevolazione non è automatica: va richiesta all’INPS
+tramite procedura telematica (Cassetto previdenziale Artigiani/Commercianti) entro il 28 febbraio
+dell’anno per cui si intende usufruirne 28 29
+. Una volta concessa, la riduzione si rinnova
+automaticamente per gli anni successivi, salvo revoca da parte dell’assicurato 30
+. Chi invece perde il
+regime forfettario (uscendone) e poi vi rientra in anni successivi non può ripetere l’agevolazione
+contributiva del 35% se l’aveva già avuta in precedenza (è fruibile una sola volta) 31
+. Per il 2025, i
+contributi minimi annui (aliquota piena) ammontano a €4.427,04 per artigiani e €4.515,43 per
+commercianti 32
+; applicando la riduzione del 35%, i minimi dovuti scendono rispettivamente a
+€2.877,58 e €2.934,98 33
+. Resta dovuto per intero il contributo di maternità (€7,44 annui) anche in caso
+di riduzione 34
+. Riduzione 50% nuove imprese: inoltre, la legge di Bilancio 2024 ha previsto un
+ulteriore esonero per favorire le nuove attività: i soggetti che si iscrivono per la prima volta alle gestioni
+artigiani/commercianti nel 2025 possono richiedere una riduzione del 50% sui contributi (minimali ed
+eccedenti) per i primi 36 mesi di attività 35 36
+. Tale nuovo sgravio – introdotto dall’art. 1 comma 270
+della L. 197/2023 (Bilancio 2024) – è alternativo alla riduzione 35% (non cumulabile) 37
+. In pratica, la
+nuova impresa può godere dei contributi dimezzati per 3 anni; al termine, l’imprenditore potrà
+eventualmente optare per la riduzione standard 35% negli anni successivi 35
+. Anche per il bonus 50% è
+necessaria comunicazione telematica all’INPS all’atto dell’iscrizione, e si attendono le circolari attuative
+(INPS ha anticipato che lo sgravio si applicherà sia ai contributi fissi che a quelli sul reddito eccedente)
+36 38
+.
+4) Codici tributo F24 per imposte e contributi – Di seguito si riepilogano i principali codici da indicare
+in F24 per i versamenti dei forfettari (sezione Erario per l’imposta sostitutiva, sezione INPS per i
+contributi previdenziali):
+•
+Imposta sostitutiva forfettari (15%/5%) – Codici tributo: 1792 (“saldo” imposta sostitutiva, art.1
+c.64 L.190/2014), 1790 (“acconto prima rata” imposta sostitutiva), 1791 (“acconto seconda rata o
+unica soluzione”) 6
+. Esempio: un forfettario che versa il saldo 2024 e il primo acconto 2025 al
+30/06/2025 compilerà l’F24 con due righe in sezione Erario, codici 1792 e 1790, anno di
+riferimento 2024, importi a debito; il secondo acconto di novembre 2025 userà il codice 1791
+anno 2025. (NB: Tali codici sono stati istituiti con Risoluzione AE 59/E/2015 39
+; attenzione a non
+confonderli con i codici 1840/1841/1842 che si riferiscono invece alla cedolare secca sulle
+locazioni 40 41
+). In caso di ravvedimento operoso, i codici sanzione/ interessi specifici per
+l’imposta forfettaria sono gli stessi previsti per IRPEF (es. codice 8904 per sanzione tributo
+10 42
+sostitutivo e 1668 per interessi da rateazione) .
+•
+Contributi INPS – Gestione separata – I versamenti vanno effettuati in sezione INPS indicando:
+il codice sede INPS competente, il proprio codice INPS (matricola) a 17 cifre, il periodo di
+riferimento (es. “01/2024 – 12/2024” per il saldo annuale 2024) e la causale contributo. Per
+professionisti senza altra previdenza (aliquota piena) si usa la causale “PXX”, mentre per
+2
+soggetti già pensionati o con altra copertura (aliquota ridotta) la causale è “P10” 12
+. Esempio:
+un contribuente forfettario esclusivo (aliquota 25%) indicherà “PXX”, uno già pensionato (aliquota
+24%) userà “P10”. Se il pagamento avviene a rate, alle causali si aggiunge la lettera “R” (es. PXXR
+per rate di contributi posticipate) 13
+; inoltre, gli interessi della dilazione vanno riportati
+separatamente con la causale “DPPI” (Interessi sui contributi rateizzati) 43
+. I codici tributo
+indicati in sezione Erario per l’eventuale compensazione di crediti IRPEF con contributi INPS sono
+invece: PXX e P10 per utilizzare crediti in diminuzione dei contributi dovuti (vanno inseriti con
+44
+importi a credito, così da ridurre il saldo da versare in F24) .
+•
+Contributi INPS – Artigiani e commercianti – In F24 sezione INPS occorre indicare la causale
+adeguata a seconda del tipo di versamento 45
+. Per i contributi correnti sul minimale si usano
+le causali “AF” (artigiani) o “CF” (commercianti) 46
+. Per i contributi dovuti su reddito eccedente
+il minimale (saldo o acconto), la causale è “AP” (artigiani) o “CP” (commercianti) 47
+. In caso di
+rateizzazione di tali contributi eccedenti, le rate successive utilizzano le causali “APR” e “CPR”
+rispettivamente 48
+. Se dal quadro RR della dichiarazione emerge un credito (contributi versati
+in eccesso rispetto al dovuto), questo può essere compensato in F24 indicando gli importi a
+credito con la medesima causale AP/CP (valorizzando il campo “importi a credito” nel modello)
+26
+. Inoltre, per le riduzioni contributive forfettari non esistono codici tributo differenti: il
+contribuente applica direttamente l’abbattimento del 35% (o 50%) agli importi dovuti,
+mantenendo le stesse causali (sarà l’INPS a verificare che sia stata presentata la domanda di
+27 49
+riduzione e ad adeguare gli importi dovuti) .
+5) Rateizzazione dei versamenti – I contribuenti hanno facoltà di rateizzare i debiti d’imposta annuali
+(saldo e primo acconto) in un massimo di rate mensili. I titolari di P.IVA devono concludere le rate entro
+l’anno in corso: in base all’art. 20 del D.Lgs. 241/1997 le imposte da dichiarazione dei redditi (compresi i
+contributi INPS eccedenti il minimale) possono essere ripartite da giugno fino a novembre 50
+; in ogni
+caso, per i soggetti IVA, tutte le rate (tranne l’eventuale seconda rata d’acconto) vanno saldate entro il
+mese di novembre dello stesso anno 4
+(i contribuenti senza partita IVA possono invece spingersi fino
+a dicembre). Le scadenze delle rate, stabilite per legge, cadono il giorno 16 di ogni mese (ad eccezione
+della prima rata che coincide col termine ordinario del 30/06, o 30/07 se differito) 51
+. Ad esempio, un
+forfettario può pagare il saldo 2024 e acconto 2025 in 6 rate: 30 giugno, 16 luglio, 16 agosto, 16
+settembre, 16 ottobre e 16 novembre 2025. Sulle rate successive alla prima sono dovuti interessi al
+tasso stabilito (circa 4% annuo): tali interessi non vanno sommati all’imposta, ma indicati a parte in F24
+con codice tributo 1668 – “Interessi pagamento dilazionato imposte erariali” 10
+. In alternativa alla
+rateazione, è consentito differire l’intero versamento di 30 giorni: versando saldo e acconto entro il 30
+luglio con la maggiorazione dello 0,40% una tantum 3
+. Questo 0,40% (interesse corrispettivo) si
+43
+applica anche ai contributi INPS a saldo/primo acconto se versati a luglio anziché giugno .
+Importante: la seconda rata di acconto (30 novembre) non può essere rateizzata né differita – va
+sempre versata in unica soluzione 52
+. Eventuali proroghe straordinarie possono essere disposte per
+legge: ad esempio, per il 2023 il Governo ha prorogato il termine del secondo acconto al 16 gennaio
+2024 per le partite IVA con ricavi fino a 100 mila euro, con possibilità di pagamento frazionato in 5 rate
+mensili (interesse 4% annuo) 53
+. Misure simili potranno essere valutate in futuro, ma salvo disposizioni
+speciali, resta in vigore il calendario ordinario sopra descritto.
+6) Altri adempimenti e novità dal 2025 – A partire dal periodo d’imposta 2024 (dichiarazione 2025)
+sono entrate in vigore alcune novità normative e operative riguardanti i forfettari. In primo luogo, il
+termine per la presentazione della dichiarazione dei redditi è stato anticipato al 31 ottobre dell’anno
+successivo (in luogo del 30 novembre): dal 2025, dunque, il Modello Redditi PF 2025 (per il 2024) andrà
+trasmesso entro il 31/10/2025 54
+. La trasmissione avviene esclusivamente per via telematica,
+direttamente dal contribuente (tramite i servizi online dell’Agenzia) oppure tramite un intermediario
+3
+abilitato 55
+. Nei quadri dichiarativi dedicati (LM per il reddito forfettario, e RR per i contributi INPS)
+andranno indicati i dati contabili e i versamenti effettuati: l’Agenzia Entrate ha reso disponibili i software
+di compilazione aggiornati a partire da aprile 2025 (in base al nuovo calendario fissato dal DL 34/2023, i
+software ISA e dichiarativi devono essere pubblicati entro il 15 aprile) 56
+. Sul fronte fatturazione
+elettronica, dal 1° gennaio 2024 è scattato l’obbligo di e-fattura per tutti i forfettari senza più soglie
+di esenzione 57
+. Ciò in attuazione dell’autorizzazione UE prorogata all’Italia: dopo aver imposto dal
+2022 l’e-fattura ai forfettari con ricavi > €25.000, la Legge n. 197/2022 ha esteso l’obbligo erga omnes dal
+2024 58
+. I forfettari devono dunque dotarsi di un sistema di fatturazione elettronica tramite SDI
+(l’Agenzia mette a disposizione gratuitamente il portale “Fatture e Corrispettivi” e l’app Fatturae). Sul
+piano contributivo, come visto, dal 2025 è in vigore il nuovo sgravio 50% per 3 anni sulle nuove
+iscrizioni INPS artigiani/commercianti 59
+, introdotto dalla legge di Bilancio 2024 (in attesa di circolare
+attuativa INPS). Resta confermata la riduzione 35% annuale per i forfettari già in attività, regolata dalla
+legge istitutiva del regime 27
+. Inoltre, la soglia di ricavi per accedere/permanere nel regime forfettario
+è stata elevata a €85.000 annui (dal 2023, per effetto della L. 197/2022) 60
+, con decadenza immediata
+dal regime in caso di superamento di €100.000: se nell’anno in corso i ricavi superano €100.000, il
+forfettario esce dal regime dal trimestre successivo (diventando soggetto a IVA ordinaria da quel
+momento) 60 61 62
+. Questa regola – chiarita dall’Agenzia nelle circolari di prassi – va tenuta a mente
+perché comporta adempimenti immediati (apertura della contabilità IVA e emissione fatture con IVA dal
+periodo seguente al superamento). In caso di fuoriuscita dal regime forfettario, l’interessato dovrà
+inoltre presentare la dichiarazione IVA per l’anno di cambio regime e organizzarsi per gli ulteriori
+obblighi contabili ordinari. Per il resto, si confermano le semplificazioni proprie del regime forfettario:
+esonero IVA (nessuna liquidazione periodica né dichiarazione IVA, salvo effettuazione di operazioni UE
+per cui va presentato elenco Intrastat) 63
+, esonero esterometro (dal 2022 incluso nell’invio fatture
+elettroniche), niente ISA (Indicatori Sintetici di Affidabilità) e nessun obbligo di ritenuta d’acconto o di
+applicazione/annotazione della ritenuta sui compensi ricevuti 64
+. Tutti gli aggiornamenti normativi e di
+prassi dal 2025 in avanti saranno pubblicati tramite i consueti canali ufficiali: provvedimenti in
+Gazzetta Ufficiale, circolari e risoluzioni dell’Agenzia delle Entrate, nonché circolari INPS per la
+parte contributiva – è pertanto consigliabile monitorare queste fonti istituzionali per restare allineati
+65 66
+alle eventuali modifiche successive .
+1 28 30
+31 32 33
+35 49
+2 3
+4 9
+11 14
+41 51
+54 55
+5 20 40
+Riduzione contributi 35%: domande entro il 28 febbraio
+https://www.ilcommercialistaonline.it/riduzione-contributi-35/
+Dichiarazione redditi Persone fisiche 2025: rateazione delle imposte e date da ricordare -
+FISCOeTASSE.com
+https://www.fiscoetasse.com/approfondimenti/14187-dichiarazione-redditi-persone-fisiche-rateazione-delle-
+imposte-e-date-da-ricordare.html
+6
+39
+7 50
+8
+Dichiarazioni 2023 Persone fisiche - Versamenti | FiscoOggi.it
+https://www.fiscooggi.it/scadenzario/dichiarazioni-2023-persone-fisiche-versamenti
+Imposta sostitutiva regime forfetario: istituiti i codici tributo - FISCOeTASSE.com
+https://www.fiscoetasse.com/normativa-prassi/12035-imposta-sostitutiva-regime-forfetario-istituiti-i-codici-
+tributo.html
+Calcolo acconti Regime Forfettario 2025: scadenze ed esempi
+https://quickfisco.it/blog/calcolo-acconti-saldo-regime-forfettario-scadenze-esempi/
+Imposte sui redditi (Irpef, Ires) - Che cos'è - Agenzia delle Entrate
+https://www.agenziaentrate.gov.it/portale/schede/pagamenti/imposte-sui-redditi/cosa-imposte-sui-redditi
+4
+10
+Calcolo Rateizzazione Imposte - Avvocato Andreani
+https://www.avvocatoandreani.it/servizi/calcolo-rateizzazione-imposte-irpef.php
+12 13 43
+15 16
+17 18
+19
+Regime Minimi e Forfettario: guida al calcolo dei contributi - Blog - Rete Commercialisti
+https://www.retecommercialisti.it/blog/read/231/regime-minimi-e-forfettario-guida-al-calcolo-dei-contributi
+INPS - Circ. n. 27 del 30.01.2025 : Gestione separata - aggiornate le aliquote contributive
+2025
+https://www.lavorosi.it/contribuzione-previdenziale/imponibile-contributivo/inps-circ-n-27-del-30012025-gestione-
+separata-aggiornate-le-aliquote-contributive-2025/
+Portale Inps - F24 per artigiani e commercianti
+https://www.inps.it/it/it/dettaglio-approfondimento.schede-informative.49923.f24-per-artigiani-e-
+commercianti.html
+21 22 23
+24 25 26
+45 46 47
+48
+27 29 34
+36 37 38
+Forfettari e riduzioni contributive 2025 - FISCOeTASSE.com
+https://www.fiscoetasse.com/new-rassegna-stampa/1639-forfettari-e-riduzioni-contributive-2025.html
+59 66
+42
+[PDF] NUOVI CODICI TRIBUTO PER LE SANZIONI DA RAVVEDIMENTO ...
+https://www.studiobusani.it/wp-content/uploads/2023/10/circolare-35-2023-.pdf
+44
+Richiesta compensazione contributiva - INPS
+https://www.inps.it/it/it/dettaglio-approfondimento.schede-informative.49845.richiesta-compensazione-
+contributiva.html
+52
+Irpef ed Irap, il secondo acconto entro il 30 novembre per persone fisiche e società di persone
+- FISCOeTASSE.com
+https://www.fiscoetasse.com/approfondimenti/10554-irpef-ed-irap-il-secondo-acconto-entro-il-30-novembre-per-
+persone-fisiche-e-societ-di-persone.html
+53 56
+Le scadenze fiscali del 2025 | Aruba Magazine
+https://aruba.it/magazine/fatturazione-elettronica/scadenze-fiscali-2025.aspx
+57
+Obbligo di Fattura Elettronica per i Forfettari nel 2025
+https://www.fattureincloud.it/guida-fatturazione-elettronica-forfettario/obbligo-fattura-elettronica/
+58
+[PDF] Le novità IVA e fatturazione elettronica 2024 - Agenzia Entrate
+https://www.agenziaentrate.gov.it/portale/documents/20143/2891698/
+Slide+novit%C3%A0+2024+fatturaz+elettronica.pdf/a4196470-b717-3713-e5c0-47c6754d7276
+60
+[PDF] CIRCOLARE N. 32/E Roma, 5 dicembre 2023 OGGETTO
+https://www.agenziaentrate.gov.it/portale/documents/20143/5718712/
+Circolare_n_32_Regime+forfetario_05_12_2023.pdf/23d1370d-6bba-0eb7-70b8-d1d24d5a1c0f
+61
+65
+Contribuenti in regime forfetario: tutti i chiarimenti dell'Agenzia
+https://www.fiscoetasse.com/normativa-prassi/13303-contribuenti-in-regime-forfetario-tutti-i-chiarimenti-
+dellagenzia.html
+62
+Regime forfettario 2025: tutte le regole - FISCOeTASSE.com
+https://www.fiscoetasse.com/approfondimenti/15066-regime-forfettario-2025-tutte-le-regole.html
+63
+Regime agevolato forfettario - Semplificazioni e adempimenti
+https://www.agenziaentrate.gov.it/portale/schede/agevolazioni/regime-agevolato-forfettario/semplificazioni-e-
+adempimenti
+64
+Schede - Regime forfetario - Che cos'è - Agenzia delle Entrate
+https://www.agenziaentrate.gov.it/portale/regime-forfetario-le-regole-2020-/infogen-regime-forfetario-le-regole-2020-
+5
