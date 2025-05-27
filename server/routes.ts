@@ -257,6 +257,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check if startup benefit applies (5% tax rate for first 5 years)
       const yearsActive = new Date().getFullYear() - new Date(business.startDate).getFullYear();
       const taxRate = (business.isStartup && yearsActive <= 5) ? 0.05 : 0.15;
+      console.log('DEBUG TAX CALC:', {
+        isStartup: business.isStartup,
+        startDate: business.startDate,
+        yearsActive,
+        taxRate,
+        shouldBe5Percent: business.isStartup && yearsActive <= 5
+      });
       const taxAmount = taxableIncome * taxRate;
 
       // Calculate INPS contributions
