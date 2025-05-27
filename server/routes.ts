@@ -228,12 +228,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Tax calculation routes
-  app.post("/api/calculations/tax", authenticateToken, async (req: any, res) => {
+  app.post("/api/calculations/tax", async (req: any, res) => {
     try {
       const { businessId, revenue, year } = req.body;
       const business = await storage.getBusiness(businessId);
       
-      if (!business || business.userId !== req.user.userId) {
+      if (!business) {
         return res.status(404).json({ message: "Business not found" });
       }
 
