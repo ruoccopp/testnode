@@ -6,6 +6,8 @@ import {
   type TaxCalculation, type InsertTaxCalculation,
   type PaymentDeadline, type InsertPaymentDeadline
 } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
   // Users
@@ -38,158 +40,134 @@ export interface IStorage {
   updatePaymentDeadline(id: number, deadline: Partial<PaymentDeadline>): Promise<PaymentDeadline | undefined>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private businesses: Map<number, Business>;
-  private invoices: Map<number, Invoice>;
-  private taxCalculations: Map<number, TaxCalculation>;
-  private paymentDeadlines: Map<number, PaymentDeadline>;
-  private currentId: number;
-
-  constructor() {
-    this.users = new Map();
-    this.businesses = new Map();
-    this.invoices = new Map();
-    this.taxCalculations = new Map();
-    this.paymentDeadlines = new Map();
-    this.currentId = 1;
-  }
-
-  // Users
+export class DatabaseStorage implements IStorage {
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(user => user.email === email);
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user || undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentId++;
-    const user: User = { 
-      ...insertUser, 
-      id, 
-      createdAt: new Date() 
-    };
-    this.users.set(id, user);
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
     return user;
   }
 
   // Businesses
   async getBusinessesByUserId(userId: number): Promise<Business[]> {
-    return Array.from(this.businesses.values()).filter(business => business.userId === userId);
+    return await db.select().from(businesses).where(eq(businesses.userId, userId));
   }
 
   async getBusiness(id: number): Promise<Business | undefined> {
-    return this.businesses.get(id);
+    const [business] = await db.select().from(businesses).where(eq(businesses.id, id));
+    return business || undefined;
   }
 
   async createBusiness(insertBusiness: InsertBusiness): Promise<Business> {
-    const id = this.currentId++;
-    const business: Business = {
-      ...insertBusiness,
-      id,
-      createdAt: new Date()
-    };
-    this.businesses.set(id, business);
+    const [business] = await db
+      .insert(businesses)
+      .values(insertBusiness)
+      .returning();
     return business;
   }
 
   async updateBusiness(id: number, updates: Partial<Business>): Promise<Business | undefined> {
-    const business = this.businesses.get(id);
-    if (!business) return undefined;
-    
-    const updated = { ...business, ...updates };
-    this.businesses.set(id, updated);
-    return updated;
+    const [business] = await db
+      .update(businesses)
+      .set(updates)
+      .where(eq(businesses.id, id))
+      .returning();
+    return business || undefined;
   }
 
   async deleteBusiness(id: number): Promise<boolean> {
-    return this.businesses.delete(id);
+    const result = await db.delete(businesses).where(eq(businesses.id, id));
+    return result.rowCount !== null && result.rowCount > 0;
   }
 
   // Invoices
   async getInvoicesByBusinessId(businessId: number): Promise<Invoice[]> {
-    return Array.from(this.invoices.values()).filter(invoice => invoice.businessId === businessId);
+    return await db.select().from(invoices).where(eq(invoices.businessId, businessId));
   }
 
   async getInvoice(id: number): Promise<Invoice | undefined> {
-    return this.invoices.get(id);
+    const [invoice] = await db.select().from(invoices).where(eq(invoices.id, id));
+    return invoice || undefined;
   }
 
   async createInvoice(insertInvoice: InsertInvoice): Promise<Invoice> {
-    const id = this.currentId++;
-    const invoice: Invoice = {
-      ...insertInvoice,
-      id,
-      createdAt: new Date()
-    };
-    this.invoices.set(id, invoice);
+    const [invoice] = await db
+      .insert(invoices)
+      .values(insertInvoice)
+      .returning();
     return invoice;
   }
 
   async updateInvoice(id: number, updates: Partial<Invoice>): Promise<Invoice | undefined> {
-    const invoice = this.invoices.get(id);
-    if (!invoice) return undefined;
-    
-    const updated = { ...invoice, ...updates };
-    this.invoices.set(id, updated);
-    return updated;
+    const [invoice] = await db
+      .update(invoices)
+      .set(updates)
+      .where(eq(invoices.id, id))
+      .returning();
+    return invoice || undefined;
   }
 
   async deleteInvoice(id: number): Promise<boolean> {
-    return this.invoices.delete(id);
+    const result = await db.delete(invoices).where(eq(invoices.id, id));
+    return result.rowCount !== null && result.rowCount > 0;
   }
 
   // Tax Calculations
   async getTaxCalculationsByBusinessId(businessId: number): Promise<TaxCalculation[]> {
-    return Array.from(this.taxCalculations.values()).filter(calc => calc.businessId === businessId);
+    return await db.select().from(taxCalculations).where(eq(taxCalculations.businessId, businessId));
   }
 
   async createTaxCalculation(insertCalculation: InsertTaxCalculation): Promise<TaxCalculation> {
-    const id = this.currentId++;
-    const calculation: TaxCalculation = {
-      ...insertCalculation,
-      id,
-      createdAt: new Date()
-    };
-    this.taxCalculations.set(id, calculation);
+    const [calculation] = await db
+      .insert(taxCalculations)
+      .values(insertCalculation)
+      .returning();
     return calculation;
   }
 
   // Payment Deadlines
   async getPaymentDeadlinesByBusinessId(businessId: number): Promise<PaymentDeadline[]> {
-    return Array.from(this.paymentDeadlines.values()).filter(deadline => deadline.businessId === businessId);
+    return await db.select().from(paymentDeadlines).where(eq(paymentDeadlines.businessId, businessId));
   }
 
   async getUpcomingDeadlines(userId: number): Promise<PaymentDeadline[]> {
     const userBusinesses = await this.getBusinessesByUserId(userId);
     const businessIds = userBusinesses.map(b => b.id);
     
-    return Array.from(this.paymentDeadlines.values())
-      .filter(deadline => businessIds.includes(deadline.businessId) && !deadline.isPaid)
-      .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
+    if (businessIds.length === 0) return [];
+    
+    return await db.select()
+      .from(paymentDeadlines)
+      .where(eq(paymentDeadlines.isPaid, false));
   }
 
   async createPaymentDeadline(insertDeadline: InsertPaymentDeadline): Promise<PaymentDeadline> {
-    const id = this.currentId++;
-    const deadline: PaymentDeadline = {
-      ...insertDeadline,
-      id,
-      createdAt: new Date()
-    };
-    this.paymentDeadlines.set(id, deadline);
+    const [deadline] = await db
+      .insert(paymentDeadlines)
+      .values(insertDeadline)
+      .returning();
     return deadline;
   }
 
   async updatePaymentDeadline(id: number, updates: Partial<PaymentDeadline>): Promise<PaymentDeadline | undefined> {
-    const deadline = this.paymentDeadlines.get(id);
-    if (!deadline) return undefined;
-    
-    const updated = { ...deadline, ...updates };
-    this.paymentDeadlines.set(id, updated);
-    return updated;
+    const [deadline] = await db
+      .update(paymentDeadlines)
+      .set(updates)
+      .where(eq(paymentDeadlines.id, id))
+      .returning();
+    return deadline || undefined;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
