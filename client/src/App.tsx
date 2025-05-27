@@ -54,9 +54,8 @@ function UnauthenticatedApp() {
 }
 
 function Router() {
-  const { isAuthenticated } = useAuth();
-  
-  return isAuthenticated ? <AuthenticatedApp /> : <UnauthenticatedApp />;
+  // Skip authentication for demo - always show authenticated app
+  return <AuthenticatedApp />;
 }
 
 function App() {
