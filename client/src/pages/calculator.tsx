@@ -317,40 +317,122 @@ export default function CalculatorPage() {
 
           {/* Situazione Finanziaria e Scadenze */}
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 mb-8">
-            {/* Saldo Disponibile */}
+            {/* Piano di Accantonamento */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <PiggyBank className="h-5 w-5 text-green-600" />
-                  Situazione Finanziaria
+                  Piano di Accantonamento Intelligente
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
-                    <span className="text-sm font-medium">Saldo Attuale:</span>
-                    <span className="text-lg font-bold text-blue-700">{formatCurrency(form.getValues('currentBalance'))}</span>
-                  </div>
-                  <div className="flex justify-between items-center p-3 bg-red-50 rounded-lg">
-                    <span className="text-sm font-medium">Da Accantonare:</span>
-                    <span className="text-lg font-bold text-red-700">{formatCurrency(results.totalDue)}</span>
-                  </div>
-                  <div className="flex justify-between items-center p-3 bg-gray-100 rounded-lg border-2 border-gray-300">
-                    <span className="text-sm font-medium">Differenza:</span>
-                    <span className={`text-lg font-bold ${
-                      form.getValues('currentBalance') >= results.totalDue ? 'text-green-700' : 'text-red-700'
-                    }`}>
-                      {formatCurrency(form.getValues('currentBalance') - results.totalDue)}
-                    </span>
-                  </div>
-                  {form.getValues('currentBalance') < results.totalDue && (
-                    <div className="flex items-center gap-2 p-3 bg-yellow-50 rounded-lg">
-                      <AlertTriangle className="h-4 w-4 text-yellow-600" />
-                      <span className="text-sm text-yellow-800">
-                        Devi accantonare altri {formatCurrency(results.totalDue - form.getValues('currentBalance'))}
-                      </span>
+                  {/* Situazione Attuale */}
+                  <div className="bg-blue-50 p-3 rounded-lg">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm font-medium">💰 Saldo Attuale:</span>
+                      <span className="text-lg font-bold text-blue-700">{formatCurrency(form.getValues('currentBalance'))}</span>
                     </div>
-                  )}
+                  </div>
+
+                  {/* Prossima Scadenza - 30 Giugno 2025 */}
+                  {(() => {
+                    const now = new Date();
+                    const prossima = new Date('2025-06-30');
+                    const mesiMancanti = Math.max(1, Math.ceil((prossima.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 30)));
+                    const importoProssimo = results.taxAmount + results.inpsAmount * 0.4;
+                    const servePerProssimo = Math.max(0, importoProssimo - form.getValues('currentBalance'));
+                    const rataMessileProssimo = servePerProssimo / mesiMancanti;
+
+                    return (
+                      <div className="bg-red-50 p-3 rounded-lg border-2 border-red-200">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-sm font-medium text-red-800">🚨 Prossima: 30 Giugno 2025</span>
+                          <span className="text-lg font-bold text-red-700">{formatCurrency(importoProssimo)}</span>
+                        </div>
+                        {servePerProssimo > 0 && (
+                          <div className="bg-white p-2 rounded border">
+                            <div className="flex justify-between text-sm">
+                              <span>Ti serve ancora:</span>
+                              <span className="font-bold text-red-600">{formatCurrency(servePerProssimo)}</span>
+                            </div>
+                            <div className="flex justify-between text-sm mt-1">
+                              <span>Mesi rimanenti: {mesiMancanti}</span>
+                              <span className="font-bold text-green-600">{formatCurrency(rataMessileProssimo)}/mese</span>
+                            </div>
+                          </div>
+                        )}
+                        {servePerProssimo <= 0 && (
+                          <div className="bg-green-100 p-2 rounded border">
+                            <span className="text-sm text-green-800">✅ Hai già abbastanza per questa scadenza!</span>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
+
+                  {/* Seconda Scadenza - 30 Novembre 2025 */}
+                  {(() => {
+                    const now = new Date();
+                    const seconda = new Date('2025-11-30');
+                    const mesiDaGiugno = Math.ceil((seconda.getTime() - new Date('2025-06-30').getTime()) / (1000 * 60 * 60 * 24 * 30));
+                    const importoSecondo = results.taxAmount * 0.4;
+                    const rataMessileSecondo = importoSecondo / mesiDaGiugno;
+
+                    return (
+                      <div className="bg-orange-50 p-3 rounded-lg">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-sm font-medium text-orange-800">📅 30 Novembre 2025</span>
+                          <span className="text-lg font-bold text-orange-700">{formatCurrency(importoSecondo)}</span>
+                        </div>
+                        <div className="bg-white p-2 rounded border">
+                          <div className="flex justify-between text-sm">
+                            <span>Da Luglio a Novembre ({mesiDaGiugno} mesi):</span>
+                            <span className="font-bold text-orange-600">{formatCurrency(rataMessileSecondo)}/mese</span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* Rate INPS Trimestrali */}
+                  <div className="bg-blue-50 p-3 rounded-lg">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm font-medium text-blue-800">🏥 Rate INPS Trimestrali</span>
+                      <span className="text-lg font-bold text-blue-700">{formatCurrency(results.inpsAmount / 4)}</span>
+                    </div>
+                    <div className="bg-white p-2 rounded border">
+                      <div className="text-sm space-y-1">
+                        <div className="flex justify-between">
+                          <span>16 Gennaio: ogni 3 mesi</span>
+                          <span className="font-bold">{formatCurrency(results.inpsAmount / 4 / 3)}/mese</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Totale Accantonamento Mensile Consigliato */}
+                  {(() => {
+                    const now = new Date();
+                    const prossima = new Date('2025-06-30');
+                    const mesiMancanti = Math.max(1, Math.ceil((prossima.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 30)));
+                    const importoProssimo = results.taxAmount + results.inpsAmount * 0.4;
+                    const servePerProssimo = Math.max(0, importoProssimo - form.getValues('currentBalance'));
+                    const rataMessileProssimo = servePerProssimo / mesiMancanti;
+                    const rataMessileSecondo = (results.taxAmount * 0.4) / 5; // 5 mesi da luglio a novembre
+                    const rataMessileINPS = (results.inpsAmount / 4) / 3; // ogni 3 mesi
+                    const totaleMessile = rataMessileProssimo + rataMessileSecondo + rataMessileINPS;
+
+                    return (
+                      <div className="bg-gradient-to-r from-green-100 to-blue-100 p-4 rounded-lg border-2 border-green-300">
+                        <div className="text-center">
+                          <div className="text-sm font-medium text-gray-700 mb-1">💡 Accantonamento Mensile Consigliato</div>
+                          <div className="text-3xl font-bold text-green-700">{formatCurrency(totaleMessile)}</div>
+                          <div className="text-xs text-gray-600 mt-1">per coprire tutte le scadenze future</div>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
               </CardContent>
             </Card>
