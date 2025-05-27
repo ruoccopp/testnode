@@ -18,6 +18,7 @@ const calculationSchema = z.object({
   revenue: z.number().min(0, "Il fatturato deve essere positivo").optional(),
   category: z.string().min(1, "Seleziona una categoria"),
   atecoCode: z.string().optional(),
+  startDate: z.string().min(1, "Inserisci la data di inizio attività"),
   year: z.number().int().min(2020).max(2030),
   isStartup: z.boolean().default(false),
   contributionRegime: z.string().min(1, "Seleziona il regime contributivo"),
@@ -43,6 +44,7 @@ export default function CalculatorPage() {
       revenue: undefined,
       category: "",
       atecoCode: "",
+      startDate: "",
       year: 2024,
       isStartup: false,
       contributionRegime: "",
@@ -149,6 +151,44 @@ export default function CalculatorPage() {
                     )}
                   />
                 </div>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name="startDate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>📅 Data Inizio Attività</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="date"
+                            {...field}
+                            className="text-lg"
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="year"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>📊 Anno Fiscale</FormLabel>
+                        <Select onValueChange={(value) => field.onChange(parseInt(value))} defaultValue={field.value.toString()}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="2024">2024</SelectItem>
+                            <SelectItem value="2025">2025</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
 
               {/* Categoria e Regime */}
@@ -182,22 +222,41 @@ export default function CalculatorPage() {
                   <FormField
                     control={form.control}
                     name="isStartup"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
-                        <div className="space-y-0.5">
-                          <FormLabel>🚀 Regime Startup</FormLabel>
-                          <div className="text-sm text-gray-500">
-                            Tasse al 5% per i primi 5 anni
+                    render={({ field }) => {
+                      const startDate = form.watch('startDate');
+                      const isEligibleForStartup = startDate ? 
+                        (new Date().getFullYear() - new Date(startDate).getFullYear()) < 5 : false;
+                      
+                      return (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                          <div className="space-y-0.5">
+                            <FormLabel>🚀 Regime Startup</FormLabel>
+                            <div className="text-sm text-gray-500">
+                              {startDate ? (
+                                isEligibleForStartup ? 
+                                  `✅ Attività entro i 5 anni (tasse al 5%)` : 
+                                  `❌ Attività oltre i 5 anni (tasse al 15%)`
+                              ) : (
+                                'Tasse al 5% per i primi 5 anni'
+                              )}
+                            </div>
                           </div>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
+                          <FormControl>
+                            <Switch
+                              checked={field.value && isEligibleForStartup}
+                              onCheckedChange={(checked) => {
+                                if (isEligibleForStartup) {
+                                  field.onChange(checked);
+                                } else {
+                                  field.onChange(false);
+                                }
+                              }}
+                              disabled={!isEligibleForStartup}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      );
+                    }}
                   />
                 </div>
               </div>
