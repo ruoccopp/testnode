@@ -230,7 +230,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Tax calculation routes
   app.post("/api/calculations/tax", async (req: any, res) => {
     try {
-      const { businessId, revenue, year, macroCategory, isStartup, startDate, contributionRegime, hasOtherCoverage } = req.body;
+      const { businessId, revenue, year, macroCategory, isStartup, startDate, contributionRegime, contributionReduction, hasOtherCoverage } = req.body;
       
       // Use the actual data from the frontend
       const business = {
@@ -238,6 +238,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         isStartup: isStartup || false,
         startDate: startDate || '2020-01-01',
         contributionRegime: contributionRegime || 'GESTIONE_SEPARATA',
+        contributionReduction: contributionReduction || 'NONE',
         hasOtherCoverage: hasOtherCoverage || false
       };
 

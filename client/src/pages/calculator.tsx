@@ -23,6 +23,7 @@ const calculationSchema = z.object({
   startDate: z.string().min(1, "Inserisci la data di inizio attività"),
   isStartup: z.boolean().default(false),
   contributionRegime: z.string().min(1, "Seleziona il regime contributivo"),
+  contributionReduction: z.string().default("NONE"),
   currentBalance: z.number().min(0, "Il saldo deve essere positivo").optional(),
 });
 
@@ -49,6 +50,7 @@ export default function CalculatorPage() {
       startDate: "",
       isStartup: false,
       contributionRegime: "",
+      contributionReduction: "NONE",
       currentBalance: undefined,
     },
   });
@@ -62,6 +64,7 @@ export default function CalculatorPage() {
         isStartup: data.isStartup,
         startDate: data.startDate,
         contributionRegime: data.contributionRegime,
+        contributionReduction: data.contributionReduction,
         hasOtherCoverage: false,
         year: 2024, // Fixed to 2024 for consistency
       });
@@ -414,6 +417,56 @@ export default function CalculatorPage() {
                     </FormItem>
                   )}
                 />
+
+                {/* Riduzioni Contributive - Solo per Artigiani/Commercianti */}
+                {(form.watch('contributionRegime') === 'IVS_ARTIGIANI' || form.watch('contributionRegime') === 'IVS_COMMERCIANTI') && (
+                  <FormField
+                    control={form.control}
+                    name="contributionReduction"
+                    render={({ field }) => {
+                      const startDate = form.watch('startDate');
+                      const isNewIn2025 = startDate ? new Date(startDate).getFullYear() === 2025 : false;
+                      
+                      return (
+                        <FormItem className="mt-4">
+                          <FormLabel>🎯 Riduzioni Contributive INPS</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Seleziona riduzione contributiva" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="NONE">Nessuna riduzione</SelectItem>
+                              <SelectItem value="REDUCTION_35">
+                                🔸 Riduzione 35% (Art. 1, comma 77, L. 190/2014)
+                              </SelectItem>
+                              {isNewIn2025 && (
+                                <SelectItem value="REDUCTION_50">
+                                  🔹 Riduzione 50% (Nuovi iscritti 2025 - 36 mesi)
+                                </SelectItem>
+                              )}
+                            </SelectContent>
+                          </Select>
+                          <div className="text-sm text-gray-500 mt-2">
+                            {field.value === 'REDUCTION_35' && (
+                              <p>✅ Riduzione del 35% su quota fissa ed eccedente. Si rinnova automaticamente.</p>
+                            )}
+                            {field.value === 'REDUCTION_50' && (
+                              <p>✅ Riduzione del 50% solo per nuovi iscritti 2025 (primi 36 mesi). Non cumulabile con la riduzione 35%.</p>
+                            )}
+                            {field.value === 'NONE' && (
+                              <p>💡 Le riduzioni contributive possono ridurre significativamente i contributi INPS dovuti.</p>
+                            )}
+                          </div>
+                          <div className="text-xs text-blue-600 mt-1">
+                            ℹ️ Le riduzioni si applicano solo ad artigiani e commercianti. Per la Gestione Separata non sono previste riduzioni.
+                          </div>
+                        </FormItem>
+                      );
+                    }}
+                  />
+                )}
               </div>
 
               {/* Situazione Finanziaria */}
