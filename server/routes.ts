@@ -91,20 +91,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Business routes
-  app.get("/api/businesses", authenticateToken, async (req: any, res) => {
+  app.get("/api/businesses", async (req: any, res) => {
     try {
-      const businesses = await storage.getBusinessesByUserId(req.user.userId);
+      const businesses = await storage.getBusinessesByUserId(1); // Demo user ID
       res.json(businesses);
     } catch (error) {
       res.status(500).json({ message: "Failed to get businesses", error });
     }
   });
 
-  app.post("/api/businesses", authenticateToken, async (req: any, res) => {
+  app.post("/api/businesses", async (req: any, res) => {
     try {
       const businessData = insertBusinessSchema.parse({
         ...req.body,
-        userId: req.user.userId
+        userId: 1, // Demo user ID
+        currentBalance: req.body.currentBalance?.toString() || "0"
       });
       
       const business = await storage.createBusiness(businessData);
@@ -340,9 +341,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/deadlines/upcoming", authenticateToken, async (req: any, res) => {
+  app.get("/api/deadlines/upcoming", async (req: any, res) => {
     try {
-      const deadlines = await storage.getUpcomingDeadlines(req.user.userId);
+      const deadlines = await storage.getUpcomingDeadlines(1); // Demo user ID
       res.json(deadlines);
     } catch (error) {
       res.status(500).json({ message: "Failed to get upcoming deadlines", error });
@@ -368,9 +369,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Dashboard stats
-  app.get("/api/dashboard/stats", authenticateToken, async (req: any, res) => {
+  app.get("/api/dashboard/stats", async (req: any, res) => {
     try {
-      const businesses = await storage.getBusinessesByUserId(req.user.userId);
+      const businesses = await storage.getBusinessesByUserId(1); // Demo user ID
       const currentYear = new Date().getFullYear();
       
       let totalRevenue = 0;
