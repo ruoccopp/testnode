@@ -64,7 +64,14 @@ export default function BusinessForm({ business, onSuccess }: BusinessFormProps)
     mutationFn: async (data: BusinessForm) => {
       const url = business ? `/api/businesses/${business.id}` : "/api/businesses";
       const method = business ? "PUT" : "POST";
-      const response = await apiRequest(method, url, data);
+      
+      // Convert currentBalance to string for backend
+      const formattedData = {
+        ...data,
+        currentBalance: data.currentBalance.toString()
+      };
+      
+      const response = await apiRequest(method, url, formattedData);
       return response.json();
     },
     onSuccess: () => {
