@@ -231,7 +231,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/calculations/tax", async (req: any, res) => {
     try {
       const { businessId, revenue, year } = req.body;
+      console.log("Tax calculation request:", { businessId, revenue, year });
+      
       const business = await storage.getBusiness(businessId);
+      console.log("Found business:", business);
       
       if (!business) {
         return res.status(404).json({ message: "Business not found" });
