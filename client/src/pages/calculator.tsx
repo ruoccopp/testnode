@@ -10,9 +10,10 @@ import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Calculator, Euro, Receipt, Building, Calendar, PiggyBank, AlertTriangle } from "lucide-react";
+import { Calculator, Euro, Receipt, Building, Calendar, PiggyBank, AlertTriangle, Download } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import * as XLSX from 'xlsx';
 
 const calculationSchema = z.object({
   revenue: z.number().min(0, "Il fatturato deve essere positivo").optional(),
@@ -88,6 +89,119 @@ export default function CalculatorPage() {
     }).format(amount);
   };
 
+  const exportToExcel = () => {
+    if (!results) {
+      toast({
+        title: "Errore",
+        description: "Effettua prima un calcolo per esportare i dati",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const formData = form.getValues();
+    const revenue2025 = formData.revenue2025 || 0;
+    const startDate = formData.startDate;
+    const isStartup2025 = startDate ? (2025 - new Date(startDate).getFullYear()) < 5 : false;
+    
+    // Calcola tasse 2025 per scadenze 2026
+    const taxableIncome2025 = revenue2025 * 0.78;
+    const taxRate2025 = isStartup2025 ? 0.05 : 0.15;
+    const taxAmount2025 = taxableIncome2025 * taxRate2025;
+    const inpsAmount2025 = taxableIncome2025 * 0.26;
+
+    // Dati di input
+    const inputData = [
+      ['DATI ATTIVITÀ', ''],
+      ['Fatturato 2024', formatCurrency(formData.revenue || 0)],
+      ['Fatturato Presunto 2025', formatCurrency(revenue2025)],
+      ['Codice ATECO', formData.atecoCode || 'Non specificato'],
+      ['Data Inizio Attività', formData.startDate || 'Non specificata'],
+      ['Categoria Attività', formData.category],
+      ['Regime Startup', formData.isStartup ? 'Sì (5%)' : 'No (15%)'],
+      ['Regime Contributivo', formData.contributionRegime],
+      ['Saldo Attuale', formatCurrency(formData.currentBalance || 0)],
+      ['', ''],
+    ];
+
+    // Risultati calcoli 2024
+    const resultsData = [
+      ['CALCOLI 2024', ''],
+      ['Reddito Imponibile', formatCurrency(results.taxableIncome)],
+      ['Imposte Sostitutive', formatCurrency(results.taxAmount)],
+      ['Contributi INPS', formatCurrency(results.inpsAmount)],
+      ['Totale da Accantonare', formatCurrency(results.totalDue)],
+      ['', ''],
+    ];
+
+    // Scadenze 2025
+    const scadenze2025 = [
+      ['SCADENZE 2025', ''],
+      ['30 Giugno 2025', formatCurrency(results.taxAmount + results.inpsAmount * 0.4), 'Saldo 2024 + 1° Acconto 2025'],
+      ['30 Novembre 2025', formatCurrency(results.taxAmount * 0.4), '2° Acconto 2025'],
+      ['Rate INPS Trimestrali', formatCurrency(results.inpsAmount / 4), 'Per rata (16 Gen, 16 Mag, 20 Ago, 16 Nov)'],
+      ['', ''],
+    ];
+
+    // Scadenze 2026 (se disponibili)
+    const scadenze2026 = revenue2025 > 0 ? [
+      ['SCADENZE 2026 PREVISTE', ''],
+      ['30 Giugno 2026', formatCurrency(taxAmount2025 + inpsAmount2025 * 0.4), 'Saldo 2025 + 1° Acconto 2026'],
+      ['30 Novembre 2026', formatCurrency(taxAmount2025 * 0.4), '2° Acconto 2026'],
+      ['', ''],
+    ] : [];
+
+    // Piano di accantonamento
+    const now = new Date();
+    const prossima = new Date('2025-06-30');
+    const mesiMancanti = Math.max(1, Math.ceil((prossima.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 30)));
+    const importoProssimo = results.taxAmount + results.inpsAmount * 0.4;
+    const servePerProssimo = Math.max(0, importoProssimo - (formData.currentBalance || 0));
+    const rataMessileProssimo = servePerProssimo / mesiMancanti;
+    const rataMessileSecondo = (results.taxAmount * 0.4) / 5;
+    const rataMessileINPS = (results.inpsAmount / 4) / 3;
+    const totaleMessile = rataMessileProssimo + rataMessileSecondo + rataMessileINPS;
+
+    const pianoAccantonamento = [
+      ['PIANO ACCANTONAMENTO MENSILE', ''],
+      ['Per prossima scadenza (30 Giu 2025)', formatCurrency(rataMessileProssimo), `${mesiMancanti} mesi rimanenti`],
+      ['Per seconda scadenza (30 Nov 2025)', formatCurrency(rataMessileSecondo), '5 mesi (Lug-Nov)'],
+      ['Per rate INPS', formatCurrency(rataMessileINPS), 'Distribuite nei mesi'],
+      ['TOTALE MENSILE CONSIGLIATO', formatCurrency(totaleMessile), 'Da accantonare ogni mese'],
+    ];
+
+    // Combina tutti i dati
+    const allData = [
+      ...inputData,
+      ...resultsData,
+      ...scadenze2025,
+      ...scadenze2026,
+      ...pianoAccantonamento
+    ];
+
+    // Crea il workbook
+    const ws = XLSX.utils.aoa_to_sheet(allData);
+    const wb = XLSX.utils.book_new();
+    
+    // Imposta larghezza colonne
+    ws['!cols'] = [
+      { width: 30 },
+      { width: 20 },
+      { width: 30 }
+    ];
+
+    XLSX.utils.book_append_sheet(wb, ws, 'Calcolo Tasse');
+    
+    // Esporta il file
+    const fileName = `calcolo-tasse-${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+
+    toast({
+      title: "Esportazione completata!",
+      description: `File ${fileName} scaricato con successo`,
+    });
+  };
+
   return (
     <div className="max-w-4xl mx-auto">
       {/* Header */}
@@ -101,6 +215,17 @@ export default function CalculatorPage() {
               Calcola imposte e contributi per il regime forfettario italiano
             </p>
           </div>
+          {results && (
+            <div className="mt-4 flex md:mt-0">
+              <Button
+                onClick={exportToExcel}
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Esporta in Excel
+              </Button>
+            </div>
+          )}
         </div>
       </div>
 
