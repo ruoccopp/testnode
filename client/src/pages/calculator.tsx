@@ -20,7 +20,6 @@ const calculationSchema = z.object({
   category: z.string().min(1, "Seleziona una categoria"),
   atecoCode: z.string().optional(),
   startDate: z.string().min(1, "Inserisci la data di inizio attività"),
-  year: z.number().int().min(2020).max(2030),
   isStartup: z.boolean().default(false),
   contributionRegime: z.string().min(1, "Seleziona il regime contributivo"),
   currentBalance: z.number().min(0, "Il saldo deve essere positivo").optional(),
@@ -47,7 +46,6 @@ export default function CalculatorPage() {
       category: "",
       atecoCode: "",
       startDate: "",
-      year: 2024,
       isStartup: false,
       contributionRegime: "",
       currentBalance: undefined,
@@ -59,7 +57,7 @@ export default function CalculatorPage() {
       const response = await apiRequest('POST', '/api/calculations/tax', {
         businessId: 1, // Demo business ID
         revenue: data.revenue,
-        year: data.year,
+        year: 2024, // Fixed to 2024 for consistency
       });
       return response.json();
     },
@@ -172,7 +170,7 @@ export default function CalculatorPage() {
                     )}
                   />
                 </div>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="grid grid-cols-1 gap-4">
                   <FormField
                     control={form.control}
                     name="startDate"
@@ -186,26 +184,6 @@ export default function CalculatorPage() {
                             className="text-lg"
                           />
                         </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="year"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>📊 Anno Fiscale</FormLabel>
-                        <Select onValueChange={(value) => field.onChange(parseInt(value))} defaultValue={field.value.toString()}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="2024">2024</SelectItem>
-                            <SelectItem value="2025">2025</SelectItem>
-                          </SelectContent>
-                        </Select>
                       </FormItem>
                     )}
                   />
