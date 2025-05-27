@@ -58,6 +58,11 @@ export default function CalculatorPage() {
       const response = await apiRequest('POST', '/api/calculations/tax', {
         businessId: 1, // Demo business ID
         revenue: data.revenue,
+        macroCategory: data.category,
+        isStartup: data.isStartup,
+        startDate: data.startDate,
+        contributionRegime: data.contributionRegime,
+        hasOtherCoverage: false,
         year: 2024, // Fixed to 2024 for consistency
       });
       return response.json();
