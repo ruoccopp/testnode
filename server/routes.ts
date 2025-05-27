@@ -1,0 +1,522 @@
+import type { Express } from "express";
+import { createServer, type Server } from "http";
+import { storage } from "./storage";
+import { insertUserSchema, insertBusinessSchema, insertInvoiceSchema, insertTaxCalculationSchema } from "@shared/schema";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+
+const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
+
+// Middleware for JWT authentication
+const authenticateToken = (req: any, res: any, next: any) => {
+  const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ message: 'Access token required' });
+  }
+
+  jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
+    if (err) {
+      return res.status(403).json({ message: 'Invalid token' });
+    }
+    req.user = user;
+    next();
+  });
+};
+
+export async function registerRoutes(app: Express): Promise<Server> {
+  
+  // Auth routes
+  app.post("/api/auth/register", async (req, res) => {
+    try {
+      const userData = insertUserSchema.parse(req.body);
+      
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(userData.email);
+      if (existingUser) {
+        return res.status(400).json({ message: "User already exists" });
+      }
+
+      // Hash password
+      const hashedPassword = await bcrypt.hash(userData.password, 10);
+      
+      const user = await storage.createUser({
+        ...userData,
+        password: hashedPassword
+      });
+
+      // Generate token
+      const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET);
+
+      res.json({ user: { id: user.id, email: user.email, name: user.name }, token });
+    } catch (error) {
+      res.status(400).json({ message: "Registration failed", error });
+    }
+  });
+
+  app.post("/api/auth/login", async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+
+      const validPassword = await bcrypt.compare(password, user.password);
+      if (!validPassword) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+
+      const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET);
+
+      res.json({ user: { id: user.id, email: user.email, name: user.name }, token });
+    } catch (error) {
+      res.status(400).json({ message: "Login failed", error });
+    }
+  });
+
+  app.get("/api/auth/profile", authenticateToken, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      res.json({ id: user.id, email: user.email, name: user.name });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get profile", error });
+    }
+  });
+
+  // Business routes
+  app.get("/api/businesses", authenticateToken, async (req: any, res) => {
+    try {
+      const businesses = await storage.getBusinessesByUserId(req.user.userId);
+      res.json(businesses);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get businesses", error });
+    }
+  });
+
+  app.post("/api/businesses", authenticateToken, async (req: any, res) => {
+    try {
+      const businessData = insertBusinessSchema.parse({
+        ...req.body,
+        userId: req.user.userId
+      });
+      
+      const business = await storage.createBusiness(businessData);
+      res.json(business);
+    } catch (error) {
+      res.status(400).json({ message: "Failed to create business", error });
+    }
+  });
+
+  app.put("/api/businesses/:id", authenticateToken, async (req: any, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const business = await storage.getBusiness(id);
+      
+      if (!business || business.userId !== req.user.userId) {
+        return res.status(404).json({ message: "Business not found" });
+      }
+
+      const updated = await storage.updateBusiness(id, req.body);
+      res.json(updated);
+    } catch (error) {
+      res.status(400).json({ message: "Failed to update business", error });
+    }
+  });
+
+  app.delete("/api/businesses/:id", authenticateToken, async (req: any, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const business = await storage.getBusiness(id);
+      
+      if (!business || business.userId !== req.user.userId) {
+        return res.status(404).json({ message: "Business not found" });
+      }
+
+      await storage.deleteBusiness(id);
+      res.json({ message: "Business deleted successfully" });
+    } catch (error) {
+      res.status(400).json({ message: "Failed to delete business", error });
+    }
+  });
+
+  // Invoice routes
+  app.get("/api/businesses/:businessId/invoices", authenticateToken, async (req: any, res) => {
+    try {
+      const businessId = parseInt(req.params.businessId);
+      const business = await storage.getBusiness(businessId);
+      
+      if (!business || business.userId !== req.user.userId) {
+        return res.status(404).json({ message: "Business not found" });
+      }
+
+      const invoices = await storage.getInvoicesByBusinessId(businessId);
+      res.json(invoices);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get invoices", error });
+    }
+  });
+
+  app.post("/api/businesses/:businessId/invoices", authenticateToken, async (req: any, res) => {
+    try {
+      const businessId = parseInt(req.params.businessId);
+      const business = await storage.getBusiness(businessId);
+      
+      if (!business || business.userId !== req.user.userId) {
+        return res.status(404).json({ message: "Business not found" });
+      }
+
+      const invoiceData = insertInvoiceSchema.parse({
+        ...req.body,
+        businessId
+      });
+      
+      const invoice = await storage.createInvoice(invoiceData);
+      res.json(invoice);
+    } catch (error) {
+      res.status(400).json({ message: "Failed to create invoice", error });
+    }
+  });
+
+  app.put("/api/invoices/:id", authenticateToken, async (req: any, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const invoice = await storage.getInvoice(id);
+      
+      if (!invoice) {
+        return res.status(404).json({ message: "Invoice not found" });
+      }
+
+      const business = await storage.getBusiness(invoice.businessId);
+      if (!business || business.userId !== req.user.userId) {
+        return res.status(404).json({ message: "Business not found" });
+      }
+
+      const updated = await storage.updateInvoice(id, req.body);
+      res.json(updated);
+    } catch (error) {
+      res.status(400).json({ message: "Failed to update invoice", error });
+    }
+  });
+
+  app.delete("/api/invoices/:id", authenticateToken, async (req: any, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const invoice = await storage.getInvoice(id);
+      
+      if (!invoice) {
+        return res.status(404).json({ message: "Invoice not found" });
+      }
+
+      const business = await storage.getBusiness(invoice.businessId);
+      if (!business || business.userId !== req.user.userId) {
+        return res.status(404).json({ message: "Business not found" });
+      }
+
+      await storage.deleteInvoice(id);
+      res.json({ message: "Invoice deleted successfully" });
+    } catch (error) {
+      res.status(400).json({ message: "Failed to delete invoice", error });
+    }
+  });
+
+  // Tax calculation routes
+  app.post("/api/calculations/tax", authenticateToken, async (req: any, res) => {
+    try {
+      const { businessId, revenue, year } = req.body;
+      const business = await storage.getBusiness(businessId);
+      
+      if (!business || business.userId !== req.user.userId) {
+        return res.status(404).json({ message: "Business not found" });
+      }
+
+      // Calculate taxes based on Italian forfettario regime
+      const coefficients = {
+        'FOOD_COMMERCE': 0.40,
+        'STREET_COMMERCE': 0.54,
+        'INTERMEDIARIES': 0.62,
+        'OTHER_ACTIVITIES': 0.67,
+        'PROFESSIONAL': 0.78,
+        'CONSTRUCTION': 0.86
+      };
+
+      const coefficient = coefficients[business.macroCategory as keyof typeof coefficients] || 0.67;
+      const taxableIncome = revenue * coefficient;
+      
+      // Check if startup benefit applies (5% tax rate for first 5 years)
+      const yearsActive = new Date().getFullYear() - new Date(business.startDate).getFullYear();
+      const taxRate = (business.isStartup && yearsActive <= 5) ? 0.05 : 0.15;
+      const taxAmount = taxableIncome * taxRate;
+
+      // Calculate INPS contributions
+      let inpsAmount = 0;
+      if (business.contributionRegime === 'GESTIONE_SEPARATA') {
+        const rate = business.hasOtherCoverage ? 0.24 : 0.26;
+        inpsAmount = Math.min(taxableIncome, 120607) * rate;
+      } else {
+        const minimums = {
+          'IVS_ARTIGIANI': 4427.04,
+          'IVS_COMMERCIANTI': 4515.43
+        };
+        
+        let minimum = minimums[business.contributionRegime as keyof typeof minimums] || 4427.04;
+        if (business.contributionReduction === '35') minimum *= 0.65;
+        else if (business.contributionReduction === '50') minimum *= 0.50;
+        
+        inpsAmount = minimum;
+        if (taxableIncome > 18324) {
+          const excess = (taxableIncome - 18324) * 0.24;
+          const reductionFactor = business.contributionReduction === '35' ? 0.65 : 
+                                 business.contributionReduction === '50' ? 0.50 : 1;
+          inpsAmount += excess * reductionFactor;
+        }
+      }
+
+      const totalDue = taxAmount + inpsAmount;
+
+      const calculation = {
+        businessId,
+        year,
+        revenue: revenue.toString(),
+        taxableIncome: taxableIncome.toString(),
+        taxRate: taxRate.toString(),
+        taxAmount: taxAmount.toString(),
+        inpsAmount: inpsAmount.toString(),
+        totalDue: totalDue.toString()
+      };
+
+      const savedCalculation = await storage.createTaxCalculation(calculation);
+
+      res.json({
+        ...savedCalculation,
+        revenue: parseFloat(savedCalculation.revenue),
+        taxableIncome: parseFloat(savedCalculation.taxableIncome),
+        taxRate: parseFloat(savedCalculation.taxRate),
+        taxAmount: parseFloat(savedCalculation.taxAmount),
+        inpsAmount: parseFloat(savedCalculation.inpsAmount),
+        totalDue: parseFloat(savedCalculation.totalDue)
+      });
+    } catch (error) {
+      res.status(400).json({ message: "Failed to calculate taxes", error });
+    }
+  });
+
+  app.get("/api/calculations/history/:businessId", authenticateToken, async (req: any, res) => {
+    try {
+      const businessId = parseInt(req.params.businessId);
+      const business = await storage.getBusiness(businessId);
+      
+      if (!business || business.userId !== req.user.userId) {
+        return res.status(404).json({ message: "Business not found" });
+      }
+
+      const calculations = await storage.getTaxCalculationsByBusinessId(businessId);
+      res.json(calculations);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get calculation history", error });
+    }
+  });
+
+  // Deadline routes
+  app.get("/api/deadlines/:businessId", authenticateToken, async (req: any, res) => {
+    try {
+      const businessId = parseInt(req.params.businessId);
+      const business = await storage.getBusiness(businessId);
+      
+      if (!business || business.userId !== req.user.userId) {
+        return res.status(404).json({ message: "Business not found" });
+      }
+
+      const deadlines = await storage.getPaymentDeadlinesByBusinessId(businessId);
+      res.json(deadlines);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get deadlines", error });
+    }
+  });
+
+  app.get("/api/deadlines/upcoming", authenticateToken, async (req: any, res) => {
+    try {
+      const deadlines = await storage.getUpcomingDeadlines(req.user.userId);
+      res.json(deadlines);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get upcoming deadlines", error });
+    }
+  });
+
+  app.put("/api/deadlines/:id/pay", authenticateToken, async (req: any, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const deadline = await storage.updatePaymentDeadline(id, {
+        isPaid: true,
+        paidDate: new Date().toISOString().split('T')[0]
+      });
+      
+      if (!deadline) {
+        return res.status(404).json({ message: "Deadline not found" });
+      }
+
+      res.json(deadline);
+    } catch (error) {
+      res.status(400).json({ message: "Failed to mark deadline as paid", error });
+    }
+  });
+
+  // Dashboard stats
+  app.get("/api/dashboard/stats", authenticateToken, async (req: any, res) => {
+    try {
+      const businesses = await storage.getBusinessesByUserId(req.user.userId);
+      const currentYear = new Date().getFullYear();
+      
+      let totalRevenue = 0;
+      let totalTaxesDue = 0;
+      let totalBalance = 0;
+
+      for (const business of businesses) {
+        const invoices = await storage.getInvoicesByBusinessId(business.id);
+        const yearlyInvoices = invoices.filter(inv => inv.year === currentYear);
+        const businessRevenue = yearlyInvoices.reduce((sum, inv) => sum + parseFloat(inv.amount), 0);
+        totalRevenue += businessRevenue;
+        totalBalance += parseFloat(business.currentBalance || "0");
+
+        // Calculate taxes for this business
+        if (businessRevenue > 0) {
+          const coefficients = {
+            'FOOD_COMMERCE': 0.40,
+            'STREET_COMMERCE': 0.54,
+            'INTERMEDIARIES': 0.62,
+            'OTHER_ACTIVITIES': 0.67,
+            'PROFESSIONAL': 0.78,
+            'CONSTRUCTION': 0.86
+          };
+
+          const coefficient = coefficients[business.macroCategory as keyof typeof coefficients] || 0.67;
+          const taxableIncome = businessRevenue * coefficient;
+          const yearsActive = new Date().getFullYear() - new Date(business.startDate).getFullYear();
+          const taxRate = (business.isStartup && yearsActive <= 5) ? 0.05 : 0.15;
+          const taxAmount = taxableIncome * taxRate;
+
+          // INPS calculation
+          let inpsAmount = 0;
+          if (business.contributionRegime === 'GESTIONE_SEPARATA') {
+            const rate = business.hasOtherCoverage ? 0.24 : 0.26;
+            inpsAmount = Math.min(taxableIncome, 120607) * rate;
+          } else {
+            const minimums = {
+              'IVS_ARTIGIANI': 4427.04,
+              'IVS_COMMERCIANTI': 4515.43
+            };
+            
+            let minimum = minimums[business.contributionRegime as keyof typeof minimums] || 4427.04;
+            if (business.contributionReduction === '35') minimum *= 0.65;
+            else if (business.contributionReduction === '50') minimum *= 0.50;
+            
+            inpsAmount = minimum;
+            if (taxableIncome > 18324) {
+              const excess = (taxableIncome - 18324) * 0.24;
+              const reductionFactor = business.contributionReduction === '35' ? 0.65 : 
+                                     business.contributionReduction === '50' ? 0.50 : 1;
+              inpsAmount += excess * reductionFactor;
+            }
+          }
+
+          totalTaxesDue += taxAmount + inpsAmount;
+        }
+      }
+
+      const upcomingDeadlines = await storage.getUpcomingDeadlines(req.user.userId);
+      const nextDeadline = upcomingDeadlines.length > 0 ? upcomingDeadlines[0] : null;
+
+      res.json({
+        currentRevenue: totalRevenue,
+        taxesDue: totalTaxesDue,
+        availableBalance: totalBalance,
+        nextDeadline: nextDeadline ? new Date(nextDeadline.dueDate).toLocaleDateString('it-IT', { day: 'numeric', month: 'short' }) : null
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get dashboard stats", error });
+    }
+  });
+
+  // Recent activity endpoint
+  app.get("/api/dashboard/recent-activity", authenticateToken, async (req: any, res) => {
+    try {
+      const businesses = await storage.getBusinessesByUserId(req.user.userId);
+      const activities: any[] = [];
+
+      // Get recent invoices from all businesses
+      for (const business of businesses) {
+        const invoices = await storage.getInvoicesByBusinessId(business.id);
+        const recentInvoices = invoices
+          .sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime())
+          .slice(0, 3);
+
+        recentInvoices.forEach(invoice => {
+          activities.push({
+            id: `invoice-${invoice.id}`,
+            type: 'invoice',
+            description: 'Nuova fattura registrata',
+            amount: parseFloat(invoice.amount),
+            businessName: business.businessName,
+            date: invoice.createdAt,
+          });
+        });
+
+        // Get recent calculations
+        const calculations = await storage.getTaxCalculationsByBusinessId(business.id);
+        const recentCalculations = calculations
+          .sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime())
+          .slice(0, 2);
+
+        recentCalculations.forEach(calc => {
+          activities.push({
+            id: `calculation-${calc.id}`,
+            type: 'calculation',
+            description: 'Calcolo imposte completato per',
+            period: `${calc.year}`,
+            businessName: business.businessName,
+            date: calc.createdAt,
+          });
+        });
+      }
+
+      // Get upcoming deadlines
+      const deadlines = await storage.getUpcomingDeadlines(req.user.userId);
+      const urgentDeadlines = deadlines.slice(0, 2);
+
+      urgentDeadlines.forEach(deadline => {
+        const dueDate = new Date(deadline.dueDate);
+        const today = new Date();
+        const daysUntil = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+        
+        if (daysUntil <= 30) {
+          activities.push({
+            id: `deadline-${deadline.id}`,
+            type: 'deadline',
+            description: 'Scadenza imminente:',
+            deadline: deadline.paymentType,
+            amount: parseFloat(deadline.amount),
+            date: deadline.createdAt,
+          });
+        }
+      });
+
+      // Sort all activities by date and return the most recent 10
+      const sortedActivities = activities
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        .slice(0, 10);
+
+      res.json(sortedActivities);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get recent activity", error });
+    }
+  });
+
+  const httpServer = createServer(app);
+  return httpServer;
+}
