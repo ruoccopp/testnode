@@ -262,8 +262,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Calculate INPS contributions
       let inpsAmount = 0;
       if (business.contributionRegime === 'GESTIONE_SEPARATA') {
-        const rate = business.hasOtherCoverage ? 0.24 : 0.26;
-        inpsAmount = Math.min(taxableIncome, 120607) * rate;
+        // Aliquote 2025: 25,72% per chi non ha altra copertura, 24% per chi ha altra copertura
+        const rate = business.hasOtherCoverage ? 0.24 : 0.2572;
+        // Minimale €18.555, Massimale €120.607
+        const applicableIncome = Math.max(Math.min(taxableIncome, 120607), 18555);
+        inpsAmount = applicableIncome * rate;
       } else {
         const minimums = {
           'IVS_ARTIGIANI': 4427.04,
@@ -275,11 +278,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         else if (business.contributionReduction === '50') minimum *= 0.50;
         
         inpsAmount = minimum;
+        
+        // Contributo maternità sempre dovuto (€7.44)
+        if (business.contributionReduction === '35' || business.contributionReduction === '50') {
+          inpsAmount += 7.44;
+        }
+        
+        // Eccedenza oltre minimale €18.324
         if (taxableIncome > 18324) {
           const excess = (taxableIncome - 18324) * 0.24;
           const reductionFactor = business.contributionReduction === '35' ? 0.65 : 
                                  business.contributionReduction === '50' ? 0.50 : 1;
           inpsAmount += excess * reductionFactor;
+        }
+        
+        // Contributo aggiuntivo commercianti 0.48%
+        if (business.contributionRegime === 'IVS_COMMERCIANTI') {
+          inpsAmount += taxableIncome * 0.0048;
         }
       }
 

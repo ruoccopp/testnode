@@ -651,7 +651,7 @@ export default function CalculatorPage() {
                           <p className="text-xs text-orange-700">2° Acconto 2025</p>
                         </div>
                         <p className="font-bold text-orange-900">
-                          {formatCurrency(results.taxAmount * 0.4)}
+                          {formatCurrency(results.taxAmount * 0.6)}
                         </p>
                       </div>
                     </div>

@@ -29,6 +29,34 @@ export const PAYMENT_TYPES = {
   'INPS_Q4': 'Contributi INPS Q4'
 } as const;
 
+export const TAX_CODES = {
+  '1792': 'Saldo imposta sostitutiva forfettari',
+  '1790': 'Acconto prima rata imposta sostitutiva',
+  '1791': 'Acconto seconda rata imposta sostitutiva',
+  '1668': 'Interessi pagamento dilazionato imposte erariali',
+  '8904': 'Sanzione tributo sostitutivo'
+} as const;
+
+export const INPS_CODES = {
+  GESTIONE_SEPARATA: {
+    'PXX': 'Aliquota piena (senza altra previdenza)',
+    'P10': 'Aliquota ridotta (pensionati/altra copertura)',
+    'PXXR': 'Rate aliquota piena',
+    'P10R': 'Rate aliquota ridotta',
+    'DPPI': 'Interessi sui contributi rateizzati'
+  },
+  IVS_ARTIGIANI: {
+    'AF': 'Contributi minimale artigiani',
+    'AP': 'Contributi eccedenti artigiani',
+    'APR': 'Rate contributi eccedenti artigiani'
+  },
+  IVS_COMMERCIANTI: {
+    'CF': 'Contributi minimale commercianti',
+    'CP': 'Contributi eccedenti commercianti',
+    'CPR': 'Rate contributi eccedenti commercianti'
+  }
+} as const;
+
 export const MONTHS = [
   'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
   'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'
