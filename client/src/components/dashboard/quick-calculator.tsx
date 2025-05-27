@@ -87,9 +87,12 @@ export default function QuickCalculator() {
     <div className="mb-8">
       <Card>
         <CardHeader>
-          <CardTitle className="text-base font-semibold leading-6 text-gray-900">
-            Calcolo Rapido Imposte
+          <CardTitle className="text-lg font-semibold leading-6 text-gray-900">
+            💰 Calcola le Imposte 2024
           </CardTitle>
+          <p className="text-sm text-gray-600 mt-1">
+            Inserisci il tuo fatturato totale del 2024 per calcolare imposte e contributi da versare
+          </p>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -108,11 +111,15 @@ export default function QuickCalculator() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {businesses?.map((business: any) => (
+                          {businesses && Array.isArray(businesses) ? businesses.map((business: any) => (
                             <SelectItem key={business.id} value={business.id.toString()}>
                               {business.businessName}
                             </SelectItem>
-                          ))}
+                          )) : (
+                            <SelectItem value="no-business" disabled>
+                              Nessuna attività trovata
+                            </SelectItem>
+                          )}
                         </SelectContent>
                       </Select>
                     </FormItem>
@@ -123,15 +130,36 @@ export default function QuickCalculator() {
                   name="revenue"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Fatturato (€)</FormLabel>
+                      <FormLabel className="text-blue-700 font-medium">💼 Fatturato Totale 2024 (€)</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
-                          placeholder="35000"
+                          placeholder="Es: 45.000"
+                          className="text-lg font-medium border-blue-200 focus:border-blue-500"
                           {...field}
                           onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                         />
                       </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="year"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Anno Fiscale</FormLabel>
+                      <Select onValueChange={(value) => field.onChange(parseInt(value))} defaultValue={field.value.toString()}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="2024">2024</SelectItem>
+                          <SelectItem value="2025">2025</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </FormItem>
                   )}
                 />
