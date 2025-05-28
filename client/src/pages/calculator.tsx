@@ -227,16 +227,40 @@ export default function CalculatorPage() {
     },
   });
 
+  const sendEmailMutation = useMutation({
+    mutationFn: async (data: EmailForm & { calculationData: CalculationResult }) => {
+      const response = await apiRequest('POST', '/api/send-report', {
+        email: data.email,
+        calculationData: data.calculationData
+      });
+      return response;
+    },
+    onSuccess: () => {
+      toast({
+        title: "📧 Report inviato!",
+        description: "Il report completo è stato inviato alla tua email con allegato Excel",
+      });
+      emailForm.reset();
+    },
+    onError: (error: any) => {
+      toast({
+        variant: "destructive",
+        title: "Errore nell'invio email",
+        description: error.message || "Errore durante l'invio dell'email",
+      });
+    },
+  });
+
   const submitLeadMutation = useMutation({
     mutationFn: async (data: LeadForm & { calculationData: CalculationForm }) => {
       const response = await apiRequest('POST', '/api/leads/submit', data);
-      return response.json();
+      return response;
     },
     onSuccess: () => {
       setIsUnlocked(true);
       toast({
         title: "Dati salvati con successo!",
-        description: "Ora puoi accedere al report completo",
+        description: "Ora puoi accedere al report completo e ti abbiamo inviato il report via email",
       });
     },
   });
@@ -265,6 +289,14 @@ export default function CalculatorPage() {
     submitLeadMutation.mutate({
       ...data,
       calculationData: form.getValues(),
+    });
+  };
+
+  const onEmailSubmit = (data: EmailForm) => {
+    if (!results) return;
+    sendEmailMutation.mutate({
+      ...data,
+      calculationData: results,
     });
   };
 
@@ -967,8 +999,75 @@ export default function CalculatorPage() {
               <p className="text-green-700 mb-4">
                 Grazie per i tuoi dati! Ora hai accesso a tutti i dettagli del calcolo.
               </p>
-              <div className="text-green-600 text-sm">
+              <div className="text-green-600 text-sm mb-4">
                 ✅ Report inviato anche via email • ✅ Salva questa pagina nei preferiti
+              </div>
+              
+              <div className="flex gap-4 justify-center">
+                <Button 
+                  onClick={exportToExcel}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Scarica Excel
+                </Button>
+                
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
+                      <Mail className="h-4 w-4 mr-2" />
+                      Invia via Email
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>📧 Invia Report via Email</DialogTitle>
+                      <DialogDescription>
+                        Riceverai il report completo con allegato Excel direttamente nella tua casella di posta
+                      </DialogDescription>
+                    </DialogHeader>
+                    
+                    <Form {...emailForm}>
+                      <form onSubmit={emailForm.handleSubmit(onEmailSubmit)} className="space-y-4">
+                        <FormField
+                          control={emailForm.control}
+                          name="email"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Indirizzo Email</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  type="email" 
+                                  placeholder="mario.rossi@email.com" 
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <div className="bg-blue-50 p-4 rounded-lg">
+                          <h4 className="font-semibold text-blue-900 mb-2">📄 Il report includerà:</h4>
+                          <ul className="text-sm text-blue-700 space-y-1">
+                            <li>• Calcoli fiscali completi</li>
+                            <li>• Scadenze 2025 e 2026</li>
+                            <li>• Piano di accantonamento mensile</li>
+                            <li>• File Excel scaricabile</li>
+                          </ul>
+                        </div>
+                        
+                        <Button 
+                          type="submit" 
+                          className="w-full"
+                          disabled={sendEmailMutation.isPending}
+                        >
+                          {sendEmailMutation.isPending ? "Invio in corso..." : "📧 Invia Report"}
+                        </Button>
+                      </form>
+                    </Form>
+                  </DialogContent>
+                </Dialog>
               </div>
             </CardContent>
           </Card>
