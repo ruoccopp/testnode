@@ -23,10 +23,11 @@ export const PAYMENT_TYPES = {
   'TAX_BALANCE': 'Saldo IRPEF',
   'TAX_ADVANCE_1': 'Primo Acconto IRPEF',
   'TAX_ADVANCE_2': 'Secondo Acconto IRPEF',
-  'INPS_Q1': 'Contributi INPS Q1',
-  'INPS_Q2': 'Contributi INPS Q2',
-  'INPS_Q3': 'Contributi INPS Q3',
-  'INPS_Q4': 'Contributi INPS Q4'
+  'INPS_Q1': 'Contributi INPS I Trimestre',
+  'INPS_Q2': 'Contributi INPS II Trimestre',
+  'INPS_Q3': 'Contributi INPS III Trimestre',
+  'INPS_Q4': 'Contributi INPS IV Trimestre',
+  'INPS_ANNUAL': 'Contributi INPS Annuali'
 } as const;
 
 export const TAX_CODES = {

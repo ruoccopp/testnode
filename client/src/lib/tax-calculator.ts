@@ -15,6 +15,8 @@ export interface TaxCalculationResult {
   taxRate: number;
   taxAmount: number;
   inpsAmount: number;
+  inpsQuarterly?: number; // Solo per artigiani/commercianti
+  inpsExcess?: number; // Eccedenza per artigiani/commercianti
   totalDue: number;
   firstAcconto: number;
   secondAcconto: number;
@@ -33,14 +35,16 @@ export function calculateTaxes(input: TaxCalculationInput): TaxCalculationResult
 
   // Calculate INPS contributions
   let inpsAmount = 0;
+  let inpsQuarterly: number | undefined;
+  let inpsExcess: number | undefined;
   
   if (contributionRegime === 'GESTIONE_SEPARATA') {
-    // Aliquote 2025: 25,72% (arrotondato a 26%) per chi non ha altra copertura, 24% per chi ha altra copertura
+    // Gestione Separata: versamento annuale basato sul reddito
     const rate = hasOtherCoverage ? 0.24 : 0.2572;
-    // Minimale 2025: €18.555, Massimale 2025: €120.607
     const applicableIncome = Math.max(Math.min(taxableIncome, 120607), 18555);
     inpsAmount = applicableIncome * rate;
   } else {
+    // Artigiani/Commercianti: contributi fissi trimestrali + eccedenza
     const minimums = {
       'IVS_ARTIGIANI': 4427.04,
       'IVS_COMMERCIANTI': 4515.43
@@ -48,30 +52,37 @@ export function calculateTaxes(input: TaxCalculationInput): TaxCalculationResult
     
     let minimum = minimums[contributionRegime as keyof typeof minimums] || 4427.04;
     
-    // Apply reductions (non cumulabili - deve scegliere una sola riduzione)
-    if (contributionReduction === '35') minimum *= 0.65;
-    else if (contributionReduction === '50') minimum *= 0.50;
+    // Apply reductions al contributo fisso
+    let quarterlyBase = minimum;
+    if (contributionReduction === '35') quarterlyBase *= 0.65;
+    else if (contributionReduction === '50') quarterlyBase *= 0.50;
     
-    inpsAmount = minimum;
+    // Contributo trimestrale fisso (diviso per 4 rate)
+    inpsQuarterly = quarterlyBase / 4;
     
-    // Contributo maternità sempre dovuto per intero (€7.44 annui)
+    // Contributo maternità sempre dovuto per intero
     const maternitaContribution = 7.44;
     if (contributionReduction === '35' || contributionReduction === '50') {
-      inpsAmount += maternitaContribution;
+      quarterlyBase += maternitaContribution;
     }
     
-    // Minimale reddito per artigiani/commercianti 2025: €18.324
+    inpsAmount = quarterlyBase;
+    
+    // Calcolo eccedenza (se reddito > minimale €18.324)
+    inpsExcess = 0;
     if (taxableIncome > 18324) {
       const excess = (taxableIncome - 18324) * 0.24;
       const reductionFactor = contributionReduction === '35' ? 0.65 : 
                              contributionReduction === '50' ? 0.50 : 1;
-      inpsAmount += excess * reductionFactor;
+      inpsExcess = excess * reductionFactor;
+      inpsAmount += inpsExcess;
     }
     
-    // Per commercianti: contributo aggiuntivo 0.48% sempre dovuto per intero
+    // Per commercianti: contributo aggiuntivo 0.48%
     if (contributionRegime === 'IVS_COMMERCIANTI') {
       const additionalContribution = taxableIncome * 0.0048;
       inpsAmount += additionalContribution;
+      inpsExcess = (inpsExcess || 0) + additionalContribution;
     }
   }
 
@@ -97,6 +108,8 @@ export function calculateTaxes(input: TaxCalculationInput): TaxCalculationResult
     taxRate: Math.round(taxRate * 10000) / 100, // Convert to percentage
     taxAmount: Math.round(taxAmount * 100) / 100,
     inpsAmount: Math.round(inpsAmount * 100) / 100,
+    inpsQuarterly: inpsQuarterly ? Math.round(inpsQuarterly * 100) / 100 : undefined,
+    inpsExcess: inpsExcess ? Math.round(inpsExcess * 100) / 100 : undefined,
     totalDue: Math.round(totalDue * 100) / 100,
     firstAcconto: Math.round(firstAcconto * 100) / 100,
     secondAcconto: Math.round(secondAcconto * 100) / 100

@@ -34,6 +34,11 @@ interface CalculationResult {
   taxAmount: number;
   inpsAmount: number;
   totalDue: number;
+  inpsQuarterly?: number;
+  inpsExcess?: number;
+  taxRate: number;
+  firstAcconto?: number;
+  secondAcconto?: number;
 }
 
 export default function CalculatorPage() {
@@ -111,7 +116,7 @@ export default function CalculatorPage() {
     const revenue2025 = formData.revenue2025 || 0;
     const startDate = formData.startDate;
     const isStartup2025 = startDate ? (2025 - new Date(startDate).getFullYear()) < 5 : false;
-    
+
     // Calcola tasse 2025 per scadenze 2026
     const taxableIncome2025 = revenue2025 * 0.78;
     const taxRate2025 = isStartup2025 ? 0.05 : 0.15;
@@ -190,7 +195,7 @@ export default function CalculatorPage() {
     // Crea il workbook
     const ws = XLSX.utils.aoa_to_sheet(allData);
     const wb = XLSX.utils.book_new();
-    
+
     // Imposta larghezza colonne
     ws['!cols'] = [
       { width: 30 },
@@ -199,7 +204,7 @@ export default function CalculatorPage() {
     ];
 
     XLSX.utils.book_append_sheet(wb, ws, 'Calcolo Tasse');
-    
+
     // Esporta il file
     const fileName = `calcolo-tasse-${new Date().toISOString().split('T')[0]}.xlsx`;
     XLSX.writeFile(wb, fileName);
@@ -347,7 +352,7 @@ export default function CalculatorPage() {
                       const startDate = form.watch('startDate');
                       const isEligibleForStartup = startDate ? 
                         (new Date().getFullYear() - new Date(startDate).getFullYear()) < 5 : false;
-                      
+
                       return (
                         <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
                           <div className="space-y-0.5">
@@ -415,7 +420,7 @@ export default function CalculatorPage() {
                     render={({ field }) => {
                       const startDate = form.watch('startDate');
                       const isNewIn2025 = startDate ? new Date(startDate).getFullYear() === 2025 : false;
-                      
+
                       return (
                         <FormItem className="mt-4">
                           <FormLabel>🎯 Riduzioni Contributive INPS</FormLabel>
@@ -705,7 +710,7 @@ export default function CalculatorPage() {
                   </div>
 
                   {/* Scadenze 2026 - se c'è fatturato 2025 */}
-                  {form.getValues('revenue2025') && (
+                  {form.getValues('revenue2025')&& (
                     <div>
                       <h4 className="font-medium text-gray-800 mb-2">📅 Scadenze 2026 Previste</h4>
                       {(() => {
@@ -713,7 +718,7 @@ export default function CalculatorPage() {
                         const startDate = form.getValues('startDate');
                         const isStartup2025 = startDate ? 
                           (2025 - new Date(startDate).getFullYear()) < 5 : false;
-                        
+
                         // Calcola tasse 2025 per scadenze 2026
                         const taxableIncome2025 = revenue2025 * 0.78; // Assumendo stessa categoria
                         const taxRate2025 = isStartup2025 ? 0.05 : 0.15;

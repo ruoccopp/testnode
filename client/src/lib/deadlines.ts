@@ -1,4 +1,3 @@
-
 export const INPSQuarterlyDeadlines = {
   2025: [
     { date: '2025-05-16', description: 'Contributi INPS IVS - I Trimestre', type: 'INPS_Q1' },
@@ -16,3 +15,63 @@ export const TaxDeadlines = {
     { date: '2025-10-31', description: 'Dichiarazione Redditi 2025 (anno 2024)', type: 'TAX_DECLARATION' }
   ]
 };
+
+export function generateTaxDeadlines(
+  calculation: TaxCalculationResult, 
+  year: number, 
+  businessId: number,
+  contributionRegime: string
+): PaymentDeadline[] {
+  const deadlines: PaymentDeadline[] = [];
+
+  // Tax deadlines
+  if (calculation.firstAcconto > 0) {
+    deadlines.push({
+      id: Math.random(),
+      businessId,
+      dueDate: `${year}-06-30`,
+      paymentType: 'TAX_ADVANCE_1',
+      amount: calculation.firstAcconto.toString(),
+      isPaid: false,
+      createdAt: new Date().toISOString()
+    });
+  }
+
+  if (calculation.secondAcconto > 0) {
+    deadlines.push({
+      id: Math.random(),
+      businessId,
+      dueDate: `${year}-11-30`,
+      paymentType: 'TAX_ADVANCE_2',
+      amount: calculation.secondAcconto.toString(),
+      isPaid: false,
+      createdAt: new Date().toISOString()
+    });
+  }
+
+  // INPS quarterly deadlines for Artigiani/Commercianti
+  if ((contributionRegime === 'IVS_ARTIGIANI' || contributionRegime === 'IVS_COMMERCIANTI') 
+      && calculation.inpsQuarterly && calculation.inpsQuarterly > 0) {
+
+    const quarterlyDeadlines = [
+      { date: `${year}-05-16`, type: 'INPS_Q1' },
+      { date: `${year}-08-20`, type: 'INPS_Q2' },
+      { date: `${year}-11-16`, type: 'INPS_Q3' },
+      { date: `${year + 1}-02-16`, type: 'INPS_Q4' }
+    ];
+
+    quarterlyDeadlines.forEach(deadline => {
+      deadlines.push({
+        id: Math.random(),
+        businessId,
+        dueDate: deadline.date,
+        paymentType: deadline.type,
+        amount: calculation.inpsQuarterly!.toString(),
+        isPaid: false,
+        createdAt: new Date().toISOString()
+      });
+    });
+  }
+
+  return deadlines;
+}
