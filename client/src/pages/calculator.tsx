@@ -19,7 +19,7 @@ const calculationSchema = z.object({
   revenue: z.number().min(0, "Il fatturato deve essere positivo").optional(),
   revenue2025: z.number().min(0, "Il fatturato presunto deve essere positivo").optional(),
   category: z.string().min(1, "Seleziona una categoria"),
-  atecoCode: z.string().optional(),
+
   startDate: z.string().min(1, "Inserisci la data di inizio attività"),
   isStartup: z.boolean().default(false),
   contributionRegime: z.string().min(1, "Seleziona il regime contributivo"),
@@ -46,7 +46,7 @@ export default function CalculatorPage() {
       revenue: undefined,
       revenue2025: undefined,
       category: "",
-      atecoCode: "",
+
       startDate: "",
       isStartup: false,
       contributionRegime: "",
@@ -290,18 +290,7 @@ export default function CalculatorPage() {
                       </FormItem>
                     )}
                   />
-                  <FormField
-                    control={form.control}
-                    name="atecoCode"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>📋 Codice ATECO (facoltativo)</FormLabel>
-                        <FormControl>
-                          <Input placeholder="es: 62.01.00" {...field} />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
+
                 </div>
                 <div className="grid grid-cols-1 gap-4">
                   <FormField
