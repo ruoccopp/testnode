@@ -684,7 +684,7 @@ export default function CalculatorPage() {
 
               <Button 
                 type="submit" 
-                className="w-full text-lg py-3 bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700"
+                className="w-full text-base md:text-lg py-4 md:py-3 bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 touch-manipulation"
                 disabled={calculateMutation.isPending}
               >
                 <Calculator className="mr-2 h-5 w-5" />
@@ -785,13 +785,13 @@ export default function CalculatorPage() {
 
       {/* Lead Generation Form */}
       {showLeadForm && !isUnlocked && (
-        <Card className="mb-8 border-2 border-green-500">
-          <CardContent className="p-6">
-            <div className="text-center mb-6">
-              <h3 className="text-2xl font-bold text-green-800 mb-2">
+        <Card className="mb-6 md:mb-8 border-2 border-green-500">
+          <CardContent className="p-4 md:p-6">
+            <div className="text-center mb-4 md:mb-6">
+              <h3 className="text-xl md:text-2xl font-bold text-green-800 mb-2">
                 🎯 Ottieni il Report Completo GRATIS
               </h3>
-              <p className="text-gray-600">
+              <p className="text-sm md:text-base text-gray-600">
                 Inserisci i tuoi dati per sbloccare tutti i dettagli del calcolo
               </p>
             </div>
@@ -878,17 +878,20 @@ export default function CalculatorPage() {
                     <label className="block text-sm font-medium text-blue-900 mb-2">
                       Codice di verifica (inviato via email)
                     </label>
-                    <div className="flex gap-2">
+                    <div className="flex flex-col sm:flex-row gap-2">
                       <Input
                         placeholder="123456"
                         value={verificationCode}
                         onChange={(e) => setVerificationCode(e.target.value)}
                         maxLength={6}
+                        className="h-12 text-center text-lg font-mono"
+                        inputMode="numeric"
                       />
                       <Button
                         type="button"
                         onClick={handleEmailVerification}
                         disabled={!verificationCode}
+                        className="h-12 px-8 touch-manipulation"
                       >
                         Verifica
                       </Button>
@@ -938,7 +941,7 @@ export default function CalculatorPage() {
 
                 <Button 
                   type="submit" 
-                  className="w-full text-lg py-3 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700"
+                  className="w-full text-base md:text-lg py-4 md:py-3 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 touch-manipulation"
                   disabled={submitLeadMutation.isPending || !emailValidated}
                 >
                   {submitLeadMutation.isPending ? "Invio in corso..." : "🔓 SBLOCCA REPORT COMPLETO"}
@@ -952,9 +955,9 @@ export default function CalculatorPage() {
       {/* Full Results (Unlocked) */}
       {results && isUnlocked && (
         <>
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6 md:mb-8">
             <Card>
-              <CardContent className="p-6">
+              <CardContent className="p-4 md:p-6">
                 <div className="flex items-center">
                   <Building className="h-8 w-8 text-blue-500" />
                   <div className="ml-4">
@@ -1321,16 +1324,16 @@ export default function CalculatorPage() {
           </Card>
 
           {/* Download Report */}
-          <Card className="mb-8">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
+          <Card className="mb-6 md:mb-8">
+            <CardContent className="p-4 md:p-6">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">📄 Report Completo</h3>
-                  <p className="text-gray-600">Scarica il report dettagliato con tutti i calcoli e le scadenze</p>
+                  <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-2">📄 Report Completo</h3>
+                  <p className="text-sm md:text-base text-gray-600">Scarica il report dettagliato con tutti i calcoli e le scadenze</p>
                 </div>
                 <Button 
                   onClick={exportToExcel}
-                  className="bg-green-600 hover:bg-green-700"
+                  className="bg-green-600 hover:bg-green-700 h-12 md:h-auto px-6 py-3 touch-manipulation"
                 >
                   <Download className="mr-2 h-4 w-4" />
                   Scarica Excel
