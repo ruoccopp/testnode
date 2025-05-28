@@ -401,12 +401,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { email } = req.body;
       
+      console.log('🔍 Richiesta verifica per email:', email);
+      
       if (!email) {
         return res.status(400).json({ error: "Email richiesta" });
       }
 
       // Generate verification code
       const code = Math.floor(100000 + Math.random() * 900000).toString();
+      console.log('🔢 Codice generato:', code);
       
       // Send verification email
       const emailSent = await sendEmail({
