@@ -425,49 +425,50 @@ export default function CalculatorPage() {
   return (
     <div className="container mx-auto py-8 px-4">
       {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-start justify-between">
+      <div className="mb-6 md:mb-8">
+        <div className="flex flex-col md:flex-row md:items-start md:justify-between">
           <div className="min-w-0 flex-1">
-            <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+            <h2 className="text-xl md:text-2xl lg:text-3xl font-bold leading-tight text-gray-900">
               💰 Calcolatore Imposte Forfettari GRATUITO
             </h2>
-            <div className="mt-1">
-              <p className="text-sm text-gray-500">
+            <div className="mt-2">
+              <p className="text-xs md:text-sm text-gray-500 leading-relaxed">
                 Calcola imposte e contributi per il regime forfettario italiano - Risultati immediati
               </p>
               <span className="text-xs text-blue-600 font-medium">Powered by SmartRate</span>
             </div>
           </div>
-          <div className="flex-shrink-0 ml-6">
+          <div className="flex-shrink-0 mt-4 md:mt-0 md:ml-6 flex justify-center md:justify-end">
             <img 
               src={logoPath} 
               alt="SmartRate" 
-              className="h-12 w-auto"
+              className="h-10 md:h-12 w-auto"
             />
           </div>
         </div>
       </div>
 
       {/* Calculator Form */}
-      <Card className="mb-8">
-        <CardContent className="p-6">
+      <Card className="mb-6 md:mb-8">
+        <CardContent className="p-4 md:p-6">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-6">
               {/* Fatturato */}
-              <div className="bg-blue-50 p-4 rounded-lg mb-6">
-                <h3 className="font-medium text-blue-900 mb-4">📊 Fatturato</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-blue-50 p-3 md:p-4 rounded-lg mb-4 md:mb-6">
+                <h3 className="font-medium text-blue-900 mb-3 md:mb-4 text-sm md:text-base">📊 Fatturato</h3>
+                <div className="grid grid-cols-1 gap-4">
                   <FormField
                     control={form.control}
                     name="revenue"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>💼 Fatturato 2024 (€)</FormLabel>
+                        <FormLabel className="text-sm md:text-base">💼 Fatturato 2024 (€)</FormLabel>
                         <FormControl>
                           <Input
                             type="number"
                             placeholder="es: 50000"
-                            className="text-lg"
+                            className="text-base md:text-lg h-12 md:h-auto"
+                            inputMode="numeric"
                             {...field}
                             onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
                             value={field.value || ""}
@@ -707,26 +708,26 @@ export default function CalculatorPage() {
               </div>
             </div>
             
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6 md:mb-8">
               <Card className="opacity-100">
-                <CardContent className="p-6">
+                <CardContent className="p-4 md:p-6">
                   <div className="flex items-center">
-                    <Building className="h-8 w-8 text-blue-500" />
-                    <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-500">Reddito Imponibile</p>
-                      <p className="text-2xl font-bold text-gray-900">{formatCurrency(results.taxableIncome)}</p>
+                    <Building className="h-6 w-6 md:h-8 md:w-8 text-blue-500" />
+                    <div className="ml-3 md:ml-4">
+                      <p className="text-xs md:text-sm font-medium text-gray-500">Reddito Imponibile</p>
+                      <p className="text-lg md:text-2xl font-bold text-gray-900">{formatCurrency(results.taxableIncome)}</p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
               <Card className="opacity-100">
-                <CardContent className="p-6">
+                <CardContent className="p-4 md:p-6">
                   <div className="flex items-center">
-                    <Euro className="h-8 w-8 text-green-500" />
-                    <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-500">Imposta Sostitutiva</p>
-                      <p className="text-2xl font-bold text-gray-900">{formatCurrency(results.taxAmount)}</p>
+                    <Euro className="h-6 w-6 md:h-8 md:w-8 text-green-500" />
+                    <div className="ml-3 md:ml-4">
+                      <p className="text-xs md:text-sm font-medium text-gray-500">Imposta Sostitutiva</p>
+                      <p className="text-lg md:text-2xl font-bold text-gray-900">{formatCurrency(results.taxAmount)}</p>
                     </div>
                   </div>
                 </CardContent>
