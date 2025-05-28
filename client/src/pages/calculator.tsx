@@ -34,11 +34,6 @@ interface CalculationResult {
   taxAmount: number;
   inpsAmount: number;
   totalDue: number;
-  inpsQuarterly?: number;
-  inpsExcess?: number;
-  taxRate: number;
-  firstAcconto?: number;
-  secondAcconto?: number;
 }
 
 export default function CalculatorPage() {
@@ -116,7 +111,7 @@ export default function CalculatorPage() {
     const revenue2025 = formData.revenue2025 || 0;
     const startDate = formData.startDate;
     const isStartup2025 = startDate ? (2025 - new Date(startDate).getFullYear()) < 5 : false;
-
+    
     // Calcola tasse 2025 per scadenze 2026
     const taxableIncome2025 = revenue2025 * 0.78;
     const taxRate2025 = isStartup2025 ? 0.05 : 0.15;
@@ -195,7 +190,7 @@ export default function CalculatorPage() {
     // Crea il workbook
     const ws = XLSX.utils.aoa_to_sheet(allData);
     const wb = XLSX.utils.book_new();
-
+    
     // Imposta larghezza colonne
     ws['!cols'] = [
       { width: 30 },
@@ -204,7 +199,7 @@ export default function CalculatorPage() {
     ];
 
     XLSX.utils.book_append_sheet(wb, ws, 'Calcolo Tasse');
-
+    
     // Esporta il file
     const fileName = `calcolo-tasse-${new Date().toISOString().split('T')[0]}.xlsx`;
     XLSX.writeFile(wb, fileName);
@@ -352,7 +347,7 @@ export default function CalculatorPage() {
                       const startDate = form.watch('startDate');
                       const isEligibleForStartup = startDate ? 
                         (new Date().getFullYear() - new Date(startDate).getFullYear()) < 5 : false;
-
+                      
                       return (
                         <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
                           <div className="space-y-0.5">
@@ -403,11 +398,69 @@ export default function CalculatorPage() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="GESTIONE_SEPARATA">Gestione Separata INPS (26%)</SelectItem>
-                          <SelectItem value="IVS_ARTIGIANI">IVS Artigiani</SelectItem>
-                          <SelectItem value="IVS_COMMERCIANTI">IVS Commercianti</SelectItem>
+                          <SelectItem value="GESTIONE_SEPARATA">
+                            <div className="flex flex-col">
+                              <span>📊 Gestione Separata INPS (26%)</span>
+                              <span className="text-xs text-gray-500">Solo contributi percentuali sul reddito</span>
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="IVS_ARTIGIANI">
+                            <div className="flex flex-col">
+                              <span>🔨 IVS Artigiani</span>
+                              <span className="text-xs text-blue-600">✅ Contributi fissi trimestrali + percentuali</span>
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="IVS_COMMERCIANTI">
+                            <div className="flex flex-col">
+                              <span>🏪 IVS Commercianti</span>
+                              <span className="text-xs text-blue-600">✅ Contributi fissi trimestrali + percentuali</span>
+                            </div>
+                          </SelectItem>
                         </SelectContent>
                       </Select>
+                      
+                      {/* Preview del regime selezionato */}
+                      {field.value && (
+                        <div className="mt-3 p-3 bg-white rounded-lg border border-green-200">
+                          {field.value === 'GESTIONE_SEPARATA' && (
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm font-medium text-green-700">📊 Gestione Separata INPS</span>
+                              </div>
+                              <div className="text-xs text-gray-600 space-y-1">
+                                <p>• Solo contributi percentuali: 26% sul reddito imponibile</p>
+                                <p>• Versamento insieme alle imposte (30 giugno e 30 novembre)</p>
+                                <p>• Non sono previsti contributi fissi trimestrali</p>
+                              </div>
+                            </div>
+                          )}
+                          
+                          {(field.value === 'IVS_ARTIGIANI' || field.value === 'IVS_COMMERCIANTI') && (
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm font-medium text-blue-700">
+                                  {field.value === 'IVS_ARTIGIANI' ? '🔨 IVS Artigiani' : '🏪 IVS Commercianti'}
+                                </span>
+                                <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
+                                  Contributi Trimestrali
+                                </span>
+                              </div>
+                              <div className="text-xs text-gray-600 space-y-1">
+                                <p className="font-medium text-blue-600">✅ Contributi Fissi Trimestrali:</p>
+                                <p>• Quota fissa trimestrale (importo determinato da INPS)</p>
+                                <p>• Scadenze: 16 Gen, 16 Mag, 20 Ago, 16 Nov</p>
+                                <p>• Contributi percentuali: 24% sul reddito eccedente</p>
+                                <p>• Possibili riduzioni: 35% o 50% per nuovi iscritti</p>
+                              </div>
+                              <div className="bg-blue-50 p-2 rounded mt-2">
+                                <p className="text-xs text-blue-700">
+                                  💡 Questi regimi prevedono sia quote fisse trimestrali che contributi percentuali sul reddito
+                                </p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </FormItem>
                   )}
                 />
@@ -420,7 +473,7 @@ export default function CalculatorPage() {
                     render={({ field }) => {
                       const startDate = form.watch('startDate');
                       const isNewIn2025 = startDate ? new Date(startDate).getFullYear() === 2025 : false;
-
+                      
                       return (
                         <FormItem className="mt-4">
                           <FormLabel>🎯 Riduzioni Contributive INPS</FormLabel>
@@ -632,21 +685,46 @@ export default function CalculatorPage() {
                     );
                   })()}
 
-                  {/* Rate INPS Trimestrali */}
-                  <div className="bg-blue-50 p-3 rounded-lg">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-medium text-blue-800">🏥 Rate INPS Trimestrali</span>
-                      <span className="text-lg font-bold text-blue-700">{formatCurrency(results.inpsAmount / 4)}</span>
-                    </div>
-                    <div className="bg-white p-2 rounded border">
-                      <div className="text-sm space-y-1">
-                        <div className="flex justify-between">
-                          <span>16 Gennaio: ogni 3 mesi</span>
-                          <span className="font-bold">{formatCurrency(results.inpsAmount / 4 / 3)}/mese</span>
+                  {/* Rate INPS - Diverse per regime */}
+                  {(form.watch('contributionRegime') === 'IVS_ARTIGIANI' || form.watch('contributionRegime') === 'IVS_COMMERCIANTI') && (
+                    <div className="bg-blue-50 p-3 rounded-lg">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-medium text-blue-800">🏥 Rate INPS Trimestrali</span>
+                        <span className="text-lg font-bold text-blue-700">{formatCurrency(results.inpsAmount / 4)}</span>
+                      </div>
+                      <div className="bg-white p-2 rounded border">
+                        <div className="text-sm space-y-1">
+                          <div className="flex justify-between">
+                            <span>16 Gennaio: ogni 3 mesi</span>
+                            <span className="font-bold">{formatCurrency(results.inpsAmount / 4 / 3)}/mese</span>
+                          </div>
+                          <div className="text-xs text-blue-600 mt-1">
+                            {form.watch('contributionRegime') === 'IVS_ARTIGIANI' ? '🔨 Artigiani' : '🏪 Commercianti'}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
+                  )}
+                  
+                  {form.watch('contributionRegime') === 'GESTIONE_SEPARATA' && (
+                    <div className="bg-green-50 p-3 rounded-lg">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-medium text-green-800">🏥 Gestione Separata INPS</span>
+                        <span className="text-lg font-bold text-green-700">Con imposte</span>
+                      </div>
+                      <div className="bg-white p-2 rounded border">
+                        <div className="text-sm space-y-1">
+                          <div className="flex justify-between">
+                            <span>30 Giugno e 30 Novembre</span>
+                            <span className="font-bold">26% reddito</span>
+                          </div>
+                          <div className="text-xs text-green-600 mt-1">
+                            📊 Nessuna rata trimestrale separata
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Totale Accantonamento Mensile Consigliato */}
                   {(() => {
@@ -710,7 +788,7 @@ export default function CalculatorPage() {
                   </div>
 
                   {/* Scadenze 2026 - se c'è fatturato 2025 */}
-                  {form.getValues('revenue2025')&& (
+                  {form.getValues('revenue2025') && (
                     <div>
                       <h4 className="font-medium text-gray-800 mb-2">📅 Scadenze 2026 Previste</h4>
                       {(() => {
@@ -718,7 +796,7 @@ export default function CalculatorPage() {
                         const startDate = form.getValues('startDate');
                         const isStartup2025 = startDate ? 
                           (2025 - new Date(startDate).getFullYear()) < 5 : false;
-
+                        
                         // Calcola tasse 2025 per scadenze 2026
                         const taxableIncome2025 = revenue2025 * 0.78; // Assumendo stessa categoria
                         const taxRate2025 = isStartup2025 ? 0.05 : 0.15;
@@ -751,22 +829,43 @@ export default function CalculatorPage() {
                     </div>
                   )}
 
-                  {/* Rate INPS */}
-                  <div>
-                    <h4 className="font-medium text-gray-800 mb-2">🏥 Rate INPS Ricorrenti</h4>
-                    <div className="flex justify-between items-center p-2 bg-blue-50 rounded-lg text-sm">
-                      <div>
-                        <p className="font-medium text-blue-900">Trimestrali 2025</p>
-                        <p className="text-xs text-blue-700">16 Gen, 16 Mag, 20 Ago, 16 Nov</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-bold text-blue-900">
-                          {formatCurrency(results.inpsAmount / 4)}
-                        </p>
-                        <p className="text-xs text-blue-700">per rata</p>
+                  {/* Rate INPS - Solo per Artigiani e Commercianti */}
+                  {(form.watch('contributionRegime') === 'IVS_ARTIGIANI' || form.watch('contributionRegime') === 'IVS_COMMERCIANTI') && (
+                    <div>
+                      <h4 className="font-medium text-gray-800 mb-2">🏥 Rate INPS Ricorrenti</h4>
+                      <div className="flex justify-between items-center p-2 bg-blue-50 rounded-lg text-sm">
+                        <div>
+                          <p className="font-medium text-blue-900">Trimestrali 2025</p>
+                          <p className="text-xs text-blue-700">16 Gen, 16 Mag, 20 Ago, 16 Nov</p>
+                          <p className="text-xs text-gray-600">
+                            {form.watch('contributionRegime') === 'IVS_ARTIGIANI' ? 'Artigiani' : 'Commercianti'}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold text-blue-900">
+                            {formatCurrency(results.inpsAmount / 4)}
+                          </p>
+                          <p className="text-xs text-blue-700">per rata</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
+                  
+                  {form.watch('contributionRegime') === 'GESTIONE_SEPARATA' && (
+                    <div>
+                      <h4 className="font-medium text-gray-800 mb-2">🏥 Contributi INPS</h4>
+                      <div className="flex justify-between items-center p-2 bg-green-50 rounded-lg text-sm">
+                        <div>
+                          <p className="font-medium text-green-900">Gestione Separata</p>
+                          <p className="text-xs text-green-700">Versamenti con imposte sostitutive</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold text-green-900">26%</p>
+                          <p className="text-xs text-green-700">sul reddito</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
