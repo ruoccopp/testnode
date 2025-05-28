@@ -362,7 +362,7 @@ export default function CalculatorPage() {
                       return (
                         <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
                           <div className="space-y-0.5">
-                            <FormLabel>🚀 Regime Startup</FormLabel>
+                            <FormLabel>🚀 Conferma Regime Startup</FormLabel>
                             <div className="text-sm text-gray-500">
                               {startDate ? (
                                 isEligibleForStartup ? 
