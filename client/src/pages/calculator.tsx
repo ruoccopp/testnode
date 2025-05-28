@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -6,12 +7,12 @@ import { useMutation } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Calculator, Building, Euro, Calendar, Download } from "lucide-react";
+import { Calculator, Building, Euro, Calendar, Download, Lock, Mail, User, Briefcase } from "lucide-react";
 import * as XLSX from 'xlsx';
 
 const calculationSchema = z.object({
@@ -25,7 +26,15 @@ const calculationSchema = z.object({
   currentBalance: z.number().min(0, "Il saldo deve essere positivo").optional(),
 });
 
+const leadSchema = z.object({
+  firstName: z.string().min(2, "Nome deve avere almeno 2 caratteri"),
+  lastName: z.string().min(2, "Cognome deve avere almeno 2 caratteri"),
+  email: z.string().email("Email non valida"),
+  businessSector: z.string().min(1, "Seleziona il settore merceologico"),
+});
+
 type CalculationForm = z.infer<typeof calculationSchema>;
+type LeadForm = z.infer<typeof leadSchema>;
 
 interface CalculationResult {
   taxableIncome: number;
@@ -97,8 +106,31 @@ const CATEGORIES = {
   },
 };
 
+const BUSINESS_SECTORS = {
+  RETAIL: "Commercio al dettaglio",
+  WHOLESALE: "Commercio all'ingrosso",
+  SERVICES: "Servizi",
+  PROFESSIONAL: "Servizi professionali",
+  MANUFACTURING: "Produzione",
+  CONSTRUCTION: "Edilizia",
+  TRANSPORT: "Trasporti",
+  HOSPITALITY: "Ristorazione/Ospitalità",
+  TECHNOLOGY: "Tecnologia/IT",
+  HEALTHCARE: "Sanità/Benessere",
+  EDUCATION: "Istruzione/Formazione",
+  AGRICULTURE: "Agricoltura",
+  REAL_ESTATE: "Immobiliare",
+  FINANCE: "Finanza/Assicurazioni",
+  OTHER: "Altro"
+};
+
 export default function CalculatorPage() {
   const [results, setResults] = useState<CalculationResult | null>(null);
+  const [showLeadForm, setShowLeadForm] = useState(false);
+  const [isUnlocked, setIsUnlocked] = useState(false);
+  const [emailValidated, setEmailValidated] = useState(false);
+  const [verificationCode, setVerificationCode] = useState("");
+  const [sentCode, setSentCode] = useState("");
   const { toast } = useToast();
 
   const form = useForm<CalculationForm>({
@@ -112,6 +144,16 @@ export default function CalculatorPage() {
       contributionRegime: "",
       contributionReduction: "NONE",
       currentBalance: undefined,
+    },
+  });
+
+  const leadForm = useForm<LeadForm>({
+    resolver: zodResolver(leadSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      businessSector: "",
     },
   });
 
@@ -132,9 +174,10 @@ export default function CalculatorPage() {
     },
     onSuccess: (data) => {
       setResults(data);
+      setShowLeadForm(true);
       toast({
-        title: "Calcolo completato",
-        description: "Le imposte sono state calcolate con successo",
+        title: "Anteprima calcolo completata",
+        description: "Inserisci i tuoi dati per vedere il report completo",
       });
     },
     onError: (error: any) => {
@@ -146,8 +189,70 @@ export default function CalculatorPage() {
     },
   });
 
+  const sendVerificationMutation = useMutation({
+    mutationFn: async (email: string) => {
+      const code = Math.floor(100000 + Math.random() * 900000).toString();
+      setSentCode(code);
+      
+      // Simula invio email (in produzione useresti un servizio email)
+      console.log(`Codice di verifica per ${email}: ${code}`);
+      
+      // Per demo, mostra il codice all'utente
+      toast({
+        title: "Codice di verifica inviato",
+        description: `Demo: Il tuo codice è ${code}`,
+        duration: 10000,
+      });
+      
+      return { success: true };
+    },
+    onSuccess: () => {
+      toast({
+        title: "Email inviata",
+        description: "Controlla la tua email e inserisci il codice di verifica",
+      });
+    },
+  });
+
+  const submitLeadMutation = useMutation({
+    mutationFn: async (data: LeadForm & { calculationData: CalculationForm }) => {
+      const response = await apiRequest('POST', '/api/leads/submit', data);
+      return response.json();
+    },
+    onSuccess: () => {
+      setIsUnlocked(true);
+      toast({
+        title: "Dati salvati con successo!",
+        description: "Ora puoi accedere al report completo",
+      });
+    },
+  });
+
   const onSubmit = (data: CalculationForm) => {
     calculateMutation.mutate(data);
+  };
+
+  const handleEmailVerification = () => {
+    if (verificationCode === sentCode) {
+      setEmailValidated(true);
+      toast({
+        title: "Email verificata",
+        description: "Ora puoi completare la registrazione",
+      });
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Codice errato",
+        description: "Il codice inserito non è corretto",
+      });
+    }
+  };
+
+  const onLeadSubmit = (data: LeadForm) => {
+    submitLeadMutation.mutate({
+      ...data,
+      calculationData: form.getValues(),
+    });
   };
 
   const formatCurrency = (amount: number) => {
@@ -160,7 +265,7 @@ export default function CalculatorPage() {
   };
 
   const exportToExcel = () => {
-    if (!results) return;
+    if (!results || !isUnlocked) return;
 
     const currentBalance = form.watch('currentBalance') || 0;
     const revenue2025 = form.watch('revenue2025') || form.watch('revenue') || 0;
@@ -278,10 +383,10 @@ export default function CalculatorPage() {
         <div className="md:flex md:items-center md:justify-between">
           <div className="min-w-0 flex-1">
             <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-              💰 Pianificatore Imposte Forfettari
+              💰 Calcolatore Imposte Forfettari GRATUITO
             </h2>
             <p className="mt-1 text-sm text-gray-500">
-              Calcola imposte e contributi per il regime forfettario italiano
+              Calcola imposte e contributi per il regime forfettario italiano - Risultati immediati
             </p>
           </div>
         </div>
@@ -522,19 +627,273 @@ export default function CalculatorPage() {
 
               <Button 
                 type="submit" 
-                className="w-full text-lg py-3"
+                className="w-full text-lg py-3 bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700"
                 disabled={calculateMutation.isPending}
               >
                 <Calculator className="mr-2 h-5 w-5" />
-                {calculateMutation.isPending ? "Calcolo in corso..." : "Calcola Imposte"}
+                {calculateMutation.isPending ? "Calcolo in corso..." : "🎯 CALCOLA GRATIS LE TUE IMPOSTE"}
               </Button>
             </form>
           </Form>
         </CardContent>
       </Card>
 
-      {/* Results */}
-      {results && (
+      {/* Preview Results */}
+      {results && !isUnlocked && (
+        <Card className="mb-8 relative">
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/50 to-white z-10 rounded-lg"></div>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold text-gray-900">📊 Anteprima Risultati</h3>
+              <div className="flex items-center text-orange-600">
+                <Lock className="h-5 w-5 mr-2" />
+                <span className="text-sm font-medium">Report completo bloccato</span>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+              <Card className="opacity-100">
+                <CardContent className="p-6">
+                  <div className="flex items-center">
+                    <Building className="h-8 w-8 text-blue-500" />
+                    <div className="ml-4">
+                      <p className="text-sm font-medium text-gray-500">Reddito Imponibile</p>
+                      <p className="text-2xl font-bold text-gray-900">{formatCurrency(results.taxableIncome)}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="opacity-100">
+                <CardContent className="p-6">
+                  <div className="flex items-center">
+                    <Euro className="h-8 w-8 text-green-500" />
+                    <div className="ml-4">
+                      <p className="text-sm font-medium text-gray-500">Imposta Sostitutiva</p>
+                      <p className="text-2xl font-bold text-gray-900">{formatCurrency(results.taxAmount)}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="opacity-60 relative">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Lock className="h-8 w-8 text-gray-400" />
+                </div>
+                <CardContent className="p-6 blur-sm">
+                  <div className="flex items-center">
+                    <Calendar className="h-8 w-8 text-orange-500" />
+                    <div className="ml-4">
+                      <p className="text-sm font-medium text-gray-500">Contributi INPS</p>
+                      <p className="text-2xl font-bold text-gray-900">€ ***</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="opacity-60 relative">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Lock className="h-8 w-8 text-gray-400" />
+                </div>
+                <CardContent className="p-6 blur-sm">
+                  <div className="flex items-center">
+                    <Download className="h-8 w-8 text-red-500" />
+                    <div className="ml-4">
+                      <p className="text-sm font-medium text-gray-500">Totale Dovuto</p>
+                      <p className="text-2xl font-bold text-gray-900">€ ***</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-6 text-center">
+              <h4 className="text-lg font-bold text-yellow-800 mb-2">
+                🔓 Sblocca il Report Completo GRATIS
+              </h4>
+              <p className="text-yellow-700 mb-4">
+                Ottieni scadenze fiscali, piano di accantonamento, contributi INPS dettagliati e molto altro!
+              </p>
+              <ul className="text-left text-yellow-700 text-sm mb-4 max-w-md mx-auto">
+                <li>• ✅ Calendario scadenze fiscali 2025-2026</li>
+                <li>• ✅ Piano di accantonamento progressivo</li>
+                <li>• ✅ Calcolo contributi INPS trimestrali</li>
+                <li>• ✅ Report Excel scaricabile</li>
+                <li>• ✅ Previsioni tasse 2026</li>
+              </ul>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Lead Generation Form */}
+      {showLeadForm && !isUnlocked && (
+        <Card className="mb-8 border-2 border-green-500">
+          <CardContent className="p-6">
+            <div className="text-center mb-6">
+              <h3 className="text-2xl font-bold text-green-800 mb-2">
+                🎯 Ottieni il Report Completo GRATIS
+              </h3>
+              <p className="text-gray-600">
+                Inserisci i tuoi dati per sbloccare tutti i dettagli del calcolo
+              </p>
+            </div>
+
+            <Form {...leadForm}>
+              <form onSubmit={leadForm.handleSubmit(onLeadSubmit)} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={leadForm.control}
+                    name="firstName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center">
+                          <User className="h-4 w-4 mr-2" />
+                          Nome *
+                        </FormLabel>
+                        <FormControl>
+                          <Input placeholder="Mario" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={leadForm.control}
+                    name="lastName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center">
+                          <User className="h-4 w-4 mr-2" />
+                          Cognome *
+                        </FormLabel>
+                        <FormControl>
+                          <Input placeholder="Rossi" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={leadForm.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center">
+                        <Mail className="h-4 w-4 mr-2" />
+                        Email * (per ricevere il report)
+                      </FormLabel>
+                      <div className="flex gap-2">
+                        <FormControl>
+                          <Input 
+                            type="email" 
+                            placeholder="mario.rossi@email.com" 
+                            {...field}
+                            disabled={emailValidated}
+                          />
+                        </FormControl>
+                        {!emailValidated && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => sendVerificationMutation.mutate(field.value)}
+                            disabled={!field.value || sendVerificationMutation.isPending}
+                          >
+                            {sendVerificationMutation.isPending ? "Invio..." : "Verifica"}
+                          </Button>
+                        )}
+                        {emailValidated && (
+                          <div className="flex items-center text-green-600">
+                            <span className="text-sm">✅ Verificata</span>
+                          </div>
+                        )}
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {sentCode && !emailValidated && (
+                  <div className="bg-blue-50 p-4 rounded-lg">
+                    <label className="block text-sm font-medium text-blue-900 mb-2">
+                      Codice di verifica (inviato via email)
+                    </label>
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="123456"
+                        value={verificationCode}
+                        onChange={(e) => setVerificationCode(e.target.value)}
+                        maxLength={6}
+                      />
+                      <Button
+                        type="button"
+                        onClick={handleEmailVerification}
+                        disabled={!verificationCode}
+                      >
+                        Verifica
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                <FormField
+                  control={leadForm.control}
+                  name="businessSector"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center">
+                        <Briefcase className="h-4 w-4 mr-2" />
+                        Settore Merceologico *
+                      </FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Seleziona il tuo settore" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {Object.entries(BUSINESS_SECTORS).map(([key, value]) => (
+                            <SelectItem key={key} value={key}>
+                              {value}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="flex items-start space-x-3">
+                    <input type="checkbox" required className="mt-1" />
+                    <div className="text-sm text-gray-600">
+                      <p>
+                        Accetto che i miei dati vengano utilizzati per ricevere il report richiesto e 
+                        comunicazioni relative ai servizi fiscali. I dati non verranno ceduti a terzi.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <Button 
+                  type="submit" 
+                  className="w-full text-lg py-3 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700"
+                  disabled={submitLeadMutation.isPending || !emailValidated}
+                >
+                  {submitLeadMutation.isPending ? "Invio in corso..." : "🔓 SBLOCCA REPORT COMPLETO"}
+                </Button>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Full Results (Unlocked) */}
+      {results && isUnlocked && (
         <>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
             <Card>
@@ -585,6 +944,21 @@ export default function CalculatorPage() {
               </CardContent>
             </Card>
           </div>
+
+          {/* Success Message */}
+          <Card className="mb-8 bg-green-50 border-2 border-green-200">
+            <CardContent className="p-6 text-center">
+              <h3 className="text-2xl font-bold text-green-800 mb-2">
+                🎉 Report Completo Sbloccato!
+              </h3>
+              <p className="text-green-700 mb-4">
+                Grazie per i tuoi dati! Ora hai accesso a tutti i dettagli del calcolo.
+              </p>
+              <div className="text-green-600 text-sm">
+                ✅ Report inviato anche via email • ✅ Salva questa pagina nei preferiti
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Scadenze Fiscali */}
           <Card className="mb-8">

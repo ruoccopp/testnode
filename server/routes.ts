@@ -394,6 +394,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Lead generation endpoint
+  app.post("/api/leads/submit", async (req: any, res) => {
+    try {
+      const { firstName, lastName, email, businessSector, calculationData } = req.body;
+      
+      // Log del lead per analisi (in produzione salveresti nel database)
+      console.log('Nuovo Lead:', {
+        nome: firstName,
+        cognome: lastName,
+        email: email,
+        settore: businessSector,
+        fatturato: calculationData.revenue,
+        categoria: calculationData.category,
+        timestamp: new Date().toISOString()
+      });
+      
+      // Simula invio email con report (in produzione useresti un servizio email)
+      console.log(`Email inviata a ${email} con report personalizzato`);
+      
+      res.json({ 
+        success: true, 
+        message: 'Lead salvato con successo',
+        reportSent: true
+      });
+    } catch (error) {
+      res.status(400).json({ message: "Errore nel salvare il lead", error });
+    }
+  });
+
   // Dashboard stats
   app.get("/api/dashboard/stats", async (req: any, res) => {
     try {
