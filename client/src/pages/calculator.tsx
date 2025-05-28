@@ -513,48 +513,199 @@ export default function CalculatorPage() {
             </CardContent>
           </Card>
 
-          {/* Piano di Accantonamento */}
+          {/* Piano di Accantonamento Avanzato */}
           <Card className="mb-8">
             <CardContent className="p-6">
-              <h3 className="text-xl font-bold mb-6 text-gray-900">💰 Piano di Accantonamento Mensile</h3>
-              <div className="bg-blue-50 p-6 rounded-lg">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h4 className="font-semibold text-blue-900 mb-4">Accantonamenti Consigliati</h4>
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center py-2 border-b border-blue-200">
-                        <span className="text-blue-700">Imposte (mensile):</span>
-                        <span className="font-semibold text-blue-900">{formatCurrency(results.totalDue / 12)}</span>
+              <h3 className="text-xl font-bold mb-6 text-gray-900">💰 Piano di Accantonamento Progressivo</h3>
+              
+              {(() => {
+                const currentBalance = form.watch('currentBalance') || 0;
+                const revenue2025 = form.watch('revenue2025') || form.watch('revenue') || 0;
+                
+                // Calcolo scadenze 2025
+                const giugno2025 = results.taxAmount + (results.taxAmount * 0.40); // Saldo 2024 + 1° acconto 2025
+                const novembre2025 = results.taxAmount * 0.60; // 2° acconto 2025
+                
+                // Calcolo tasse 2026 (se c'è fatturato 2025)
+                let taxAmount2026 = 0;
+                if (revenue2025 > 0) {
+                  const selectedCategory = Object.values(CATEGORIES).find((cat, index) => 
+                    Object.keys(CATEGORIES)[index] === form.watch('category')
+                  );
+                  const coefficient = selectedCategory?.value || 0.78;
+                  const taxableIncome2025 = revenue2025 * coefficient;
+                  const taxRate = form.watch('isStartup') ? 0.05 : 0.15;
+                  taxAmount2026 = taxableIncome2025 * taxRate;
+                }
+                
+                const giugno2026 = taxAmount2026 + (taxAmount2026 * 0.40); // Saldo 2025 + 1° acconto 2026
+                
+                // Calcolo mesi fino alle scadenze
+                const now = new Date();
+                const scadenzaGiugno2025 = new Date(2025, 5, 30); // 30 giugno 2025
+                const scadenzaNovembre2025 = new Date(2025, 10, 30); // 30 novembre 2025
+                const scadenzaGiugno2026 = new Date(2026, 5, 30); // 30 giugno 2026
+                
+                const mesiFinoGiugno2025 = Math.max(1, Math.ceil((scadenzaGiugno2025.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 30)));
+                const mesiFinoNovembre2025 = Math.max(1, Math.ceil((scadenzaNovembre2025.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 30)));
+                const mesiFinoGiugno2026 = Math.max(1, Math.ceil((scadenzaGiugno2026.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 30)));
+                
+                // Calcolo fabbisogni progressivi
+                let saldoAttuale = currentBalance;
+                
+                // Fabbisogno per giugno 2025
+                const fabbisognoGiugno2025 = Math.max(0, giugno2025 - saldoAttuale);
+                const accantonamentoMensileGiugno = fabbisognoGiugno2025 / mesiFinoGiugno2025;
+                
+                // Aggiornamento saldo dopo giugno 2025
+                let saldoDopoGiugno = saldoAttuale + (accantonamentoMensileGiugno * mesiFinoGiugno2025) - giugno2025;
+                saldoDopoGiugno = Math.max(0, saldoDopoGiugno);
+                
+                // Fabbisogno per novembre 2025
+                const mesiTraScadenze = Math.max(1, Math.ceil((scadenzaNovembre2025.getTime() - scadenzaGiugno2025.getTime()) / (1000 * 60 * 60 * 24 * 30)));
+                const fabbisognoNovembre2025 = Math.max(0, novembre2025 - saldoDopoGiugno);
+                const accantonamentoMensileNovembre = fabbisognoNovembre2025 / mesiTraScadenze;
+                
+                // Aggiornamento saldo dopo novembre 2025
+                let saldoDopoNovembre = saldoDopoGiugno + (accantonamentoMensileNovembre * mesiTraScadenze) - novembre2025;
+                saldoDopoNovembre = Math.max(0, saldoDopoNovembre);
+                
+                // Fabbisogno per giugno 2026 (solo se c'è fatturato 2025)
+                let fabbisognoGiugno2026 = 0;
+                let accantonamentoMensileGiugno2026 = 0;
+                if (revenue2025 > 0) {
+                  const mesiTraScadenze2026 = Math.max(1, Math.ceil((scadenzaGiugno2026.getTime() - scadenzaNovembre2025.getTime()) / (1000 * 60 * 60 * 24 * 30)));
+                  fabbisognoGiugno2026 = Math.max(0, giugno2026 - saldoDopoNovembre);
+                  accantonamentoMensileGiugno2026 = fabbisognoGiugno2026 / mesiTraScadenze2026;
+                }
+                
+                // Accantonamento immediato consigliato
+                const accantonamentoImmediato = accantonamentoMensileGiugno + accantonamentoMensileNovembre + accantonamentoMensileGiugno2026;
+                
+                return (
+                  <div className="space-y-6">
+                    {/* Situazione Attuale */}
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <h4 className="font-semibold text-gray-900 mb-3">📊 Situazione Attuale</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="flex justify-between">
+                          <span className="text-gray-700">Saldo accantonato:</span>
+                          <span className="font-semibold">{formatCurrency(currentBalance)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-700">Mesi a giugno 2025:</span>
+                          <span className="font-semibold">{mesiFinoGiugno2025} mesi</span>
+                        </div>
                       </div>
-                      <div className="flex justify-between items-center py-2 border-b border-blue-200">
-                        <span className="text-blue-700">Solo Tasse:</span>
-                        <span className="font-semibold text-blue-900">{formatCurrency(results.taxAmount / 12)}</span>
+                    </div>
+
+                    {/* Scadenze Progressive */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {/* Giugno 2025 */}
+                      <div className="bg-red-50 p-4 rounded-lg">
+                        <h4 className="font-semibold text-red-900 mb-3">🎯 30 Giugno 2025</h4>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span className="text-red-700">Totale dovuto:</span>
+                            <span className="font-semibold">{formatCurrency(giugno2025)}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-red-700">Fabbisogno:</span>
+                            <span className="font-semibold">{formatCurrency(fabbisognoGiugno2025)}</span>
+                          </div>
+                          <div className="flex justify-between border-t border-red-200 pt-2">
+                            <span className="text-red-700">Mensile fino a scadenza:</span>
+                            <span className="font-bold text-red-900">{formatCurrency(accantonamentoMensileGiugno)}</span>
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex justify-between items-center py-2 border-b border-blue-200">
-                        <span className="text-blue-700">Solo INPS:</span>
-                        <span className="font-semibold text-blue-900">{formatCurrency(results.inpsAmount / 12)}</span>
+
+                      {/* Novembre 2025 */}
+                      <div className="bg-orange-50 p-4 rounded-lg">
+                        <h4 className="font-semibold text-orange-900 mb-3">🎯 30 Novembre 2025</h4>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span className="text-orange-700">Totale dovuto:</span>
+                            <span className="font-semibold">{formatCurrency(novembre2025)}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-orange-700">Saldo dopo giugno:</span>
+                            <span className="font-semibold">{formatCurrency(saldoDopoGiugno)}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-orange-700">Fabbisogno aggiuntivo:</span>
+                            <span className="font-semibold">{formatCurrency(fabbisognoNovembre2025)}</span>
+                          </div>
+                          <div className="flex justify-between border-t border-orange-200 pt-2">
+                            <span className="text-orange-700">Mensile aggiuntivo:</span>
+                            <span className="font-bold text-orange-900">{formatCurrency(accantonamentoMensileNovembre)}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Giugno 2026 (solo se c'è fatturato 2025) */}
+                      {revenue2025 > 0 && (
+                        <div className="bg-blue-50 p-4 rounded-lg">
+                          <h4 className="font-semibold text-blue-900 mb-3">🎯 30 Giugno 2026</h4>
+                          <div className="space-y-2 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-blue-700">Totale dovuto:</span>
+                              <span className="font-semibold">{formatCurrency(giugno2026)}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-blue-700">Saldo dopo nov 2025:</span>
+                              <span className="font-semibold">{formatCurrency(saldoDopoNovembre)}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-blue-700">Fabbisogno aggiuntivo:</span>
+                              <span className="font-semibold">{formatCurrency(fabbisognoGiugno2026)}</span>
+                            </div>
+                            <div className="flex justify-between border-t border-blue-200 pt-2">
+                              <span className="text-blue-700">Mensile aggiuntivo:</span>
+                              <span className="font-bold text-blue-900">{formatCurrency(accantonamentoMensileGiugno2026)}</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Raccomandazione Finale */}
+                    <div className="bg-green-50 p-6 rounded-lg border-2 border-green-200">
+                      <h4 className="font-bold text-green-900 mb-4">💡 Raccomandazione di Accantonamento</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <div className="text-2xl font-bold text-green-900 mb-2">
+                            {formatCurrency(accantonamentoImmediato)}
+                          </div>
+                          <div className="text-green-700 text-sm">
+                            Accantona questo importo ogni mese da adesso per coprire tutte le scadenze future
+                          </div>
+                        </div>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span className="text-green-700">Per giugno 2025:</span>
+                            <span className="font-semibold">{formatCurrency(accantonamentoMensileGiugno)}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-green-700">Per novembre 2025:</span>
+                            <span className="font-semibold">{formatCurrency(accantonamentoMensileNovembre)}</span>
+                          </div>
+                          {revenue2025 > 0 && (
+                            <div className="flex justify-between">
+                              <span className="text-green-700">Per giugno 2026:</span>
+                              <span className="font-semibold">{formatCurrency(accantonamentoMensileGiugno2026)}</span>
+                            </div>
+                          )}
+                          <div className="flex justify-between border-t border-green-300 pt-2">
+                            <span className="text-green-700 font-semibold">% su fatturato mensile:</span>
+                            <span className="font-bold">{((accantonamentoImmediato / ((form.watch('revenue') || 1) / 12)) * 100).toFixed(1)}%</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
-                  <div>
-                    <h4 className="font-semibold text-blue-900 mb-4">Percentuali di Ricavo</h4>
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center py-2">
-                        <span className="text-blue-700">% Tasse su fatturato:</span>
-                        <span className="font-semibold text-blue-900">{((results.taxAmount / (form.watch('revenue') || 1)) * 100).toFixed(1)}%</span>
-                      </div>
-                      <div className="flex justify-between items-center py-2">
-                        <span className="text-blue-700">% INPS su fatturato:</span>
-                        <span className="font-semibold text-blue-900">{((results.inpsAmount / (form.watch('revenue') || 1)) * 100).toFixed(1)}%</span>
-                      </div>
-                      <div className="flex justify-between items-center py-2 border-t border-blue-200">
-                        <span className="text-blue-700 font-semibold">% Totale da accantonare:</span>
-                        <span className="font-bold text-blue-900">{((results.totalDue / (form.watch('revenue') || 1)) * 100).toFixed(1)}%</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                );
+              })()}
             </CardContent>
           </Card>
 
