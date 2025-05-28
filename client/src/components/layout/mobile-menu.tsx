@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Link, useLocation } from "wouter";
-import { Menu, X, Calculator, BarChart3, Building, FileText, Calendar, PieChart, Settings, LogOut } from "lucide-react";
-import { useAuth } from "@/hooks/use-auth";
+import { useLocation } from "wouter";
+import { BarChart3, Building, Calculator, Calendar, FileText, PieChart, User, LogOut, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { useAuth } from "@/hooks/use-auth";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: BarChart3 },
@@ -31,11 +32,20 @@ export default function MobileMenu() {
           </SheetTrigger>
           <SheetContent side="left" className="w-72 p-0">
             <div className="flex h-full flex-col">
-              <div className="flex h-16 shrink-0 items-center px-6">
-                <Calculator className="h-8 w-8 text-primary mr-3" />
-                <h1 className="text-xl font-bold text-gray-900">FiscaleForfait</h1>
+              <div className="flex items-center justify-between p-4 border-b">
+                <h2 className="text-lg font-semibold">Menu</h2>
+                <div className="flex items-center gap-2">
+                  <ThemeToggle />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setOpen(false)}
+                  >
+                    <X className="h-6 w-6" />
+                  </Button>
+                </div>
               </div>
-              
+
               <nav className="flex flex-1 flex-col px-6">
                 <ul role="list" className="flex flex-1 flex-col gap-y-7">
                   <li>
@@ -90,9 +100,27 @@ export default function MobileMenu() {
             </div>
           </SheetContent>
         </Sheet>
-        
+
         <div className="flex-1 text-sm font-semibold leading-6 text-gray-900">Dashboard</div>
-        
+
+        <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center">
+          <span className="text-white text-sm font-medium">
+            {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+          </span>
+        </div>
+      </div>
+    </>
+  );
+}
+```</li>
+                </ul>
+              </nav>
+            </div>
+          </SheetContent>
+        </Sheet>
+
+        <div className="flex-1 text-sm font-semibold leading-6 text-gray-900">Dashboard</div>
+
         <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center">
           <span className="text-white text-sm font-medium">
             {user?.name?.charAt(0)?.toUpperCase() || 'U'}
