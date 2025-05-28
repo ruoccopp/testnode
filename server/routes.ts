@@ -517,8 +517,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { firstName, lastName, email, businessSector, calculationData } = req.body;
       
-      // Log del lead per analisi (in produzione salveresti nel database)
-      console.log('Nuovo Lead:', {
+      // Salva il lead nel database
+      const leadData = {
+        firstName,
+        lastName,
+        email,
+        businessSector,
+        revenue: calculationData.revenue,
+        category: calculationData.category,
+        startDate: calculationData.startDate,
+        isStartup: calculationData.isStartup,
+        contributionRegime: calculationData.contributionRegime,
+        status: "NEW"
+      };
+
+      const lead = await storage.createLead(leadData);
+      
+      console.log('Nuovo Lead salvato nel database:', {
+        id: lead.id,
         nome: firstName,
         cognome: lastName,
         email: email,
@@ -528,12 +544,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         timestamp: new Date().toISOString()
       });
       
-      // Email rimossa - l'utente userà il pulsante "Invia via Email" quando vuole
-      console.log(`Lead salvato per ${email} - email report disponibile su richiesta`);
-      
       res.json({ 
         success: true, 
         message: 'Lead salvato con successo',
+        leadId: lead.id,
         reportSent: true
       });
     } catch (error) {
@@ -688,6 +702,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(sortedActivities);
     } catch (error) {
       res.status(500).json({ message: "Failed to get recent activity", error });
+    }
+  });
+
+  // Leads management endpoints
+  app.get("/api/leads", async (req: any, res) => {
+    try {
+      const leads = await storage.getLeads();
+      res.json(leads);
+    } catch (error) {
+      res.status(500).json({ message: "Errore nel recuperare i leads", error });
+    }
+  });
+
+  app.get("/api/leads/stats", async (req: any, res) => {
+    try {
+      const stats = await storage.getLeadsStats();
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ message: "Errore nel recuperare le statistiche", error });
+    }
+  });
+
+  app.put("/api/leads/:id", async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const updateData = req.body;
+      const lead = await storage.updateLead(parseInt(id), updateData);
+      res.json(lead);
+    } catch (error) {
+      res.status(400).json({ message: "Errore nell'aggiornare il lead", error });
+    }
+  });
+
+  app.delete("/api/leads/:id", async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteLead(parseInt(id));
+      res.json({ success: true, message: "Lead eliminato" });
+    } catch (error) {
+      res.status(400).json({ message: "Errore nell'eliminare il lead", error });
+    }
+  });
+
+  app.get("/api/leads/export", async (req: any, res) => {
+    try {
+      const leads = await storage.getLeads();
+      
+      // Create CSV data
+      const csvHeader = "ID,Nome,Cognome,Email,Settore,Fatturato,Categoria,Data Creazione,Status,Note\n";
+      const csvData = leads.map(lead => 
+        `${lead.id},"${lead.firstName}","${lead.lastName}","${lead.email}","${lead.businessSector}",${lead.revenue || 0},"${lead.category || ''}","${lead.createdAt}","${lead.status}","${lead.notes || ''}"`
+      ).join('\n');
+      
+      const csv = csvHeader + csvData;
+      
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', 'attachment; filename=leads.csv');
+      res.send(csv);
+    } catch (error) {
+      res.status(500).json({ message: "Errore nell'export", error });
     }
   });
 

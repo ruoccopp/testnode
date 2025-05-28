@@ -1,11 +1,12 @@
 import { Link, useLocation } from "wouter";
-import { Calculator, BarChart3, Building, FileText, Calendar, PieChart, Settings, LogOut } from "lucide-react";
+import { Calculator, BarChart3, Building, FileText, Calendar, PieChart, Settings, LogOut, Users } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: BarChart3 },
   { name: "Attività", href: "/businesses", icon: Building },
   { name: "Calcolatore", href: "/calculator", icon: Calculator },
+  { name: "Leads", href: "/leads", icon: Users },
   { name: "Fatture", href: "/invoices", icon: FileText },
   { name: "Scadenze", href: "/calendar", icon: Calendar },
   { name: "Report", href: "/reports", icon: PieChart },

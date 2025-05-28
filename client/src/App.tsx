@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/use-auth";
 
 // Pages
 import Calculator from "@/pages/calculator";
+import Leads from "@/pages/leads";
 import NotFound from "@/pages/not-found";
 
 function AuthenticatedApp() {
@@ -16,6 +17,7 @@ function AuthenticatedApp() {
         <Switch>
           <Route path="/" component={Calculator} />
           <Route path="/calculator" component={Calculator} />
+          <Route path="/leads" component={Leads} />
           <Route component={NotFound} />
         </Switch>
       </div>

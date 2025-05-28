@@ -8,6 +8,7 @@ import {
 } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
+import { businesses, invoices, taxCalculations, users, leads } from "./db";
 
 export interface IStorage {
   // Users
@@ -144,9 +145,9 @@ export class DatabaseStorage implements IStorage {
   async getUpcomingDeadlines(userId: number): Promise<PaymentDeadline[]> {
     const userBusinesses = await this.getBusinessesByUserId(userId);
     const businessIds = userBusinesses.map(b => b.id);
-    
+
     if (businessIds.length === 0) return [];
-    
+
     return await db.select()
       .from(paymentDeadlines)
       .where(eq(paymentDeadlines.isPaid, false));
@@ -167,6 +168,91 @@ export class DatabaseStorage implements IStorage {
       .where(eq(paymentDeadlines.id, id))
       .returning();
     return deadline || undefined;
+  }
+
+  async getRecentActivity(userId: number): Promise<any[]> {
+    const activities = [];
+
+    // Get recent invoices
+    const recentInvoices = await this.db
+      .select()
+      .from(invoices)
+      .where(eq(invoices.userId, userId))
+      .orderBy(desc(invoices.createdAt))
+      .limit(5);
+
+    activities.push(...recentInvoices.map(invoice => ({
+      id: `invoice-${invoice.id}`,
+      type: 'invoice',
+      description: `Fattura #${invoice.number} - ${invoice.clientName}`,
+      amount: invoice.total,
+      date: invoice.createdAt,
+    })));
+
+    return activities.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }
+
+  // Leads methods
+  async createLead(leadData: any) {
+    const [lead] = await this.db
+      .insert(leads)
+      .values(leadData)
+      .returning();
+    return lead;
+  }
+
+  async getLeads() {
+    return await this.db
+      .select()
+      .from(leads)
+      .orderBy(desc(leads.createdAt));
+  }
+
+  async getLeadById(id: number) {
+    const [lead] = await this.db
+      .select()
+      .from(leads)
+      .where(eq(leads.id, id));
+    return lead;
+  }
+
+  async updateLead(id: number, data: any) {
+    const [lead] = await this.db
+      .update(leads)
+      .set({ ...data, updatedAt: new Date().toISOString() })
+      .where(eq(leads.id, id))
+      .returning();
+    return lead;
+  }
+
+  async deleteLead(id: number) {
+    await this.db
+      .delete(leads)
+      .where(eq(leads.id, id));
+  }
+
+  async getLeadsStats() {
+    const allLeads = await this.getLeads();
+    const total = allLeads.length;
+    const thisMonth = allLeads.filter(lead => {
+      const leadDate = new Date(lead.createdAt!);
+      const now = new Date();
+      return leadDate.getMonth() === now.getMonth() && leadDate.getFullYear() === now.getFullYear();
+    }).length;
+
+    const statusCounts = allLeads.reduce((acc, lead) => {
+      acc[lead.status!] = (acc[lead.status!] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    return {
+      total,
+      thisMonth,
+      new: statusCounts.NEW || 0,
+      contacted: statusCounts.CONTACTED || 0,
+      converted: statusCounts.CONVERTED || 0,
+      lost: statusCounts.LOST || 0,
+    };
   }
 }
 
