@@ -555,6 +555,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // GET /api/leads - Recupera tutti i lead
+  app.get('/api/leads', async (req: Request, res: Response) => {
+    try {
+      const leads = await storage.getAllLeads();
+      res.json(leads);
+    } catch (error) {
+      console.error('Errore nel recupero dei lead:', error);
+      res.status(500).json({ error: 'Errore interno del server' });
+    }
+  });
+
+  // PATCH /api/leads/:id - Aggiorna un lead
+  app.patch('/api/leads/:id', async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+      
+      const updatedLead = await storage.updateLead(parseInt(id), updates);
+      
+      if (!updatedLead) {
+        return res.status(404).json({ error: 'Lead non trovato' });
+      }
+      
+      res.json(updatedLead);
+    } catch (error) {
+      console.error('Errore nell\'aggiornamento del lead:', error);
+      res.status(500).json({ error: 'Errore interno del server' });
+    }
+  });
+
   // Dashboard stats
   app.get("/api/dashboard/stats", async (req: any, res) => {
     try {
