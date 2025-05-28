@@ -688,7 +688,7 @@ export default function CalculatorPage() {
                 disabled={calculateMutation.isPending}
               >
                 <Calculator className="mr-2 h-5 w-5" />
-                {calculateMutation.isPending ? "Calcolo in corso..." : "🎯 CALCOLA GRATIS LE TUE IMPOSTE"}
+                {calculateMutation.isPending ? "Calcolo in corso..." : "🎯 CALCOLA IMPOSTE"}
               </Button>
             </form>
           </Form>
