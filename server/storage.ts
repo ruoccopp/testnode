@@ -1,10 +1,11 @@
 import { 
-  users, businesses, invoices, taxCalculations, paymentDeadlines,
+  users, businesses, invoices, taxCalculations, paymentDeadlines, leads,
   type User, type InsertUser,
   type Business, type InsertBusiness,
   type Invoice, type InsertInvoice,
   type TaxCalculation, type InsertTaxCalculation,
-  type PaymentDeadline, type InsertPaymentDeadline
+  type PaymentDeadline, type InsertPaymentDeadline,
+  type Lead, type InsertLead
 } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
@@ -38,6 +39,12 @@ export interface IStorage {
   getUpcomingDeadlines(userId: number): Promise<PaymentDeadline[]>;
   createPaymentDeadline(deadline: InsertPaymentDeadline): Promise<PaymentDeadline>;
   updatePaymentDeadline(id: number, deadline: Partial<PaymentDeadline>): Promise<PaymentDeadline | undefined>;
+
+  // Leads
+  getAllLeads(): Promise<Lead[]>;
+  getLead(id: number): Promise<Lead | undefined>;
+  createLead(lead: InsertLead): Promise<Lead>;
+  updateLead(id: number, lead: Partial<Lead>): Promise<Lead | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {

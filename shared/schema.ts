@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, decimal, date, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, decimal, date, timestamp, numeric } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -100,3 +100,30 @@ export type InsertTaxCalculation = z.infer<typeof insertTaxCalculationSchema>;
 
 export type PaymentDeadline = typeof paymentDeadlines.$inferSelect;
 export type InsertPaymentDeadline = z.infer<typeof insertPaymentDeadlineSchema>;
+
+// Lead table
+export const leads = pgTable("leads", {
+  id: serial("id").primaryKey(),
+  firstName: text("first_name").notNull(),
+  lastName: text("last_name").notNull(),
+  email: text("email").notNull(),
+  businessSector: text("business_sector").notNull(),
+  revenue: decimal("revenue", { precision: 10, scale: 2 }),
+  category: text("category"),
+  startDate: text("start_date"),
+  isStartup: boolean("is_startup"),
+  contributionRegime: text("contribution_regime"),
+  status: text("status").default("NEW"), // NEW, CONTACTED, CONVERTED, LOST
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertLeadSchema = createInsertSchema(leads).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type Lead = typeof leads.$inferSelect;
+export type InsertLead = z.infer<typeof insertLeadSchema>;
