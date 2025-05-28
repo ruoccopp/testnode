@@ -1,7 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { BarChart3, Building, Calculator, Calendar, FileText, PieChart, LogOut } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { Calculator, BarChart3, Building, FileText, Calendar, PieChart, Settings, LogOut, Users } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 
 const navigation = [
@@ -25,7 +23,7 @@ export default function Sidebar() {
           <Calculator className="h-8 w-8 text-primary mr-3" />
           <h1 className="text-xl font-bold text-gray-900">FiscaleForfait</h1>
         </div>
-
+        
         <nav className="flex flex-1 flex-col">
           <ul role="list" className="flex flex-1 flex-col gap-y-7">
             <li>
