@@ -2,11 +2,16 @@ import nodemailer from 'nodemailer';
 
 // Configurazione del trasporter Gmail
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false,
   auth: {
     user: process.env.GMAIL_USER,
     pass: process.env.GMAIL_APP_PASSWORD,
   },
+  tls: {
+    rejectUnauthorized: false
+  }
 });
 
 export interface EmailOptions {
@@ -22,10 +27,14 @@ export interface EmailOptions {
 
 export async function sendEmail(options: EmailOptions): Promise<boolean> {
   try {
+    console.log('🔄 Tentativo invio email a:', options.to);
+    
     if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
-      console.error('Credenziali Gmail non configurate');
+      console.error('❌ Credenziali Gmail non configurate');
       return false;
     }
+
+    console.log('✅ Credenziali Gmail trovate - User:', process.env.GMAIL_USER);
 
     const mailOptions = {
       from: process.env.GMAIL_USER,
@@ -35,11 +44,14 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
       attachments: options.attachments || [],
     };
 
+    console.log('📧 Invio email in corso...');
     const result = await transporter.sendMail(mailOptions);
-    console.log('Email inviata con successo:', result.messageId);
+    console.log('✅ Email inviata con successo! MessageId:', result.messageId);
     return true;
   } catch (error) {
-    console.error('Errore invio email:', error);
+    console.error('❌ Errore dettagliato invio email:', error);
+    if (error.code) console.error('Codice errore:', error.code);
+    if (error.response) console.error('Risposta server:', error.response);
     return false;
   }
 }
