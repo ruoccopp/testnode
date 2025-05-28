@@ -422,55 +422,167 @@ export default function CalculatorPage() {
 
       {/* Results */}
       {results && (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-          <Card>
+        <>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center">
+                  <Building className="h-8 w-8 text-blue-500" />
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-500">Reddito Imponibile</p>
+                    <p className="text-2xl font-bold text-gray-900">{formatCurrency(results.taxableIncome)}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center">
+                  <Euro className="h-8 w-8 text-green-500" />
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-500">Imposta Sostitutiva</p>
+                    <p className="text-2xl font-bold text-gray-900">{formatCurrency(results.taxAmount)}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center">
+                  <Calendar className="h-8 w-8 text-orange-500" />
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-500">Contributi INPS</p>
+                    <p className="text-2xl font-bold text-gray-900">{formatCurrency(results.inpsAmount)}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center">
+                  <Download className="h-8 w-8 text-red-500" />
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-500">Totale Dovuto</p>
+                    <p className="text-2xl font-bold text-gray-900">{formatCurrency(results.totalDue)}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Scadenze Fiscali */}
+          <Card className="mb-8">
             <CardContent className="p-6">
-              <div className="flex items-center">
-                <Building className="h-8 w-8 text-blue-500" />
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500">Reddito Imponibile</p>
-                  <p className="text-2xl font-bold text-gray-900">{formatCurrency(results.taxableIncome)}</p>
+              <h3 className="text-xl font-bold mb-6 text-gray-900">📅 Scadenze Fiscali 2025</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="bg-red-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-red-900 mb-2">30 Giugno 2025</h4>
+                  <div className="space-y-2 text-sm text-red-700">
+                    <div>• Saldo 2024: {formatCurrency(results.taxAmount)}</div>
+                    <div>• 1° Acconto 2025: {formatCurrency(results.taxAmount * 0.40)}</div>
+                    <div className="font-semibold pt-2 border-t border-red-200">
+                      Totale: {formatCurrency(results.taxAmount + (results.taxAmount * 0.40))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-orange-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-orange-900 mb-2">30 Novembre 2025</h4>
+                  <div className="space-y-2 text-sm text-orange-700">
+                    <div>• 2° Acconto 2025: {formatCurrency(results.taxAmount * 0.60)}</div>
+                    <div className="font-semibold pt-2 border-t border-orange-200">
+                      Totale: {formatCurrency(results.taxAmount * 0.60)}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-green-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-green-900 mb-2">INPS Trimestrale</h4>
+                  <div className="space-y-2 text-sm text-green-700">
+                    <div>• Ogni trimestre: {formatCurrency(results.inpsAmount / 4)}</div>
+                    <div>• Scadenze: 16/5, 20/8, 16/11, 16/2</div>
+                    <div className="font-semibold pt-2 border-t border-green-200">
+                      Anno: {formatCurrency(results.inpsAmount)}
+                    </div>
+                  </div>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          {/* Piano di Accantonamento */}
+          <Card className="mb-8">
             <CardContent className="p-6">
-              <div className="flex items-center">
-                <Euro className="h-8 w-8 text-green-500" />
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500">Imposta Sostitutiva</p>
-                  <p className="text-2xl font-bold text-gray-900">{formatCurrency(results.taxAmount)}</p>
+              <h3 className="text-xl font-bold mb-6 text-gray-900">💰 Piano di Accantonamento Mensile</h3>
+              <div className="bg-blue-50 p-6 rounded-lg">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h4 className="font-semibold text-blue-900 mb-4">Accantonamenti Consigliati</h4>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center py-2 border-b border-blue-200">
+                        <span className="text-blue-700">Imposte (mensile):</span>
+                        <span className="font-semibold text-blue-900">{formatCurrency(results.totalDue / 12)}</span>
+                      </div>
+                      <div className="flex justify-between items-center py-2 border-b border-blue-200">
+                        <span className="text-blue-700">Solo Tasse:</span>
+                        <span className="font-semibold text-blue-900">{formatCurrency(results.taxAmount / 12)}</span>
+                      </div>
+                      <div className="flex justify-between items-center py-2 border-b border-blue-200">
+                        <span className="text-blue-700">Solo INPS:</span>
+                        <span className="font-semibold text-blue-900">{formatCurrency(results.inpsAmount / 12)}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-blue-900 mb-4">Percentuali di Ricavo</h4>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center py-2">
+                        <span className="text-blue-700">% Tasse su fatturato:</span>
+                        <span className="font-semibold text-blue-900">{((results.taxAmount / (form.watch('revenue') || 1)) * 100).toFixed(1)}%</span>
+                      </div>
+                      <div className="flex justify-between items-center py-2">
+                        <span className="text-blue-700">% INPS su fatturato:</span>
+                        <span className="font-semibold text-blue-900">{((results.inpsAmount / (form.watch('revenue') || 1)) * 100).toFixed(1)}%</span>
+                      </div>
+                      <div className="flex justify-between items-center py-2 border-t border-blue-200">
+                        <span className="text-blue-700 font-semibold">% Totale da accantonare:</span>
+                        <span className="font-bold text-blue-900">{((results.totalDue / (form.watch('revenue') || 1)) * 100).toFixed(1)}%</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          {/* Download Report */}
+          <Card className="mb-8">
             <CardContent className="p-6">
-              <div className="flex items-center">
-                <Calendar className="h-8 w-8 text-orange-500" />
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500">Contributi INPS</p>
-                  <p className="text-2xl font-bold text-gray-900">{formatCurrency(results.inpsAmount)}</p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">📄 Report Completo</h3>
+                  <p className="text-gray-600">Scarica il report dettagliato con tutti i calcoli e le scadenze</p>
                 </div>
+                <Button 
+                  onClick={() => {
+                    // Funzionalità di download (placeholder)
+                    toast({
+                      title: "Download avviato",
+                      description: "Il report Excel verrà scaricato a breve",
+                    });
+                  }}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  <Download className="mr-2 h-4 w-4" />
+                  Scarica Excel
+                </Button>
               </div>
             </CardContent>
           </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <Download className="h-8 w-8 text-red-500" />
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500">Totale Dovuto</p>
-                  <p className="text-2xl font-bold text-gray-900">{formatCurrency(results.totalDue)}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        </>
       )}
     </div>
   );
