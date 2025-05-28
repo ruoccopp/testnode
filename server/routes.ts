@@ -4,6 +4,8 @@ import { storage } from "./storage";
 import { insertUserSchema, insertBusinessSchema, insertInvoiceSchema, insertTaxCalculationSchema } from "@shared/schema";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { sendEmail, generateReportEmailHTML } from './email';
+import * as XLSX from 'xlsx';
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
