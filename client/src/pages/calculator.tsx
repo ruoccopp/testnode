@@ -49,14 +49,50 @@ const CATEGORIES = {
   PROFESSIONAL: {
     label: "Consulenza/Servizi Professionali",
     value: 0.78,
-    description: "Attività professionali, consulenze, servizi",
-    examples: "Avvocato, commercialista, web developer",
+    description: "Attività professionali, consulenze, servizi (es. avvocati, commercialisti, web developer)",
+    examples: "Avvocato, commercialista, web developer, consulente marketing",
   },
   OTHER_ACTIVITIES: {
     label: "Altre Attività",
     value: 0.67,
-    description: "Attività non specificate in altre categorie",
+    description: "Attività non specificate in altre categorie (es. artigiani senza cassa specifica)",
     examples: "Sarto, calzolaio, restauratore",
+  },
+  INTERMEDIARIES: {
+    label: "Intermediazione",
+    value: 0.62,
+    description: "Attività di intermediazione commerciale (es. agenti, rappresentanti)",
+    examples: "Agente di commercio, rappresentante",
+  },
+  STREET_COMMERCE: {
+    label: "Commercio Ambulante",
+    value: 0.54,
+    description: "Commercio su aree pubbliche e ambulante",
+    examples: "Venditore ambulante, mercatini",
+  },
+  TRANSPORT: {
+    label: "Trasporto Merci/Persone",
+    value: 0.78,
+    description: "Servizi di trasporto e logistica",
+    examples: "Corriere, taxi, noleggio con conducente",
+  },
+  ENTERTAINMENT: {
+    label: "Spettacolo/Sport",
+    value: 0.78,
+    description: "Attività di intrattenimento e sportive",
+    examples: "Musicista, personal trainer, animatore",
+  },
+  CONSTRUCTION: {
+    label: "Costruzioni",
+    value: 0.86,
+    description: "Attività di costruzione e ristrutturazione edile",
+    examples: "Imbianchino, elettricista, idraulico",
+  },
+  GENERAL_COMMERCE: {
+    label: "Commercio Generale",
+    value: 0.40,
+    description: "Commercio al dettaglio e all'ingrosso",
+    examples: "Negozio abbigliamento, ferramenta, libreria",
   },
 };
 
