@@ -207,7 +207,7 @@ export default function CalculatorPage() {
       const response = await apiRequest('POST', '/api/send-verification', {
         email: email
       });
-      return response;
+      return response.json();
     },
     onSuccess: (data: any) => {
       console.log('Codice ricevuto dal server:', data.code);
