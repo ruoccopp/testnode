@@ -16,6 +16,7 @@ import { Calculator, Building, Euro, Calendar, Download, Lock, Mail, User, Brief
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import * as XLSX from 'xlsx';
 import logoPath from "@assets/SmartRate - Colors.png";
+import { Link } from "wouter";
 
 const calculationSchema = z.object({
   revenue: z.number().min(0, "Il fatturato deve essere positivo").optional(),
@@ -438,7 +439,12 @@ export default function CalculatorPage() {
               <span className="text-xs text-blue-600 font-medium">Powered by SmartRate</span>
             </div>
           </div>
-          <div className="flex-shrink-0 mt-4 md:mt-0 md:ml-6 flex justify-center md:justify-end">
+          <div className="flex-shrink-0 mt-4 md:mt-0 md:ml-6 flex flex-col items-center md:items-end gap-2">
+            <Link href="/leads">
+              <Button variant="outline" size="sm" className="text-xs">
+                🎯 Dashboard Lead
+              </Button>
+            </Link>
             <img 
               src={logoPath} 
               alt="SmartRate" 
