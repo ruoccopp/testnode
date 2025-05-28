@@ -426,14 +426,17 @@ export default function CalculatorPage() {
     <div className="container mx-auto py-8 px-4">
       {/* Header */}
       <div className="mb-8">
-        <div className="flex items-center justify-between">
+        <div className="flex items-start justify-between">
           <div className="min-w-0 flex-1">
             <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
               💰 Calcolatore Imposte Forfettari GRATUITO
             </h2>
-            <p className="mt-1 text-sm text-gray-500">
-              Calcola imposte e contributi per il regime forfettario italiano - Risultati immediati
-            </p>
+            <div className="mt-1">
+              <p className="text-sm text-gray-500">
+                Calcola imposte e contributi per il regime forfettario italiano - Risultati immediati
+              </p>
+              <span className="text-xs text-blue-600 font-medium">Powered by SmartRate</span>
+            </div>
           </div>
           <div className="flex-shrink-0 ml-6">
             <img 
@@ -441,9 +444,6 @@ export default function CalculatorPage() {
               alt="SmartRate" 
               className="h-12 w-auto"
             />
-            <div className="text-center mt-1">
-              <span className="text-xs text-blue-600 font-medium">Powered by SmartRate</span>
-            </div>
           </div>
         </div>
       </div>
