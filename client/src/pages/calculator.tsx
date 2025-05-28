@@ -15,6 +15,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { Calculator, Building, Euro, Calendar, Download, Lock, Mail, User, Briefcase } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import * as XLSX from 'xlsx';
+import logoPath from "@assets/SmartRate - Colors.png";
 
 const calculationSchema = z.object({
   revenue: z.number().min(0, "Il fatturato deve essere positivo").optional(),
@@ -427,9 +428,21 @@ export default function CalculatorPage() {
       <div className="mb-8">
         <div className="md:flex md:items-center md:justify-between">
           <div className="min-w-0 flex-1">
-            <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-              💰 Calcolatore Imposte Forfettari GRATUITO
-            </h2>
+            <div className="flex items-center mb-4">
+              <img 
+                src={logoPath} 
+                alt="SmartRate" 
+                className="h-12 w-auto mr-4"
+              />
+              <div>
+                <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+                  💰 Calcolatore Imposte Forfettari GRATUITO
+                </h2>
+                <div className="flex items-center mt-1">
+                  <span className="text-sm text-blue-600 font-medium">Powered by SmartRate</span>
+                </div>
+              </div>
+            </div>
             <p className="mt-1 text-sm text-gray-500">
               Calcola imposte e contributi per il regime forfettario italiano - Risultati immediati
             </p>

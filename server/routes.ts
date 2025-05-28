@@ -528,18 +528,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         timestamp: new Date().toISOString()
       });
       
-      // Ora invia veramente l'email con il report
-      try {
-        const emailSent = await sendEmail({
-          to: email,
-          subject: '🎯 Il Tuo Report Fiscale Personalizzato - Regime Forfettario',
-          html: generateReportEmailHTML(calculationData)
-        });
-        
-        console.log(`Email ${emailSent ? 'inviata con successo' : 'non inviata'} a ${email}`);
-      } catch (emailError) {
-        console.error('Errore invio email lead:', emailError);
-      }
+      // Email rimossa - l'utente userà il pulsante "Invia via Email" quando vuole
+      console.log(`Lead salvato per ${email} - email report disponibile su richiesta`);
       
       res.json({ 
         success: true, 
