@@ -12,6 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Calculator, Building, Euro, Calendar, Download } from "lucide-react";
+import * as XLSX from 'xlsx';
 
 const calculationSchema = z.object({
   revenue: z.number().min(0, "Il fatturato deve essere positivo").optional(),
@@ -156,6 +157,118 @@ export default function CalculatorPage() {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(amount);
+  };
+
+  const exportToExcel = () => {
+    if (!results) return;
+
+    const currentBalance = form.watch('currentBalance') || 0;
+    const revenue2025 = form.watch('revenue2025') || form.watch('revenue') || 0;
+    const formData = form.getValues();
+    
+    // Calcolo scadenze 2025
+    const giugno2025 = results.taxAmount + (results.taxAmount * 0.40);
+    const novembre2025 = results.taxAmount * 0.60;
+    
+    // Calcolo tasse 2026 (se c'è fatturato 2025)
+    let taxAmount2026 = 0;
+    if (revenue2025 > 0) {
+      const selectedCategory = Object.values(CATEGORIES).find((cat, index) => 
+        Object.keys(CATEGORIES)[index] === formData.category
+      );
+      const coefficient = selectedCategory?.value || 0.78;
+      const taxableIncome2025 = revenue2025 * coefficient;
+      const taxRate = formData.isStartup ? 0.05 : 0.15;
+      taxAmount2026 = taxableIncome2025 * taxRate;
+    }
+    
+    const giugno2026 = taxAmount2026 + (taxAmount2026 * 0.40);
+
+    // Creazione dei dati per Excel
+    const worksheetData = [
+      // Intestazione
+      ['PIANIFICATORE IMPOSTE FORFETTARI - REPORT COMPLETO'],
+      ['Data:', new Date().toLocaleDateString('it-IT')],
+      [''],
+      
+      // Dati dell'attività
+      ['DATI ATTIVITA\''],
+      ['Fatturato 2024:', formData.revenue || 0],
+      ['Fatturato Presunto 2025:', revenue2025],
+      ['Categoria:', Object.values(CATEGORIES).find((cat, index) => 
+        Object.keys(CATEGORIES)[index] === formData.category)?.label || ''],
+      ['Data Inizio Attività:', formData.startDate],
+      ['Regime Startup:', formData.isStartup ? 'Sì' : 'No'],
+      ['Regime Contributivo:', formData.contributionRegime],
+      ['Riduzione Contributiva:', formData.contributionReduction],
+      ['Saldo Accantonato:', currentBalance],
+      [''],
+      
+      // Calcoli fiscali
+      ['CALCOLI FISCALI 2024'],
+      ['Reddito Imponibile:', results.taxableIncome],
+      ['Imposta Sostitutiva:', results.taxAmount],
+      ['Contributi INPS:', results.inpsAmount],
+      ['Totale Dovuto:', results.totalDue],
+      [''],
+      
+      // Scadenze
+      ['SCADENZE FISCALI'],
+      ['30 Giugno 2025 - Saldo 2024:', results.taxAmount],
+      ['30 Giugno 2025 - 1° Acconto 2025:', results.taxAmount * 0.40],
+      ['30 Giugno 2025 - TOTALE:', giugno2025],
+      ['30 Novembre 2025 - 2° Acconto:', novembre2025],
+      [''],
+      
+      // Scadenze 2026 (se applicabile)
+      ...(revenue2025 > 0 ? [
+        ['SCADENZE 2026'],
+        ['Reddito Imponibile 2025:', revenue2025 * (Object.values(CATEGORIES).find((cat, index) => 
+          Object.keys(CATEGORIES)[index] === formData.category)?.value || 0.78)],
+        ['Imposta Sostitutiva 2025:', taxAmount2026],
+        ['30 Giugno 2026 - Saldo 2025:', taxAmount2026],
+        ['30 Giugno 2026 - 1° Acconto 2026:', taxAmount2026 * 0.40],
+        ['30 Giugno 2026 - TOTALE:', giugno2026],
+        ['']
+      ] : []),
+      
+      // Piano accantonamento
+      ['PIANO ACCANTONAMENTO'],
+      ['Accantonamento Mensile Totale:', results.totalDue / 12],
+      ['Solo Imposte (mensile):', results.taxAmount / 12],
+      ['Solo INPS (mensile):', results.inpsAmount / 12],
+      ['% su Fatturato Mensile:', ((results.totalDue / ((formData.revenue || 1) / 12)) * 100).toFixed(1) + '%'],
+      [''],
+      
+      // Contributi INPS trimestrali
+      ['CONTRIBUTI INPS TRIMESTRALI'],
+      ['Importo per trimestre:', results.inpsAmount / 4],
+      ['Scadenza 1° trimestre:', '16 Maggio'],
+      ['Scadenza 2° trimestre:', '20 Agosto'], 
+      ['Scadenza 3° trimestre:', '16 Novembre'],
+      ['Scadenza 4° trimestre:', '16 Febbraio (anno successivo)'],
+    ];
+
+    // Creazione del workbook
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet(worksheetData);
+    
+    // Formattazione delle colonne
+    ws['!cols'] = [
+      { width: 35 },
+      { width: 20 }
+    ];
+
+    XLSX.utils.book_append_sheet(wb, ws, 'Report Imposte');
+    
+    // Download del file
+    const fileName = `Report_Imposte_Forfettari_${new Date().getFullYear()}_${new Date().getMonth() + 1}_${new Date().getDate()}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+    
+    toast({
+      title: "Report scaricato",
+      description: `Il file ${fileName} è stato scaricato con successo`,
+    });
   };
 
   return (
@@ -718,13 +831,7 @@ export default function CalculatorPage() {
                   <p className="text-gray-600">Scarica il report dettagliato con tutti i calcoli e le scadenze</p>
                 </div>
                 <Button 
-                  onClick={() => {
-                    // Funzionalità di download (placeholder)
-                    toast({
-                      title: "Download avviato",
-                      description: "Il report Excel verrà scaricato a breve",
-                    });
-                  }}
+                  onClick={exportToExcel}
                   className="bg-green-600 hover:bg-green-700"
                 >
                   <Download className="mr-2 h-4 w-4" />
