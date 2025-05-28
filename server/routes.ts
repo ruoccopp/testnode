@@ -396,6 +396,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Email verification route
+  app.post("/api/send-verification", async (req: any, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ error: "Email richiesta" });
+      }
+
+      // Generate verification code
+      const code = Math.floor(100000 + Math.random() * 900000).toString();
+      
+      // Send verification email
+      const emailSent = await sendEmail({
+        to: email,
+        subject: '🔐 Codice di Verifica - Pianificatore Imposte Forfettari',
+        html: `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <style>
+              body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f5f5f5; }
+              .container { max-width: 500px; margin: 0 auto; background: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+              .code { font-size: 32px; font-weight: bold; color: #667eea; text-align: center; background: #f8f9ff; padding: 20px; border-radius: 8px; letter-spacing: 5px; }
+              .footer { text-align: center; color: #666; font-size: 12px; margin-top: 20px; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <h1 style="text-align: center; color: #333;">🔐 Codice di Verifica</h1>
+              <p>Il tuo codice di verifica per accedere al report fiscale completo è:</p>
+              <div class="code">${code}</div>
+              <p style="text-align: center; margin-top: 20px;">Inserisci questo codice nel calcolatore per procedere.</p>
+              <p style="color: #666; font-size: 14px;">Il codice è valido per 10 minuti.</p>
+              <div class="footer">
+                <p>Pianificatore Imposte Forfettari</p>
+                <p>Se non hai richiesto questo codice, ignora questa email.</p>
+              </div>
+            </div>
+          </body>
+          </html>
+        `
+      });
+
+      if (emailSent) {
+        res.json({ success: true, code: code, message: "Codice di verifica inviato via email" });
+      } else {
+        res.status(500).json({ error: "Errore nell'invio dell'email di verifica" });
+      }
+    } catch (error) {
+      console.error("Errore invio verifica:", error);
+      res.status(500).json({ error: "Errore interno del server" });
+    }
+  });
+
   // Email sending route
   app.post("/api/send-report", async (req: any, res) => {
     try {

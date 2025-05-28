@@ -204,42 +204,24 @@ export default function CalculatorPage() {
 
   const sendVerificationMutation = useMutation({
     mutationFn: async (email: string) => {
-      const code = Math.floor(100000 + Math.random() * 900000).toString();
-      setSentCode(code);
-      
-      // Invia email di verifica reale
-      const response = await apiRequest('POST', '/api/send-report', {
-        email: email,
-        calculationData: {
-          taxableIncome: 0,
-          taxAmount: 0,
-          inpsAmount: 0,
-          totalDue: 0
-        }
+      const response = await apiRequest('POST', '/api/send-verification', {
+        email: email
       });
-      
-      console.log(`Codice di verifica per ${email}: ${code}`);
-      
-      // Per demo, mostra il codice all'utente
-      toast({
-        title: "Email di test inviata!",
-        description: `Controlla ${email} - Codice demo: ${code}`,
-        duration: 10000,
-      });
-      
       return response;
     },
-    onSuccess: () => {
+    onSuccess: (data: any) => {
+      setSentCode(data.code);
       toast({
-        title: "Test email completato",
-        description: "Se hai ricevuto l'email, il sistema funziona!",
+        title: "📧 Codice inviato!",
+        description: "Controlla la tua email e inserisci il codice di verifica ricevuto",
+        duration: 10000,
       });
     },
     onError: (error: any) => {
       toast({
         variant: "destructive",
-        title: "Errore test email",
-        description: error.message || "Problemi con l'invio email",
+        title: "Errore invio verifica",
+        description: error.message || "Problemi con l'invio del codice di verifica",
       });
     },
   });
