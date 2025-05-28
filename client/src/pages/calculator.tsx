@@ -207,22 +207,39 @@ export default function CalculatorPage() {
       const code = Math.floor(100000 + Math.random() * 900000).toString();
       setSentCode(code);
       
-      // Simula invio email (in produzione useresti un servizio email)
+      // Invia email di verifica reale
+      const response = await apiRequest('POST', '/api/send-report', {
+        email: email,
+        calculationData: {
+          taxableIncome: 0,
+          taxAmount: 0,
+          inpsAmount: 0,
+          totalDue: 0
+        }
+      });
+      
       console.log(`Codice di verifica per ${email}: ${code}`);
       
       // Per demo, mostra il codice all'utente
       toast({
-        title: "Codice di verifica inviato",
-        description: `Demo: Il tuo codice è ${code}`,
+        title: "Email di test inviata!",
+        description: `Controlla ${email} - Codice demo: ${code}`,
         duration: 10000,
       });
       
-      return { success: true };
+      return response;
     },
     onSuccess: () => {
       toast({
-        title: "Email inviata",
-        description: "Controlla la tua email e inserisci il codice di verifica",
+        title: "Test email completato",
+        description: "Se hai ricevuto l'email, il sistema funziona!",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        variant: "destructive",
+        title: "Errore test email",
+        description: error.message || "Problemi con l'invio email",
       });
     },
   });
