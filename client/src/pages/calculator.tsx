@@ -210,6 +210,7 @@ export default function CalculatorPage() {
       return response;
     },
     onSuccess: (data: any) => {
+      console.log('Codice ricevuto dal server:', data.code);
       setSentCode(data.code);
       toast({
         title: "📧 Codice inviato!",
