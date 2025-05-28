@@ -13,6 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Calculator, Building, Euro, Calendar, Download, Lock, Mail, User, Briefcase } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import * as XLSX from 'xlsx';
 
 const calculationSchema = z.object({
@@ -33,8 +34,13 @@ const leadSchema = z.object({
   businessSector: z.string().min(1, "Seleziona il settore merceologico"),
 });
 
+const emailSchema = z.object({
+  email: z.string().email("Email non valida"),
+});
+
 type CalculationForm = z.infer<typeof calculationSchema>;
 type LeadForm = z.infer<typeof leadSchema>;
+type EmailForm = z.infer<typeof emailSchema>;
 
 interface CalculationResult {
   taxableIncome: number;
@@ -154,6 +160,13 @@ export default function CalculatorPage() {
       lastName: "",
       email: "",
       businessSector: "",
+    },
+  });
+
+  const emailForm = useForm<EmailForm>({
+    resolver: zodResolver(emailSchema),
+    defaultValues: {
+      email: "",
     },
   });
 

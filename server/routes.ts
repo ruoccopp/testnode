@@ -396,6 +396,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Email sending route
+  app.post("/api/send-report", async (req: any, res) => {
+    try {
+      const { email, calculationData } = req.body;
+      
+      if (!email || !calculationData) {
+        return res.status(400).json({ error: "Email e dati di calcolo richiesti" });
+      }
+
+      // Generate Excel file
+      const worksheetData = [
+        ['PIANIFICATORE IMPOSTE FORFETTARI - REPORT COMPLETO'],
+        ['Data:', new Date().toLocaleDateString('it-IT')],
+        [''],
+        ['CALCOLI FISCALI'],
+        ['Reddito Imponibile:', calculationData.taxableIncome || 0],
+        ['Imposta Sostitutiva:', calculationData.taxAmount || 0],
+        ['Contributi INPS:', calculationData.inpsAmount || 0],
+        ['Totale Dovuto:', calculationData.totalDue || 0],
+        [''],
+        ['SCADENZE FISCALI'],
+        ['30 Giugno 2025:', (calculationData.taxAmount || 0) * 1.4],
+        ['30 Novembre 2025:', (calculationData.taxAmount || 0) * 0.6],
+        [''],
+        ['ACCANTONAMENTO MENSILE'],
+        ['Importo consigliato:', (calculationData.totalDue || 0) / 12],
+      ];
+
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(worksheetData);
+      XLSX.utils.book_append_sheet(wb, ws, 'Report Imposte');
+      
+      const excelBuffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+      
+      // Send email with Excel attachment
+      const emailSent = await sendEmail({
+        to: email,
+        subject: '📊 Report Imposte Forfettari - Pianificazione Fiscale',
+        html: generateReportEmailHTML(calculationData),
+        attachments: [{
+          filename: `Report_Imposte_${new Date().getFullYear()}.xlsx`,
+          content: excelBuffer,
+          contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        }]
+      });
+
+      if (emailSent) {
+        res.json({ success: true, message: "Report inviato con successo via email" });
+      } else {
+        res.status(500).json({ error: "Errore nell'invio dell'email" });
+      }
+    } catch (error) {
+      console.error("Errore invio report:", error);
+      res.status(500).json({ error: "Errore interno del server" });
+    }
+  });
+
   // Lead generation endpoint
   app.post("/api/leads/submit", async (req: any, res) => {
     try {
@@ -412,8 +469,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         timestamp: new Date().toISOString()
       });
       
-      // Simula invio email con report (in produzione useresti un servizio email)
-      console.log(`Email inviata a ${email} con report personalizzato`);
+      // Ora invia veramente l'email con il report
+      try {
+        const emailSent = await sendEmail({
+          to: email,
+          subject: '🎯 Il Tuo Report Fiscale Personalizzato - Regime Forfettario',
+          html: generateReportEmailHTML(calculationData)
+        });
+        
+        console.log(`Email ${emailSent ? 'inviata con successo' : 'non inviata'} a ${email}`);
+      } catch (emailError) {
+        console.error('Errore invio email lead:', emailError);
+      }
       
       res.json({ 
         success: true, 
