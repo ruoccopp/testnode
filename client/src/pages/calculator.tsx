@@ -36,6 +36,45 @@ interface CalculationResult {
   totalDue: number;
 }
 
+const TAX_COEFFICIENTS = {
+  PROFESSIONAL: {
+    label: "Consulenza/Servizi Professionali",
+    value: 0.78,
+    description: "Attività professionali, consulenze, servizi (es. avvocati, commercialisti, web developer)",
+    examples: "Avvocato, commercialista, web developer, consulente marketing",
+  },
+  OTHER_ACTIVITIES: {
+    label: "Altre Attività",
+    value: 0.67,
+    description: "Attività non specificate in altre categorie (es. artigiani senza cassa specifica)",
+    examples: "Sarto, calzolaio, restauratore",
+  },
+  INTERMEDIARIES: {
+    label: "Intermediazione",
+    value: 0.62,
+    description: "Attività di intermediazione commerciale (es. agenti, rappresentanti)",
+    examples: "Agente di commercio, rappresentante",
+  },
+  STREET_COMMERCE: {
+    label: "Commercio Ambulante",
+    value: 0.54,
+    description: "Commercio effettuato su aree pubbliche senza postazione fissa",
+    examples: "Venditore ambulante di vestiti, frutta, accessori",
+  },
+  FOOD_COMMERCE: {
+    label: "Commercio Alimentare",
+    value: 0.40,
+    description: "Commercio di prodotti alimentari",
+    examples: "Negozio di alimentari, panetteria, macelleria",
+  },
+  CONSTRUCTION: {
+    label: "Costruzioni",
+    value: 0.86,
+    description: "Attività di costruzione e ristrutturazione edile",
+    examples: "Imbianchino, elettricista, idraulico",
+  },
+};
+
 export default function CalculatorPage() {
   const [results, setResults] = useState<CalculationResult | null>(null);
   const { toast } = useToast();
@@ -111,7 +150,7 @@ export default function CalculatorPage() {
     const revenue2025 = formData.revenue2025 || 0;
     const startDate = formData.startDate;
     const isStartup2025 = startDate ? (2025 - new Date(startDate).getFullYear()) < 5 : false;
-    
+
     // Calcola tasse 2025 per scadenze 2026
     const taxableIncome2025 = revenue2025 * 0.78;
     const taxRate2025 = isStartup2025 ? 0.05 : 0.15;
@@ -190,7 +229,7 @@ export default function CalculatorPage() {
     // Crea il workbook
     const ws = XLSX.utils.aoa_to_sheet(allData);
     const wb = XLSX.utils.book_new();
-    
+
     // Imposta larghezza colonne
     ws['!cols'] = [
       { width: 30 },
@@ -199,7 +238,7 @@ export default function CalculatorPage() {
     ];
 
     XLSX.utils.book_append_sheet(wb, ws, 'Calcolo Tasse');
-    
+
     // Esporta il file
     const fileName = `calcolo-tasse-${new Date().toISOString().split('T')[0]}.xlsx`;
     XLSX.writeFile(wb, fileName);
@@ -340,6 +379,41 @@ export default function CalculatorPage() {
                       </FormItem>
                     )}
                   />
+
+                  {/* Preview della categoria selezionata */}
+                  {form.watch('category') && (
+                    <div className="mt-3 p-4 bg-white rounded-lg border border-amber-200">
+                      <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0">
+                          <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center">
+                            <span className="text-sm font-bold text-amber-700">
+                              {Math.round(TAX_COEFFICIENTS[form.watch('category') as keyof typeof TAX_COEFFICIENTS]?.value * 100)}%
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-medium text-amber-900">
+                            {TAX_COEFFICIENTS[form.watch('category') as keyof typeof TAX_COEFFICIENTS]?.label}
+                          </h4>
+                          <p className="text-sm text-amber-700 mt-1">
+                            {TAX_COEFFICIENTS[form.watch('category') as keyof typeof TAX_COEFFICIENTS]?.description}
+                          </p>
+                          <div className="mt-2 p-2 bg-amber-50 rounded">
+                            <p className="text-xs text-amber-600">
+                              <span className="font-medium">Esempi di attività:</span> {TAX_COEFFICIENTS[form.watch('category') as keyof typeof TAX_COEFFICIENTS]?.examples}
+                            </p>
+                          </div>
+                          <div className="mt-2 text-xs text-gray-600">
+                            💡 Con questa categoria, dal fatturato si calcola un reddito imponibile del{' '}
+                            <span className="font-bold text-amber-700">
+                              {Math.round(TAX_COEFFICIENTS[form.watch('category') as keyof typeof TAX_COEFFICIENTS]?.value * 100)}%
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   <FormField
                     control={form.control}
                     name="isStartup"
@@ -347,7 +421,7 @@ export default function CalculatorPage() {
                       const startDate = form.watch('startDate');
                       const isEligibleForStartup = startDate ? 
                         (new Date().getFullYear() - new Date(startDate).getFullYear()) < 5 : false;
-                      
+
                       return (
                         <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
                           <div className="space-y-0.5">
@@ -418,7 +492,7 @@ export default function CalculatorPage() {
                           </SelectItem>
                         </SelectContent>
                       </Select>
-                      
+
                       {/* Preview del regime selezionato */}
                       {field.value && (
                         <div className="mt-3 p-3 bg-white rounded-lg border border-green-200">
@@ -434,7 +508,7 @@ export default function CalculatorPage() {
                               </div>
                             </div>
                           )}
-                          
+
                           {(field.value === 'IVS_ARTIGIANI' || field.value === 'IVS_COMMERCIANTI') && (
                             <div className="space-y-2">
                               <div className="flex items-center gap-2">
@@ -473,7 +547,7 @@ export default function CalculatorPage() {
                     render={({ field }) => {
                       const startDate = form.watch('startDate');
                       const isNewIn2025 = startDate ? new Date(startDate).getFullYear() === 2025 : false;
-                      
+
                       return (
                         <FormItem className="mt-4">
                           <FormLabel>🎯 Riduzioni Contributive INPS</FormLabel>
@@ -705,7 +779,7 @@ export default function CalculatorPage() {
                       </div>
                     </div>
                   )}
-                  
+
                   {form.watch('contributionRegime') === 'GESTIONE_SEPARATA' && (
                     <div className="bg-green-50 p-3 rounded-lg">
                       <div className="flex justify-between items-center mb-2">
@@ -796,7 +870,7 @@ export default function CalculatorPage() {
                         const startDate = form.getValues('startDate');
                         const isStartup2025 = startDate ? 
                           (2025 - new Date(startDate).getFullYear()) < 5 : false;
-                        
+
                         // Calcola tasse 2025 per scadenze 2026
                         const taxableIncome2025 = revenue2025 * 0.78; // Assumendo stessa categoria
                         const taxRate2025 = isStartup2025 ? 0.05 : 0.15;
@@ -850,7 +924,7 @@ export default function CalculatorPage() {
                       </div>
                     </div>
                   )}
-                  
+
                   {form.watch('contributionRegime') === 'GESTIONE_SEPARATA' && (
                     <div>
                       <h4 className="font-medium text-gray-800 mb-2">🏥 Contributi INPS</h4>

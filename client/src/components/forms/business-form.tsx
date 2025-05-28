@@ -64,13 +64,13 @@ export default function BusinessForm({ business, onSuccess }: BusinessFormProps)
     mutationFn: async (data: BusinessForm) => {
       const url = business ? `/api/businesses/${business.id}` : "/api/businesses";
       const method = business ? "PUT" : "POST";
-      
+
       // Convert currentBalance to string for backend
       const formattedData = {
         ...data,
         currentBalance: data.currentBalance.toString()
       };
-      
+
       const response = await apiRequest(method, url, formattedData);
       return response.json();
     },
@@ -128,9 +128,24 @@ export default function BusinessForm({ business, onSuccess }: BusinessFormProps)
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {Object.entries(TAX_COEFFICIENTS).map(([key, value]) => (
-                      <SelectItem key={key} value={key}>
-                        {value.label} ({(value.value * 100).toFixed(0)}%)
+                    {Object.entries(TAX_COEFFICIENTS).map(([key, config]) => (
+                      <SelectItem key={key} value={key} className="cursor-pointer">
+                        <div className="flex flex-col py-2">
+                          <div className="flex items-center justify-between">
+                            <span className="font-medium text-gray-900">
+                              {config.label}
+                            </span>
+                            <span className="ml-2 text-sm font-bold text-blue-600">
+                              ({Math.round(config.value * 100)}%)
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-600 mt-1">
+                            {config.description}
+                          </p>
+                          <p className="text-xs text-blue-500 mt-1 font-medium">
+                            Es: {config.examples}
+                          </p>
+                        </div>
                       </SelectItem>
                     ))}
                   </SelectContent>

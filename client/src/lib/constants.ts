@@ -1,10 +1,40 @@
 export const TAX_COEFFICIENTS = {
-  'FOOD_COMMERCE': { value: 0.40, label: 'Commercio alimentare' },
-  'STREET_COMMERCE': { value: 0.54, label: 'Commercio ambulante' },
-  'INTERMEDIARIES': { value: 0.62, label: 'Intermediazione' },
-  'OTHER_ACTIVITIES': { value: 0.67, label: 'Altre attività' },
-  'PROFESSIONAL': { value: 0.78, label: 'Attività professionali' },
-  'CONSTRUCTION': { value: 0.86, label: 'Costruzioni' }
+  'FOOD_COMMERCE': { 
+    value: 0.40, 
+    label: 'Commercio - Vendita Prodotti Alimentari', 
+    description: 'Bar, ristoranti, gastronomie, vendita prodotti alimentari',
+    examples: 'Bar, ristorante, pizzeria, gastronomia, alimentari, macelleria, panetteria'
+  },
+  'STREET_COMMERCE': { 
+    value: 0.54, 
+    label: 'Commercio - Vendita Ambulante e Mercati', 
+    description: 'Vendita su aree pubbliche, mercati, fiere',
+    examples: 'Commercio ambulante, bancarelle, vendita su mercati, fiere'
+  },
+  'INTERMEDIARIES': { 
+    value: 0.62, 
+    label: 'Intermediazione e Agenzie', 
+    description: 'Intermediazione commerciale, agenzie, rappresentanze',
+    examples: 'Agente di commercio, mediatore immobiliare, agenzia viaggi, rappresentante'
+  },
+  'OTHER_ACTIVITIES': { 
+    value: 0.67, 
+    label: 'Commercio Generale e Altri Servizi', 
+    description: 'Commercio al dettaglio, servizi vari, artigianato di servizio',
+    examples: 'Negozio abbigliamento, ferramenta, parrucchiere, estetista, riparazioni'
+  },
+  'PROFESSIONAL': { 
+    value: 0.78, 
+    label: 'Servizi Professionali e Consulenza', 
+    description: 'Attività intellettuali, consulenze, servizi professionali',
+    examples: 'Consulente, avvocato, architetto, ingegnere, commercialista, fisioterapista'
+  },
+  'CONSTRUCTION': { 
+    value: 0.86, 
+    label: 'Costruzioni e Opere Edili', 
+    description: 'Attività edili, ristrutturazioni, impiantistica',
+    examples: 'Muratore, elettricista, idraulico, imbianchino, piastrellista, carpentiere'
+  }
 } as const;
 
 export const CONTRIBUTION_REGIMES = {
