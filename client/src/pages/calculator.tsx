@@ -467,10 +467,10 @@ export default function CalculatorPage() {
                                 .filter(([, category]) => category.sector === sectorKey)
                                 .map(([key, category]) => (
                                   <SelectItem key={key} value={key} className={`pl-6 border-l-2 border-${category.color}-300`}>
-                                    <div className="flex justify-between items-center w-full">
-                                      <span>{category.label}</span>
-                                      <span className={`text-${category.color}-600 font-medium`}>
-                                        {(category.value * 100).toFixed(0)}%
+                                    <div className="flex flex-col items-start w-full">
+                                      <span className="font-medium">{category.label}</span>
+                                      <span className={`text-xs text-${category.color}-600 font-medium`}>
+                                        ({(category.value * 100).toFixed(0)}%)
                                       </span>
                                     </div>
                                   </SelectItem>
