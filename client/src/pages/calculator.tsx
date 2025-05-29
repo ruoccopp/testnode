@@ -51,68 +51,8 @@ interface CalculationResult {
   totalDue: number;
 }
 
-const CATEGORIES = {
-  FOOD_COMMERCE: {
-    label: "Commercio Alimentare",
-    value: 0.40,
-    description: "Commercio di prodotti alimentari e bevande",
-    examples: "Bar, ristorante, alimentari",
-  },
-  MANUFACTURING: {
-    label: "Produzione Beni",
-    value: 0.86,
-    description: "Produzione di beni materiali",
-    examples: "Produzione artigianale, manifattura",
-  },
-  PROFESSIONAL: {
-    label: "Consulenza/Servizi Professionali",
-    value: 0.78,
-    description: "Attività professionali, consulenze, servizi (es. avvocati, commercialisti, web developer)",
-    examples: "Avvocato, commercialista, web developer, consulente marketing",
-  },
-  OTHER_ACTIVITIES: {
-    label: "Altre Attività",
-    value: 0.67,
-    description: "Attività non specificate in altre categorie (es. artigiani senza cassa specifica)",
-    examples: "Sarto, calzolaio, restauratore",
-  },
-  INTERMEDIARIES: {
-    label: "Intermediazione",
-    value: 0.62,
-    description: "Attività di intermediazione commerciale (es. agenti, rappresentanti)",
-    examples: "Agente di commercio, rappresentante",
-  },
-  STREET_COMMERCE: {
-    label: "Commercio Ambulante",
-    value: 0.54,
-    description: "Commercio su aree pubbliche e ambulante",
-    examples: "Venditore ambulante, mercatini",
-  },
-  TRANSPORT: {
-    label: "Trasporto Merci/Persone",
-    value: 0.78,
-    description: "Servizi di trasporto e logistica",
-    examples: "Corriere, taxi, noleggio con conducente",
-  },
-  ENTERTAINMENT: {
-    label: "Spettacolo/Sport",
-    value: 0.78,
-    description: "Attività di intrattenimento e sportive",
-    examples: "Musicista, personal trainer, animatore",
-  },
-  CONSTRUCTION: {
-    label: "Costruzioni",
-    value: 0.86,
-    description: "Attività di costruzione e ristrutturazione edile",
-    examples: "Imbianchino, elettricista, idraulico",
-  },
-  GENERAL_COMMERCE: {
-    label: "Commercio Generale",
-    value: 0.40,
-    description: "Commercio al dettaglio e all'ingrosso",
-    examples: "Negozio abbigliamento, ferramenta, libreria",
-  },
-};
+// Importiamo le categorie dal file constants
+import { TAX_COEFFICIENTS, SECTORS } from "@/lib/constants";
 
 const BUSINESS_SECTORS = {
   RETAIL: "Commercio al dettaglio",
@@ -521,10 +461,25 @@ export default function CalculatorPage() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {Object.entries(CATEGORIES).map(([key, category]) => (
-                            <SelectItem key={key} value={key}>
-                              {category.label} ({(category.value * 100).toFixed(0)}%)
-                            </SelectItem>
+                          {/* Raggruppamento per settori con codici colore */}
+                          {Object.entries(SECTORS).map(([sectorKey, sector]) => (
+                            <div key={sectorKey}>
+                              <div className={`px-3 py-2 text-sm font-semibold text-${sector.color}-700 bg-${sector.color}-50 border-b border-${sector.color}-200`}>
+                                {sector.icon} {sector.label}
+                              </div>
+                              {Object.entries(TAX_COEFFICIENTS)
+                                .filter(([, category]) => category.sector === sectorKey)
+                                .map(([key, category]) => (
+                                  <SelectItem key={key} value={key} className={`pl-6 border-l-2 border-${category.color}-300`}>
+                                    <div className="flex justify-between items-center w-full">
+                                      <span>{category.label}</span>
+                                      <span className={`text-${category.color}-600 font-medium`}>
+                                        {(category.value * 100).toFixed(0)}%
+                                      </span>
+                                    </div>
+                                  </SelectItem>
+                                ))}
+                            </div>
                           ))}
                         </SelectContent>
                       </Select>

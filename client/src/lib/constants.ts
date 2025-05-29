@@ -1,39 +1,85 @@
 export const TAX_COEFFICIENTS = {
+  // 🛒 COMMERCIO (Verde)
   'FOOD_COMMERCE': { 
     value: 0.40, 
-    label: 'Commercio - Prodotti Alimentari e Ristorazione', 
+    label: 'Alimentari e Ristorazione', 
+    sector: 'COMMERCIO',
+    color: 'green',
     description: 'Bar, ristoranti, gastronomie, vendita prodotti alimentari',
     examples: 'Bar, ristorante, pizzeria, gastronomia, alimentari, macelleria, panetteria'
   },
   'STREET_COMMERCE': { 
     value: 0.54, 
-    label: 'Commercio - Vendita Ambulante e Mercati', 
+    label: 'Vendita Ambulante e Mercati', 
+    sector: 'COMMERCIO',
+    color: 'green',
     description: 'Vendita su aree pubbliche, mercati, fiere',
     examples: 'Commercio ambulante, bancarelle, vendita su mercati, fiere'
   },
+  'OTHER_ACTIVITIES': { 
+    value: 0.67, 
+    label: 'Commercio al Dettaglio', 
+    sector: 'COMMERCIO',
+    color: 'green',
+    description: 'Negozi, commercio al dettaglio, vendita prodotti',
+    examples: 'Negozio abbigliamento, ferramenta, libreria, gioielleria, ottica'
+  },
+  
+  // 🤝 SERVIZI (Blu)
   'INTERMEDIARIES': { 
     value: 0.62, 
-    label: 'Intermediazione Commerciale e Agenzie', 
+    label: 'Intermediazione e Agenzie', 
+    sector: 'SERVIZI',
+    color: 'blue',
     description: 'Intermediazione commerciale, agenzie, rappresentanze',
     examples: 'Agente di commercio, mediatore immobiliare, agenzia viaggi, rappresentante'
   },
-  'OTHER_ACTIVITIES': { 
-    value: 0.67, 
-    label: 'Commercio al Dettaglio e Servizi Generali', 
-    description: 'Commercio al dettaglio, servizi vari, artigianato di servizio',
-    examples: 'Negozio abbigliamento, ferramenta, parrucchiere, estetista, riparazioni'
-  },
+  
+  // 🎓 PROFESSIONI (Viola)
   'PROFESSIONAL': { 
     value: 0.78, 
     label: 'Attività Professionali e Consulenza', 
+    sector: 'PROFESSIONI',
+    color: 'purple',
     description: 'Attività intellettuali, consulenze, servizi professionali',
     examples: 'Consulente, avvocato, architetto, ingegnere, commercialista, fisioterapista'
   },
+  
+  // 🔨 ARTIGIANATO (Arancione)
   'CONSTRUCTION': { 
     value: 0.86, 
     label: 'Costruzioni e Attività Edili', 
+    sector: 'ARTIGIANATO',
+    color: 'orange',
     description: 'Attività edili, ristrutturazioni, impiantistica',
     examples: 'Muratore, elettricista, idraulico, imbianchino, piastrellista, carpentiere'
+  }
+} as const;
+
+export const SECTORS = {
+  'COMMERCIO': {
+    label: 'Commercio',
+    icon: '🛒',
+    color: 'green',
+    description: 'Vendita di beni e prodotti'
+  },
+  'SERVIZI': {
+    label: 'Servizi',
+    icon: '🤝',
+    color: 'blue',
+    description: 'Servizi e intermediazione'
+  },
+  'PROFESSIONI': {
+    label: 'Professioni',
+    icon: '🎓',
+    color: 'purple',
+    description: 'Attività intellettuali e consulenza'
+  },
+  'ARTIGIANATO': {
+    label: 'Artigianato',
+    icon: '🔨',
+    color: 'orange',
+    description: 'Attività manuali e costruzioni'
   }
 } as const;
 
