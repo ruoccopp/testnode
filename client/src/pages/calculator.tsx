@@ -265,9 +265,7 @@ export default function CalculatorPage() {
     // Calcolo tasse 2026 (se c'è fatturato 2025)
     let taxAmount2026 = 0;
     if (revenue2025 > 0) {
-      const selectedCategory = Object.values(CATEGORIES).find((cat, index) => 
-        Object.keys(CATEGORIES)[index] === formData.category
-      );
+      const selectedCategory = TAX_COEFFICIENTS[formData.category as keyof typeof TAX_COEFFICIENTS];
       const coefficient = selectedCategory?.value || 0.78;
       const taxableIncome2025 = revenue2025 * coefficient;
       const taxRate = formData.isStartup ? 0.05 : 0.15;
@@ -287,8 +285,7 @@ export default function CalculatorPage() {
       ['DATI ATTIVITA\''],
       ['Fatturato 2024:', formData.revenue || 0],
       ['Fatturato Presunto 2025:', revenue2025],
-      ['Categoria:', Object.values(CATEGORIES).find((cat, index) => 
-        Object.keys(CATEGORIES)[index] === formData.category)?.label || ''],
+      ['Categoria:', TAX_COEFFICIENTS[formData.category as keyof typeof TAX_COEFFICIENTS]?.label || ''],
       ['Data Inizio Attività:', formData.startDate],
       ['Regime Startup:', formData.isStartup ? 'Sì' : 'No'],
       ['Regime Contributivo:', formData.contributionRegime],
@@ -315,8 +312,7 @@ export default function CalculatorPage() {
       // Scadenze 2026 (se applicabile)
       ...(revenue2025 > 0 ? [
         ['SCADENZE 2026'],
-        ['Reddito Imponibile 2025:', revenue2025 * (Object.values(CATEGORIES).find((cat, index) => 
-          Object.keys(CATEGORIES)[index] === formData.category)?.value || 0.78)],
+        ['Reddito Imponibile 2025:', revenue2025 * (TAX_COEFFICIENTS[formData.category as keyof typeof TAX_COEFFICIENTS]?.value || 0.78)],
         ['Imposta Sostitutiva 2025:', taxAmount2026],
         ['30 Giugno 2026 - Saldo 2025:', taxAmount2026],
         ['30 Giugno 2026 - 1° Acconto 2026:', taxAmount2026 * 0.40],
@@ -1104,9 +1100,7 @@ export default function CalculatorPage() {
                 // Calcolo tasse 2026 (se c'è fatturato 2025)
                 let taxAmount2026 = 0;
                 if (revenue2025 > 0) {
-                  const selectedCategory = Object.values(CATEGORIES).find((cat, index) => 
-                    Object.keys(CATEGORIES)[index] === form.watch('category')
-                  );
+                  const selectedCategory = TAX_COEFFICIENTS[form.watch('category') as keyof typeof TAX_COEFFICIENTS];
                   const coefficient = selectedCategory?.value || 0.78;
                   const taxableIncome2025 = revenue2025 * coefficient;
                   const taxRate = form.watch('isStartup') ? 0.05 : 0.15;
