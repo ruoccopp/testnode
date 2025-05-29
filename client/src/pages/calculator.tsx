@@ -26,6 +26,7 @@ const calculationSchema = z.object({
   isStartup: z.boolean().default(false),
   contributionRegime: z.string().min(1, "Seleziona il regime contributivo"),
   contributionReduction: z.string().default("NONE"),
+  hasOtherCoverage: z.boolean().default(false),
   currentBalance: z.number().min(0, "Il saldo deve essere positivo").optional(),
 });
 
@@ -450,7 +451,22 @@ export default function CalculatorPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>📋 Categoria Professionale</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={(value) => {
+                        field.onChange(value);
+                        // Auto-selezione del regime contributivo basato sulla categoria
+                        const selectedCategory = TAX_COEFFICIENTS[value as keyof typeof TAX_COEFFICIENTS];
+                        if (selectedCategory) {
+                          if (selectedCategory.sector === 'COMMERCIO') {
+                            if (value === 'FOOD_COMMERCE' || value === 'STREET_COMMERCE' || value === 'OTHER_ACTIVITIES') {
+                              form.setValue('contributionRegime', 'IVS_COMMERCIANTI');
+                            }
+                          } else if (selectedCategory.sector === 'ARTIGIANATO') {
+                            form.setValue('contributionRegime', 'IVS_ARTIGIANI');
+                          } else {
+                            form.setValue('contributionRegime', 'GESTIONE_SEPARATA');
+                          }
+                        }
+                      }} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Seleziona la tua categoria di attività" />
@@ -483,6 +499,79 @@ export default function CalculatorPage() {
                   )}
                 />
               </div>
+
+              {/* Contributi INPS - Ora posizionato dopo la categoria */}
+              {form.watch('category') && (
+                <div className="bg-blue-50 p-4 rounded-lg mb-6">
+                  <h3 className="font-medium text-blue-900 mb-4">🏛️ Contributi INPS</h3>
+                  <div className="grid grid-cols-1 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="contributionRegime"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>📋 Regime Contributivo</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Seleziona regime contributivo" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="IVS_ARTIGIANI">IVS Artigiani</SelectItem>
+                              <SelectItem value="IVS_COMMERCIANTI">IVS Commercianti</SelectItem>
+                              <SelectItem value="GESTIONE_SEPARATA">Gestione Separata</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="contributionReduction"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>💰 Riduzione Contributiva</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Seleziona riduzione" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="NONE">Nessuna riduzione</SelectItem>
+                              <SelectItem value="35">35% - Forfettari generici</SelectItem>
+                              <SelectItem value="50">50% - Nuovi iscritti 2025 (primi 36 mesi)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="hasOtherCoverage"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                          <div className="space-y-0.5">
+                            <FormLabel className="text-base">🏥 Altra Copertura Previdenziale</FormLabel>
+                            <div className="text-sm text-muted-foreground">
+                              Hai pensione o altro lavoro dipendente?
+                            </div>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+              )}
 
               {/* Regime Fiscale */}
               <div className="bg-orange-50 p-4 rounded-lg mb-6">
@@ -542,78 +631,7 @@ export default function CalculatorPage() {
                 </div>
               </div>
 
-              {/* Contributi INPS */}
-              <div className="bg-green-50 p-4 rounded-lg mb-6">
-                <h3 className="font-medium text-green-900 mb-4">🏥 Contributi INPS</h3>
-                <FormField
-                  control={form.control}
-                  name="contributionRegime"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>💼 Regime Contributivo</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Seleziona il tuo regime contributivo" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="GESTIONE_SEPARATA">Gestione Separata INPS (26%)</SelectItem>
-                          <SelectItem value="IVS_ARTIGIANI">IVS Artigiani</SelectItem>
-                          <SelectItem value="IVS_COMMERCIANTI">IVS Commercianti</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormItem>
-                  )}
-                />
 
-                {/* Riduzioni Contributive */}
-                {(form.watch('contributionRegime') === 'IVS_ARTIGIANI' || form.watch('contributionRegime') === 'IVS_COMMERCIANTI') && (
-                  <FormField
-                    control={form.control}
-                    name="contributionReduction"
-                    render={({ field }) => {
-                      const startDate = form.watch('startDate');
-                      const isNewIn2025 = startDate ? new Date(startDate).getFullYear() === 2025 : false;
-                      
-                      return (
-                        <FormItem className="mt-4">
-                          <FormLabel>🎯 Riduzioni Contributive INPS</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Seleziona riduzione contributiva" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="NONE">Nessuna riduzione</SelectItem>
-                              <SelectItem value="REDUCTION_35">
-                                🔸 Riduzione 35% (Art. 1, comma 77, L. 190/2014)
-                              </SelectItem>
-                              {isNewIn2025 && (
-                                <SelectItem value="REDUCTION_50">
-                                  🔹 Riduzione 50% (Nuovi iscritti 2025 - 36 mesi)
-                                </SelectItem>
-                              )}
-                            </SelectContent>
-                          </Select>
-                          <div className="text-sm text-gray-500 mt-2">
-                            {field.value === 'REDUCTION_35' && (
-                              <p>✅ Riduzione del 35% su quota fissa ed eccedente.</p>
-                            )}
-                            {field.value === 'REDUCTION_50' && (
-                              <p>✅ Riduzione del 50% per nuovi iscritti 2025 (primi 36 mesi).</p>
-                            )}
-                            {field.value === 'NONE' && (
-                              <p>💡 Le riduzioni contributive possono ridurre i contributi INPS.</p>
-                            )}
-                          </div>
-                        </FormItem>
-                      );
-                    }}
-                  />
-                )}
-              </div>
 
               {/* Situazione Finanziaria */}
               <div className="bg-purple-50 p-4 rounded-lg mb-6">
