@@ -34,7 +34,6 @@ const leadSchema = z.object({
   firstName: z.string().min(2, "Nome deve avere almeno 2 caratteri"),
   lastName: z.string().min(2, "Cognome deve avere almeno 2 caratteri"),
   email: z.string().email("Email non valida"),
-  businessSector: z.string().min(1, "Seleziona il settore merceologico"),
 });
 
 const emailSchema = z.object({
@@ -216,9 +215,25 @@ export default function CalculatorPage() {
     if (verificationCode === sentCode) {
       setEmailValidated(true);
       setIsUnlocked(true); // Sblocca il report completo
+      
+      // Salva automaticamente il lead nel database
+      const formData = leadForm.getValues();
+      if (formData.firstName && formData.lastName && formData.email) {
+        const selectedCategory = TAX_COEFFICIENTS[form.getValues().category as keyof typeof TAX_COEFFICIENTS];
+        const leadData = {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          businessSector: selectedCategory?.sector || 'OTHER',
+          calculationData: form.getValues(),
+        };
+        
+        submitLeadMutation.mutate(leadData);
+      }
+      
       toast({
         title: "Email verificata con successo!",
-        description: "Il report completo è ora disponibile",
+        description: "I tuoi dati sono stati salvati e il report completo è disponibile",
       });
     } else {
       toast({
@@ -875,33 +890,26 @@ export default function CalculatorPage() {
                   </div>
                 )}
 
-                <FormField
-                  control={leadForm.control}
-                  name="businessSector"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center">
-                        <Briefcase className="h-4 w-4 mr-2" />
-                        Settore Merceologico *
-                      </FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Seleziona il tuo settore" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {Object.entries(BUSINESS_SECTORS).map(([key, value]) => (
-                            <SelectItem key={key} value={key}>
-                              {value}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <FormLabel className="flex items-center mb-2">
+                    <Briefcase className="h-4 w-4 mr-2" />
+                    Categoria Selezionata
+                  </FormLabel>
+                  <div className="text-sm text-gray-700">
+                    {form.watch('category') && TAX_COEFFICIENTS[form.watch('category') as keyof typeof TAX_COEFFICIENTS] ? (
+                      <div>
+                        <span className="font-medium">
+                          {TAX_COEFFICIENTS[form.watch('category') as keyof typeof TAX_COEFFICIENTS].label}
+                        </span>
+                        <div className="text-xs text-gray-500 mt-1">
+                          Settore: {SECTORS[TAX_COEFFICIENTS[form.watch('category') as keyof typeof TAX_COEFFICIENTS].sector]?.label}
+                        </div>
+                      </div>
+                    ) : (
+                      <span className="text-gray-500">Nessuna categoria selezionata</span>
+                    )}
+                  </div>
+                </div>
 
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <div className="flex items-start space-x-3">
@@ -915,13 +923,24 @@ export default function CalculatorPage() {
                   </div>
                 </div>
 
-                <Button 
-                  type="submit" 
-                  className="w-full text-base md:text-lg py-4 md:py-3 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 touch-manipulation"
-                  disabled={submitLeadMutation.isPending || !emailValidated}
-                >
-                  {submitLeadMutation.isPending ? "Invio in corso..." : "🔓 SBLOCCA REPORT COMPLETO"}
-                </Button>
+                {!emailValidated && (
+                  <div className="bg-blue-50 p-4 rounded-lg text-center">
+                    <div className="text-blue-800 font-medium">
+                      Compila tutti i campi e verifica l'email per salvare automaticamente i dati
+                    </div>
+                  </div>
+                )}
+                
+                {emailValidated && (
+                  <div className="bg-green-50 p-4 rounded-lg text-center">
+                    <div className="text-green-800 font-medium">
+                      ✅ Dati salvati automaticamente
+                    </div>
+                    <div className="text-sm text-green-600 mt-1">
+                      I tuoi dati sono stati registrati nel nostro sistema
+                    </div>
+                  </div>
+                )}
               </form>
             </Form>
           </CardContent>
