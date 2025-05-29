@@ -215,9 +215,10 @@ export default function CalculatorPage() {
   const handleEmailVerification = () => {
     if (verificationCode === sentCode) {
       setEmailValidated(true);
+      setIsUnlocked(true); // Sblocca il report completo
       toast({
-        title: "Email verificata",
-        description: "Ora puoi completare la registrazione",
+        title: "Email verificata con successo!",
+        description: "Il report completo è ora disponibile",
       });
     } else {
       toast({
