@@ -1,7 +1,7 @@
 export const TAX_COEFFICIENTS = {
   'FOOD_COMMERCE': { 
     value: 0.40, 
-    label: 'Commercio - Vendita Prodotti Alimentari', 
+    label: 'Commercio - Prodotti Alimentari e Ristorazione', 
     description: 'Bar, ristoranti, gastronomie, vendita prodotti alimentari',
     examples: 'Bar, ristorante, pizzeria, gastronomia, alimentari, macelleria, panetteria'
   },
@@ -13,25 +13,25 @@ export const TAX_COEFFICIENTS = {
   },
   'INTERMEDIARIES': { 
     value: 0.62, 
-    label: 'Intermediazione e Agenzie', 
+    label: 'Intermediazione Commerciale e Agenzie', 
     description: 'Intermediazione commerciale, agenzie, rappresentanze',
     examples: 'Agente di commercio, mediatore immobiliare, agenzia viaggi, rappresentante'
   },
   'OTHER_ACTIVITIES': { 
     value: 0.67, 
-    label: 'Commercio Generale e Altri Servizi', 
+    label: 'Commercio al Dettaglio e Servizi Generali', 
     description: 'Commercio al dettaglio, servizi vari, artigianato di servizio',
     examples: 'Negozio abbigliamento, ferramenta, parrucchiere, estetista, riparazioni'
   },
   'PROFESSIONAL': { 
     value: 0.78, 
-    label: 'Servizi Professionali e Consulenza', 
+    label: 'Attività Professionali e Consulenza', 
     description: 'Attività intellettuali, consulenze, servizi professionali',
     examples: 'Consulente, avvocato, architetto, ingegnere, commercialista, fisioterapista'
   },
   'CONSTRUCTION': { 
     value: 0.86, 
-    label: 'Costruzioni e Opere Edili', 
+    label: 'Costruzioni e Attività Edili', 
     description: 'Attività edili, ristrutturazioni, impiantistica',
     examples: 'Muratore, elettricista, idraulico, imbianchino, piastrellista, carpentiere'
   }
