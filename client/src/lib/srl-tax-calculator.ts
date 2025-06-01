@@ -27,6 +27,11 @@ export interface SRLTaxCalculationResult {
   // IVA
   vatAmount: number;
   vatQuarterly: number;
+  vatDeadlines: Array<{
+    date: string;
+    amount: number;
+    type: string;
+  }>;
   
   // INPS
   inpsAdmin: number;
@@ -85,6 +90,45 @@ export const VAT_REGIMES = {
   }
 };
 
+function calculateVATDeadlines(vatRegime: string, totalVatAmount: number, frequency: number) {
+  const deadlines = [];
+  const currentYear = new Date().getFullYear();
+  const nextYear = currentYear + 1;
+  
+  if (vatRegime === 'TRIMESTRALE') {
+    // Scadenze trimestrali: 16 gennaio, 16 aprile, 16 luglio, 16 ottobre
+    const quarterlyAmount = totalVatAmount / 4;
+    deadlines.push(
+      { date: `16/01/${nextYear}`, amount: quarterlyAmount, type: 'IVA Trimestrale Q4' },
+      { date: `16/04/${nextYear}`, amount: quarterlyAmount, type: 'IVA Trimestrale Q1' },
+      { date: `16/07/${nextYear}`, amount: quarterlyAmount, type: 'IVA Trimestrale Q2' },
+      { date: `16/10/${nextYear}`, amount: quarterlyAmount, type: 'IVA Trimestrale Q3' }
+    );
+  } else if (vatRegime === 'MENSILE') {
+    // Scadenze mensili: entro il 16 del mese successivo
+    const monthlyAmount = totalVatAmount / 12;
+    for (let month = 1; month <= 12; month++) {
+      const year = month === 1 ? nextYear : currentYear;
+      const monthStr = month.toString().padStart(2, '0');
+      deadlines.push({
+        date: `16/${monthStr}/${year}`,
+        amount: monthlyAmount,
+        type: `IVA Mensile ${month === 1 ? 'Dicembre' : getMonthName(month - 1)}`
+      });
+    }
+  }
+  
+  return deadlines;
+}
+
+function getMonthName(month: number): string {
+  const months = [
+    'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
+    'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'
+  ];
+  return months[month] || '';
+}
+
 export function calculateSRLTaxes(input: SRLTaxCalculationInput): SRLTaxCalculationResult {
   // 1. CALCOLO REDDITO IMPONIBILE
   const grossProfit = input.revenue - input.costs - input.employeeCosts;
@@ -111,6 +155,9 @@ export function calculateSRLTaxes(input: SRLTaxCalculationInput): SRLTaxCalculat
   
   const vatFrequency = VAT_REGIMES[input.vatRegime as keyof typeof VAT_REGIMES]?.frequency || 4;
   const vatQuarterly = vatAmount / (vatFrequency / 4); // Normalizzato su base trimestrale
+
+  // Calcolo scadenze IVA
+  const vatDeadlines = calculateVATDeadlines(input.vatRegime, vatAmount, vatFrequency);
 
   // 5. CALCOLO CONTRIBUTI INPS
   
@@ -162,6 +209,10 @@ export function calculateSRLTaxes(input: SRLTaxCalculationInput): SRLTaxCalculat
     // IVA
     vatAmount: Math.round(vatAmount * 100) / 100,
     vatQuarterly: Math.round(vatQuarterly * 100) / 100,
+    vatDeadlines: vatDeadlines.map(deadline => ({
+      ...deadline,
+      amount: Math.round(deadline.amount * 100) / 100
+    })),
     
     // INPS
     inpsAdmin: Math.round(inpsAdmin * 100) / 100,

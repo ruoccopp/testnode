@@ -1153,6 +1153,35 @@ export default function CalculatorSRLPage() {
             </CardContent>
           </Card>
 
+          {/* Scadenze IVA */}
+          <Card className="mb-8">
+            <CardContent className="p-6">
+              <h3 className="text-xl font-bold mb-6 text-gray-900">📅 Scadenze IVA {new Date().getFullYear() + 1}</h3>
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {results.vatDeadlines.map((deadline, index) => (
+                  <div key={index} className="bg-orange-50 p-4 rounded-lg border border-orange-200">
+                    <div className="text-sm text-orange-600 font-medium">{deadline.type}</div>
+                    <div className="text-lg font-bold text-orange-900">{deadline.date}</div>
+                    <div className="text-xl font-bold text-orange-700 mt-2">
+                      {formatCurrency(deadline.amount)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              {results.vatDeadlines.length > 0 && (
+                <div className="mt-4 p-4 bg-orange-100 rounded-lg">
+                  <div className="text-sm text-orange-700">
+                    <strong>Totale IVA annuale:</strong> {formatCurrency(results.vatAmount)}
+                  </div>
+                  <div className="text-xs text-orange-600 mt-1">
+                    Regime: {VAT_REGIMES[form.watch('vatRegime') as keyof typeof VAT_REGIMES]?.label}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
           {/* Piano di Accantonamento */}
           <Card className="mb-8">
             <CardContent className="p-6">
