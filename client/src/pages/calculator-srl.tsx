@@ -97,6 +97,7 @@ export default function CalculatorSRLPage() {
   const [emailValidated, setEmailValidated] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
   const [sentCode, setSentCode] = useState("");
+  const [useSafetyMargin, setUseSafetyMargin] = useState(false);
   const { toast } = useToast();
 
   const form = useForm<CalculationForm>({
@@ -1710,12 +1711,78 @@ export default function CalculatorSRLPage() {
             </Card>
           </div>
 
+          {/* Piano di Accantonamento */}
+          <Card className="mb-6 md:mb-8">
+            <CardContent className="p-4 md:p-6">
+              <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-4">📊 Piano di Accantonamento Mensile</h3>
+              <p className="text-sm text-gray-600 mb-6">
+                Scegli il tipo di accantonamento per ottimizzare la gestione della liquidità aziendale
+              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
+                  <div className="flex items-start justify-between mb-3">
+                    <h4 className="font-semibold text-blue-900">💼 Accantonamento Standard</h4>
+                    <input 
+                      type="radio" 
+                      name="accantonamento" 
+                      className="mt-1"
+                      checked={!useSafetyMargin}
+                      onChange={() => setUseSafetyMargin(false)}
+                    />
+                  </div>
+                  <div className="space-y-2 text-sm text-blue-700">
+                    <div className="flex justify-between">
+                      <span>Importo mensile:</span>
+                      <span className="font-bold">{formatCurrency(results.monthlyAccrual)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Accumulo annuale:</span>
+                      <span className="font-semibold">{formatCurrency(results.monthlyAccrual * 12)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Copertura imposte:</span>
+                      <span className="font-bold">{((results.monthlyAccrual * 12) / results.totalDue * 100).toFixed(0)}%</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4">
+                  <div className="flex items-start justify-between mb-3">
+                    <h4 className="font-semibold text-green-900">🛡️ Con Margine Sicurezza (10%)</h4>
+                    <input 
+                      type="radio" 
+                      name="accantonamento" 
+                      className="mt-1"
+                      checked={useSafetyMargin}
+                      onChange={() => setUseSafetyMargin(true)}
+                    />
+                  </div>
+                  <div className="space-y-2 text-sm text-green-700">
+                    <div className="flex justify-between">
+                      <span>Importo mensile:</span>
+                      <span className="font-bold">{formatCurrency(calculateSafetyMargin(results.monthlyAccrual))}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Accumulo annuale:</span>
+                      <span className="font-semibold">{formatCurrency(calculateSafetyMargin(results.monthlyAccrual) * 12)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Margine extra:</span>
+                      <span className="font-bold text-green-800">+{formatCurrency(calculateSafetyMargin(results.monthlyAccrual) - results.monthlyAccrual)}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Scadenziere con Liquidità Progressiva */}
           <Card className="mb-6 md:mb-8">
             <CardContent className="p-4 md:p-6">
               <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-4">💰 Scadenziere con Liquidità Progressiva</h3>
               <p className="text-sm text-gray-600 mb-4">
-                Piano completo dal {new Date().toLocaleDateString('it-IT')} in poi - Solo scadenze future con versamenti consigliati (Saldo Attuale: {formatCurrency(form.watch('currentBalance') || 0)})
+                Piano completo dal {new Date().toLocaleDateString('it-IT')} in poi - Solo scadenze future (Saldo Attuale: {formatCurrency(form.watch('currentBalance') || 0)})
               </p>
               
               {/* Legenda */}
@@ -1724,7 +1791,7 @@ export default function CalculatorSRLPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                   <div className="flex items-center">
                     <span className="inline-block w-3 h-3 rounded-full bg-emerald-500 mr-2"></span>
-                    <span>Versamenti mensili consigliati ({formatCurrency(results.monthlyAccrual)})</span>
+                    <span>Versamenti mensili ({useSafetyMargin ? formatCurrency(calculateSafetyMargin(results.monthlyAccrual)) : formatCurrency(results.monthlyAccrual)})</span>
                   </div>
                   <div className="flex items-center">
                     <span className="inline-block w-3 h-3 rounded-full bg-blue-500 mr-2"></span>
@@ -1791,7 +1858,7 @@ export default function CalculatorSRLPage() {
                         <td className="p-3 text-right">
                           {payment.isIncome ? (
                             <span className="text-emerald-600 font-semibold">
-                              {formatCurrency(payment.amount)}
+                              {formatCurrency(useSafetyMargin ? calculateSafetyMargin(results.monthlyAccrual) : results.monthlyAccrual)}
                             </span>
                           ) : payment.deficit > 0 ? (
                             <span className="text-red-600 font-semibold">
