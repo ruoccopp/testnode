@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Building2, Euro, Users, Calculator, Download, Lock, Mail, User, MapPin } from "lucide-react";
+import { Building2, Euro, Users, Calculator, Download, Lock, Mail, User, MapPin, Calendar } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import * as XLSX from 'xlsx';
 import logoPath from "@assets/SmartRate - Colors.png";
@@ -119,8 +119,6 @@ export default function CalculatorSRLPage() {
       // Calcolo diretto senza API per semplicità
       const result = calculateSRLTaxes({
         ...data,
-        irapRate: IRAP_RATES[data.region as keyof typeof IRAP_RATES] || 3.9,
-        currentYear: 2024,
         vatDebt: data.vatDebt || 0,
       });
       return result;
@@ -1158,7 +1156,7 @@ export default function CalculatorSRLPage() {
             <CardContent className="p-6">
               <h3 className="text-xl font-bold mb-6 text-gray-900">📅 Scadenze IVA {new Date().getFullYear() + 1}</h3>
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {results.vatDeadlines.map((deadline, index) => (
+                {results.vatDeadlines && results.vatDeadlines.map((deadline, index) => (
                   <div key={index} className="bg-orange-50 p-4 rounded-lg border border-orange-200">
                     <div className="text-sm text-orange-600 font-medium">{deadline.type}</div>
                     <div className="text-lg font-bold text-orange-900">{deadline.date}</div>
@@ -1169,7 +1167,7 @@ export default function CalculatorSRLPage() {
                 ))}
               </div>
               
-              {results.vatDeadlines.length > 0 && (
+              {results.vatDeadlines && results.vatDeadlines.length > 0 && (
                 <div className="mt-4 p-4 bg-orange-100 rounded-lg">
                   <div className="text-sm text-orange-700">
                     <strong>Totale IVA annuale:</strong> {formatCurrency(results.vatAmount)}
@@ -1177,6 +1175,13 @@ export default function CalculatorSRLPage() {
                   <div className="text-xs text-orange-600 mt-1">
                     Regime: {VAT_REGIMES[form.watch('vatRegime') as keyof typeof VAT_REGIMES]?.label}
                   </div>
+                </div>
+              )}
+              
+              {(!results.vatDeadlines || results.vatDeadlines.length === 0) && (
+                <div className="text-center py-8 text-gray-500">
+                  <Calendar className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                  <p>Compila il form per visualizzare le scadenze IVA</p>
                 </div>
               )}
             </CardContent>
