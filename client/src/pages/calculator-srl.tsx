@@ -1714,9 +1714,36 @@ export default function CalculatorSRLPage() {
           <Card className="mb-6 md:mb-8">
             <CardContent className="p-4 md:p-6">
               <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-4">💰 Scadenziere con Liquidità Progressiva</h3>
-              <p className="text-sm text-gray-600 mb-6">
-                Cronologia pagamenti con calcolo progressivo del saldo disponibile (Saldo Iniziale: {formatCurrency(form.watch('currentBalance') || 0)})
+              <p className="text-sm text-gray-600 mb-4">
+                Piano completo che mostra versamenti consigliati e scadenze fiscali in ordine cronologico (Saldo Iniziale: {formatCurrency(form.watch('currentBalance') || 0)})
               </p>
+              
+              {/* Legenda */}
+              <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                <h4 className="font-semibold text-gray-900 mb-3">Legenda Movimenti:</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                  <div className="flex items-center">
+                    <span className="inline-block w-3 h-3 rounded-full bg-emerald-500 mr-2"></span>
+                    <span>Versamenti mensili consigliati ({formatCurrency(results.monthlyAccrual)})</span>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="inline-block w-3 h-3 rounded-full bg-blue-500 mr-2"></span>
+                    <span>Liquidazioni IVA</span>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="inline-block w-3 h-3 rounded-full bg-green-500 mr-2"></span>
+                    <span>Acconti/Saldi IRES</span>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="inline-block w-3 h-3 rounded-full bg-purple-500 mr-2"></span>
+                    <span>Acconti/Saldi IRAP</span>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="inline-block w-3 h-3 rounded-full bg-orange-500 mr-2"></span>
+                    <span>Contributi INPS</span>
+                  </div>
+                </div>
+              </div>
               
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
@@ -1732,11 +1759,15 @@ export default function CalculatorSRLPage() {
                   </thead>
                   <tbody>
                     {results.paymentSchedule.map((payment, index) => (
-                      <tr key={index} className={`border-b hover:bg-gray-50 ${payment.deficit > 0 ? 'bg-red-50' : ''}`}>
+                      <tr key={index} className={`border-b hover:bg-gray-50 ${
+                        payment.deficit > 0 ? 'bg-red-50' : 
+                        payment.isIncome ? 'bg-green-50' : ''
+                      }`}>
                         <td className="p-3 font-medium">{payment.date}</td>
                         <td className="p-3">
                           <div className="flex items-center">
                             <span className={`inline-block w-3 h-3 rounded-full mr-2 ${
+                              payment.category === 'ACCUMULO' ? 'bg-emerald-500' :
                               payment.category === 'IRES' ? 'bg-green-500' :
                               payment.category === 'IRAP' ? 'bg-purple-500' :
                               payment.category === 'IVA' ? 'bg-blue-500' :
@@ -1748,8 +1779,10 @@ export default function CalculatorSRLPage() {
                             </div>
                           </div>
                         </td>
-                        <td className="p-3 text-right font-semibold text-red-600">
-                          -{formatCurrency(payment.amount)}
+                        <td className={`p-3 text-right font-semibold ${
+                          payment.isIncome ? 'text-green-600' : 'text-red-600'
+                        }`}>
+                          {payment.isIncome ? '+' : '-'}{formatCurrency(payment.amount)}
                         </td>
                         <td className="p-3 text-right">
                           {formatCurrency(payment.previousBalance)}
@@ -1758,7 +1791,11 @@ export default function CalculatorSRLPage() {
                           {formatCurrency(payment.newBalance)}
                         </td>
                         <td className="p-3 text-center">
-                          {payment.deficit > 0 ? (
+                          {payment.isIncome ? (
+                            <span className="inline-block px-2 py-1 text-xs bg-emerald-100 text-emerald-800 rounded-full font-medium">
+                              Versamento
+                            </span>
+                          ) : payment.deficit > 0 ? (
                             <div className="text-center">
                               <span className="inline-block px-2 py-1 text-xs bg-red-100 text-red-800 rounded-full font-medium">
                                 Deficit

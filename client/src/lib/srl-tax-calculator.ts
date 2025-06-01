@@ -76,11 +76,12 @@ export interface SRLTaxCalculationResult {
     date: string;
     amount: number;
     type: string;
-    category: 'IRES' | 'IRAP' | 'IVA' | 'INPS';
+    category: 'IRES' | 'IRAP' | 'IVA' | 'INPS' | 'ACCUMULO';
     description: string;
     previousBalance: number;
     newBalance: number;
     deficit: number; // Eventuale deficit se il saldo non è sufficiente
+    isIncome: boolean; // true per versamenti, false per pagamenti
   }>;
 }
 
@@ -254,27 +255,72 @@ function createFiscalCalendar2025(iresAmount: number, irapAmount: number, vatDea
   });
 }
 
-function createPaymentSchedule(calendar: any[], currentBalance: number) {
+function createPaymentSchedule(calendar: any[], currentBalance: number, monthlyAccrual: number, fiscalYear: number) {
   let runningBalance = currentBalance;
+  const schedule = [];
   
-  return calendar.map(payment => {
-    const previousBalance = runningBalance;
-    const newBalance = runningBalance - payment.amount;
-    const deficit = newBalance < 0 ? Math.abs(newBalance) : 0;
-    
-    runningBalance = Math.max(0, newBalance); // Non può andare sotto zero
-    
-    return {
-      date: payment.date,
-      amount: payment.amount,
-      type: payment.type,
-      category: payment.category,
-      description: payment.description,
-      previousBalance: Math.round(previousBalance * 100) / 100,
-      newBalance: Math.round(newBalance * 100) / 100,
-      deficit: Math.round(deficit * 100) / 100
-    };
+  // Crea un array completo che include sia versamenti mensili che pagamenti tasse
+  const allEvents = [];
+  
+  // Aggiungi versamenti mensili consigliati
+  for (let month = 1; month <= 12; month++) {
+    const monthStr = month.toString().padStart(2, '0');
+    allEvents.push({
+      date: `01/${monthStr}/${fiscalYear}`,
+      amount: monthlyAccrual,
+      type: `Versamento Mensile ${month}`,
+      category: 'ACCUMULO' as const,
+      description: `Accantonamento mensile consigliato per imposte`,
+      isIncome: true
+    });
+  }
+  
+  // Aggiungi pagamenti tasse
+  calendar.forEach(payment => {
+    allEvents.push({
+      ...payment,
+      isIncome: false
+    });
   });
+  
+  // Ordina tutti gli eventi per data
+  allEvents.sort((a, b) => {
+    const dateA = new Date(a.date.split('/').reverse().join('-'));
+    const dateB = new Date(b.date.split('/').reverse().join('-'));
+    return dateA.getTime() - dateB.getTime();
+  });
+  
+  // Calcola il saldo progressivo
+  allEvents.forEach(event => {
+    const previousBalance = runningBalance;
+    
+    if (event.isIncome) {
+      // Versamento - aumenta il saldo
+      runningBalance += event.amount;
+    } else {
+      // Pagamento - diminuisce il saldo
+      runningBalance -= event.amount;
+    }
+    
+    const deficit = runningBalance < 0 ? Math.abs(runningBalance) : 0;
+    
+    schedule.push({
+      date: event.date,
+      amount: event.amount,
+      type: event.type,
+      category: event.category,
+      description: event.description,
+      previousBalance: Math.round(previousBalance * 100) / 100,
+      newBalance: Math.round(runningBalance * 100) / 100,
+      deficit: Math.round(deficit * 100) / 100,
+      isIncome: event.isIncome
+    });
+    
+    // Il saldo non può andare sotto zero fisicamente, ma lo teniamo per il calcolo
+    // runningBalance = Math.max(0, runningBalance);
+  });
+  
+  return schedule;
 }
 
 export function calculateSRLTaxes(input: SRLTaxCalculationInput): SRLTaxCalculationResult {
@@ -353,7 +399,7 @@ export function calculateSRLTaxes(input: SRLTaxCalculationInput): SRLTaxCalculat
   const calendar2025 = createFiscalCalendar2025(iresAmount, irapAmount, vatDeadlines, inpsTotalAmount, fiscalYear);
 
   // 10. SCADENZIERE CON LIQUIDITÀ PROGRESSIVA
-  const paymentSchedule = createPaymentSchedule(calendar2025, input.currentBalance);
+  const paymentSchedule = createPaymentSchedule(calendar2025, input.currentBalance, monthlyAccrual, fiscalYear);
 
   return {
     // Anno fiscale di riferimento
