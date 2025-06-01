@@ -109,30 +109,29 @@ export const VAT_REGIMES = {
   }
 };
 
-function calculateVATDeadlines(vatRegime: string, totalVatAmount: number, frequency: number) {
+function calculateVATDeadlines(vatRegime: string, totalVatAmount: number, frequency: number, fiscalYear: number = 2025) {
   const deadlines = [];
-  const currentYear = new Date().getFullYear();
-  const nextYear = currentYear + 1;
   
   if (vatRegime === 'TRIMESTRALE') {
-    // Scadenze trimestrali: 16 gennaio, 16 aprile, 16 luglio, 16 ottobre
+    // Scadenze trimestrali IVA per l'anno fiscale corrente
     const quarterlyAmount = totalVatAmount / 4;
     deadlines.push(
-      { date: `16/01/${nextYear}`, amount: quarterlyAmount, type: 'IVA Trimestrale Q4' },
-      { date: `16/04/${nextYear}`, amount: quarterlyAmount, type: 'IVA Trimestrale Q1' },
-      { date: `16/07/${nextYear}`, amount: quarterlyAmount, type: 'IVA Trimestrale Q2' },
-      { date: `16/10/${nextYear}`, amount: quarterlyAmount, type: 'IVA Trimestrale Q3' }
+      { date: `16/04/${fiscalYear}`, amount: quarterlyAmount, type: `IVA Q1 ${fiscalYear}` },
+      { date: `16/07/${fiscalYear}`, amount: quarterlyAmount, type: `IVA Q2 ${fiscalYear}` },
+      { date: `16/10/${fiscalYear}`, amount: quarterlyAmount, type: `IVA Q3 ${fiscalYear}` },
+      { date: `16/01/${fiscalYear + 1}`, amount: quarterlyAmount, type: `IVA Q4 ${fiscalYear}` }
     );
   } else if (vatRegime === 'MENSILE') {
-    // Scadenze mensili: entro il 16 del mese successivo
+    // Scadenze mensili IVA per l'anno fiscale corrente
     const monthlyAmount = totalVatAmount / 12;
     for (let month = 1; month <= 12; month++) {
-      const year = month === 1 ? nextYear : currentYear;
-      const monthStr = month.toString().padStart(2, '0');
+      const paymentMonth = month === 12 ? 1 : month + 1; // Il mese successivo
+      const paymentYear = month === 12 ? fiscalYear + 1 : fiscalYear;
+      const paymentMonthStr = paymentMonth.toString().padStart(2, '0');
       deadlines.push({
-        date: `16/${monthStr}/${year}`,
+        date: `16/${paymentMonthStr}/${paymentYear}`,
         amount: monthlyAmount,
-        type: `IVA Mensile ${month === 1 ? 'Dicembre' : getMonthName(month - 1)}`
+        type: `IVA ${getMonthName(month - 1)} ${fiscalYear}`
       });
     }
   }
@@ -278,7 +277,7 @@ export function calculateSRLTaxes(input: SRLTaxCalculationInput): SRLTaxCalculat
   const vatQuarterly = vatAmount / (vatFrequency / 4); // Normalizzato su base trimestrale
 
   // Calcolo scadenze IVA
-  const vatDeadlines = calculateVATDeadlines(input.vatRegime, vatAmount, vatFrequency);
+  const vatDeadlines = calculateVATDeadlines(input.vatRegime, vatAmount, vatFrequency, fiscalYear);
 
   // 5. CALCOLO CONTRIBUTI INPS
   
