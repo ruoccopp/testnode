@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { lazy } from "react";
 
 // Pages
+import HomePage from "@/pages/home";
 import Calculator from "@/pages/calculator";
 import Leads from "@/pages/leads";
 import NotFound from "@/pages/not-found";
@@ -16,7 +17,7 @@ function AuthenticatedApp() {
     <div className="min-h-full bg-gray-50">
       <div className="px-4 py-10 sm:px-6 lg:px_8 lg:py-6">
         <Switch>
-          <Route path="/" component={Calculator} />
+          <Route path="/" component={HomePage} />
           <Route path="/calculator" component={Calculator} />
           <Route path="/calculator-srl" component={lazy(() => import("./pages/calculator-srl"))} />
           <Route path="/leads" component={Leads} />
