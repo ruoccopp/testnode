@@ -33,8 +33,7 @@ const calculationSchema = z.object({
   vatOnPurchases: z.number().min(0, "L'IVA sugli acquisti deve essere positiva").optional(),
   currentBalance: z.number().min(0, "Il saldo deve essere positivo").optional(),
   
-  // Pianificazione avanzata
-  advancedPlanning: z.boolean().default(false),
+
   
   // Dati 2024 (anno chiuso)
   revenue2024: z.number().min(0).optional(),
