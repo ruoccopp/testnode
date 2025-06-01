@@ -1710,6 +1710,99 @@ export default function CalculatorSRLPage() {
             </Card>
           </div>
 
+          {/* Scadenziere con Liquidità Progressiva */}
+          <Card className="mb-6 md:mb-8">
+            <CardContent className="p-4 md:p-6">
+              <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-4">💰 Scadenziere con Liquidità Progressiva</h3>
+              <p className="text-sm text-gray-600 mb-6">
+                Cronologia pagamenti con calcolo progressivo del saldo disponibile (Saldo Iniziale: {formatCurrency(form.watch('currentBalance') || 0)})
+              </p>
+              
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b bg-gray-50">
+                      <th className="text-left p-3 font-semibold">Data</th>
+                      <th className="text-left p-3 font-semibold">Scadenza</th>
+                      <th className="text-right p-3 font-semibold">Importo</th>
+                      <th className="text-right p-3 font-semibold">Saldo Prima</th>
+                      <th className="text-right p-3 font-semibold">Saldo Dopo</th>
+                      <th className="text-center p-3 font-semibold">Stato</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {results.paymentSchedule.map((payment, index) => (
+                      <tr key={index} className={`border-b hover:bg-gray-50 ${payment.deficit > 0 ? 'bg-red-50' : ''}`}>
+                        <td className="p-3 font-medium">{payment.date}</td>
+                        <td className="p-3">
+                          <div className="flex items-center">
+                            <span className={`inline-block w-3 h-3 rounded-full mr-2 ${
+                              payment.category === 'IRES' ? 'bg-green-500' :
+                              payment.category === 'IRAP' ? 'bg-purple-500' :
+                              payment.category === 'IVA' ? 'bg-blue-500' :
+                              'bg-orange-500'
+                            }`}></span>
+                            <div>
+                              <div className="font-medium">{payment.type}</div>
+                              <div className="text-xs text-gray-500">{payment.description}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="p-3 text-right font-semibold text-red-600">
+                          -{formatCurrency(payment.amount)}
+                        </td>
+                        <td className="p-3 text-right">
+                          {formatCurrency(payment.previousBalance)}
+                        </td>
+                        <td className={`p-3 text-right font-semibold ${payment.newBalance < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                          {formatCurrency(payment.newBalance)}
+                        </td>
+                        <td className="p-3 text-center">
+                          {payment.deficit > 0 ? (
+                            <div className="text-center">
+                              <span className="inline-block px-2 py-1 text-xs bg-red-100 text-red-800 rounded-full font-medium">
+                                Deficit
+                              </span>
+                              <div className="text-xs text-red-600 mt-1">
+                                -{formatCurrency(payment.deficit)}
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="inline-block px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full font-medium">
+                              OK
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Riepilogo Deficit */}
+              {results.paymentSchedule.some(p => p.deficit > 0) && (
+                <div className="mt-6 bg-red-50 border-2 border-red-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-red-900 mb-3">⚠️ Deficit di Liquidità Rilevati</h4>
+                  <div className="space-y-2 text-sm">
+                    {results.paymentSchedule
+                      .filter(p => p.deficit > 0)
+                      .map((payment, index) => (
+                        <div key={index} className="flex justify-between text-red-700">
+                          <span>{payment.date} - {payment.type}:</span>
+                          <span className="font-semibold">Deficit {formatCurrency(payment.deficit)}</span>
+                        </div>
+                      ))}
+                  </div>
+                  <div className="mt-3 pt-3 border-t border-red-300">
+                    <p className="text-sm text-red-800 font-medium">
+                      💡 Suggerimento: Aumenta l'accantonamento mensile a {formatCurrency(calculateSafetyMargin(results.monthlyAccrual))} per evitare deficit
+                    </p>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
           {/* Download Report */}
           <Card className="mb-6 md:mb-8">
             <CardContent className="p-4 md:p-6">

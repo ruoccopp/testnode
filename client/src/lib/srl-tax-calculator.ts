@@ -70,6 +70,18 @@ export interface SRLTaxCalculationResult {
     category: 'IRES' | 'IRAP' | 'IVA' | 'INPS';
     description: string;
   }>;
+
+  // Scadenziere con liquidità progressiva
+  paymentSchedule: Array<{
+    date: string;
+    amount: number;
+    type: string;
+    category: 'IRES' | 'IRAP' | 'IVA' | 'INPS';
+    description: string;
+    previousBalance: number;
+    newBalance: number;
+    deficit: number; // Eventuale deficit se il saldo non è sufficiente
+  }>;
 }
 
 // Aliquote IRAP regionali 2024-2025
@@ -242,6 +254,29 @@ function createFiscalCalendar2025(iresAmount: number, irapAmount: number, vatDea
   });
 }
 
+function createPaymentSchedule(calendar: any[], currentBalance: number) {
+  let runningBalance = currentBalance;
+  
+  return calendar.map(payment => {
+    const previousBalance = runningBalance;
+    const newBalance = runningBalance - payment.amount;
+    const deficit = newBalance < 0 ? Math.abs(newBalance) : 0;
+    
+    runningBalance = Math.max(0, newBalance); // Non può andare sotto zero
+    
+    return {
+      date: payment.date,
+      amount: payment.amount,
+      type: payment.type,
+      category: payment.category,
+      description: payment.description,
+      previousBalance: Math.round(previousBalance * 100) / 100,
+      newBalance: Math.round(newBalance * 100) / 100,
+      deficit: Math.round(deficit * 100) / 100
+    };
+  });
+}
+
 export function calculateSRLTaxes(input: SRLTaxCalculationInput): SRLTaxCalculationResult {
   // Anno fiscale di riferimento (default: 2025)
   const fiscalYear = input.fiscalYear || 2025;
@@ -317,6 +352,9 @@ export function calculateSRLTaxes(input: SRLTaxCalculationInput): SRLTaxCalculat
   // 9. CALCOLO CALENDARIO COMPLETO 2025
   const calendar2025 = createFiscalCalendar2025(iresAmount, irapAmount, vatDeadlines, inpsTotalAmount, fiscalYear);
 
+  // 10. SCADENZIERE CON LIQUIDITÀ PROGRESSIVA
+  const paymentSchedule = createPaymentSchedule(calendar2025, input.currentBalance);
+
   return {
     // Anno fiscale di riferimento
     fiscalYear: fiscalYear,
@@ -362,7 +400,10 @@ export function calculateSRLTaxes(input: SRLTaxCalculationInput): SRLTaxCalculat
     quarterlyPayments: Math.round(quarterlyPayments * 100) / 100,
     
     // Calendario completo 2025
-    calendar2025: calendar2025
+    calendar2025: calendar2025,
+
+    // Scadenziere con liquidità progressiva
+    paymentSchedule: paymentSchedule
   };
 }
 
