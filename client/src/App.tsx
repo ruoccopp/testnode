@@ -4,6 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/use-auth";
+import { lazy } from "react";
 
 // Pages
 import Calculator from "@/pages/calculator";
@@ -13,10 +14,11 @@ import NotFound from "@/pages/not-found";
 function AuthenticatedApp() {
   return (
     <div className="min-h-full bg-gray-50">
-      <div className="px-4 py-10 sm:px-6 lg:px-8 lg:py-6">
+      <div className="px-4 py-10 sm:px-6 lg:px_8 lg:py-6">
         <Switch>
           <Route path="/" component={Calculator} />
           <Route path="/calculator" component={Calculator} />
+          <Route path="/calculator-srl" component={lazy(() => import("./pages/calculator-srl"))} />
           <Route path="/leads" component={Leads} />
           <Route component={NotFound} />
         </Switch>

@@ -6,6 +6,7 @@ const navigation = [
   { name: "Dashboard", href: "/", icon: BarChart3 },
   { name: "Attività", href: "/businesses", icon: Building },
   { name: "Calcolatore", href: "/calculator", icon: Calculator },
+  { name: "Calcolatore SRL", href: "/calculator-srl", icon: Building },
   { name: "Leads", href: "/leads", icon: Users },
   { name: "Fatture", href: "/invoices", icon: FileText },
   { name: "Scadenze", href: "/calendar", icon: Calendar },
