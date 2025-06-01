@@ -1,52 +1,66 @@
 
 export interface SRLTaxCalculationInput {
-  revenue: number;
-  costs: number;
-  employees: number;
-  employeeCosts: number;
-  adminSalary: number;
+  // Dati 2024 (anno fiscale concluso)
+  revenue2024: number;
+  costs2024: number;
+  employees2024: number;
+  employeeCosts2024: number;
+  adminSalary2024: number;
+  
+  // Previsioni 2025
+  revenue2025: number;
+  costs2025: number;
+  employees2025: number;
+  employeeCosts2025: number;
+  adminSalary2025: number;
+  
   region: string;
-  irapRate: number;
   vatRegime: string;
   hasVatDebt: boolean;
   vatDebt: number;
-  currentYear: number;
+  currentBalance: number;
 }
 
 export interface SRLTaxCalculationResult {
-  // Redditi
-  grossProfit: number;
-  taxableIncome: number;
+  // Calcoli 2024 (anno concluso)
+  calc2024: {
+    grossProfit: number;
+    taxableIncome: number;
+    iresAmount: number;
+    irapAmount: number;
+    vatAmount: number;
+    inpsAdmin: number;
+    inpsEmployees: number;
+    totalTaxes: number;
+  };
   
-  // IRES (24%)
-  iresAmount: number;
+  // Calcoli 2025 (previsioni)
+  calc2025: {
+    grossProfit: number;
+    taxableIncome: number;
+    iresAmount: number;
+    irapAmount: number;
+    vatAmount: number;
+    inpsAdmin: number;
+    inpsEmployees: number;
+    totalTaxes: number;
+  };
   
-  // IRAP (3.9% base)
-  irapBase: number;
-  irapAmount: number;
+  // Scadenze 2025 (basate su 2024)
+  scadenze2025: {
+    giugno: number;     // Saldo 2024 + I acconto 2025
+    novembre: number;   // II acconto 2025
+  };
   
-  // IVA
-  vatAmount: number;
-  vatQuarterly: number;
+  // Scadenze 2026 (basate su 2025)
+  scadenze2026: {
+    giugno: number;     // Saldo 2025 + I acconto 2026
+  };
   
-  // INPS
-  inpsAdmin: number;
-  inpsEmployees: number;
-  inpsTotalAmount: number;
-  
-  // Totali
-  totalTaxes: number;
-  totalDue: number;
-  
-  // Rate e acconti
-  iresFirstAcconto: number;
-  iresSecondAcconto: number;
-  irapFirstAcconto: number;
-  irapSecondAcconto: number;
-  
-  // Scadenze mensili
-  monthlyAccrual: number;
-  quarterlyPayments: number;
+  // Piano di accantonamento
+  currentBalance: number;
+  fabbisognoTotale: number;
+  accantonamentoMensile: number;
 }
 
 // Aliquote IRAP regionali 2024-2025

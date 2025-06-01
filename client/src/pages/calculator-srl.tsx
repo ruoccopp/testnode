@@ -20,16 +20,25 @@ import { Link } from "wouter";
 import { calculateSRLTaxes, IRAP_RATES, VAT_REGIMES, SRLTaxCalculationResult } from "@/lib/srl-tax-calculator";
 
 const calculationSchema = z.object({
-  revenue: z.number().min(0, "Il fatturato deve essere positivo"),
-  costs: z.number().min(0, "I costi devono essere positivi"),
-  employees: z.number().min(0, "Il numero dipendenti deve essere positivo").int(),
-  employeeCosts: z.number().min(0, "I costi dipendenti devono essere positivi"),
-  adminSalary: z.number().min(0, "Il compenso amministratore deve essere positivo"),
+  // Dati 2024 (anno fiscale concluso)
+  revenue2024: z.number().min(0, "Il fatturato 2024 deve essere positivo"),
+  costs2024: z.number().min(0, "I costi 2024 devono essere positivi"),
+  employees2024: z.number().min(0, "Il numero dipendenti 2024 deve essere positivo").int(),
+  employeeCosts2024: z.number().min(0, "I costi dipendenti 2024 devono essere positivi"),
+  adminSalary2024: z.number().min(0, "Il compenso amministratore 2024 deve essere positivo"),
+  
+  // Previsioni 2025
+  revenue2025: z.number().min(0, "Il fatturato previsto 2025 deve essere positivo"),
+  costs2025: z.number().min(0, "I costi previsti 2025 devono essere positivi"),
+  employees2025: z.number().min(0, "Il numero dipendenti previsto 2025 deve essere positivo").int(),
+  employeeCosts2025: z.number().min(0, "I costi dipendenti previsti 2025 devono essere positivi"),
+  adminSalary2025: z.number().min(0, "Il compenso amministratore previsto 2025 deve essere positivo"),
+  
   region: z.string().min(1, "Seleziona una regione"),
   vatRegime: z.string().min(1, "Seleziona il regime IVA"),
   hasVatDebt: z.boolean().default(false),
   vatDebt: z.number().min(0).optional(),
-  currentBalance: z.number().min(0, "Il saldo deve essere positivo").optional(),
+  currentBalance: z.number().min(0, "Il saldo disponibile deve essere positivo"),
 });
 
 const leadSchema = z.object({
