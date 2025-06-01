@@ -13,17 +13,22 @@ export interface SRLTaxCalculationInput {
   // IVA dettagliata
   vatOnSales?: number;    // IVA a debito sui ricavi (se diversa dal 22%)
   vatOnPurchases?: number; // IVA a credito sugli acquisti
+  // Anno fiscale di riferimento
+  fiscalYear?: number;    // Anno fiscale per il calcolo (default: 2025)
 }
 
 export interface SRLTaxCalculationResult {
+  // Anno fiscale di riferimento
+  fiscalYear: number;
+  
   // Redditi
   grossProfit: number;
   taxableIncome: number;
   
-  // IRES (24%)
+  // IRES (24%) - Anno fiscale di riferimento
   iresAmount: number;
   
-  // IRAP (3.9% base)
+  // IRAP (3.9% base) - Anno fiscale di riferimento  
   irapBase: number;
   irapAmount: number;
   
@@ -240,14 +245,17 @@ function createFiscalCalendar2025(iresAmount: number, irapAmount: number, vatDea
 }
 
 export function calculateSRLTaxes(input: SRLTaxCalculationInput): SRLTaxCalculationResult {
-  // 1. CALCOLO REDDITO IMPONIBILE
+  // Anno fiscale di riferimento (default: 2025)
+  const fiscalYear = input.fiscalYear || 2025;
+  
+  // 1. CALCOLO REDDITO IMPONIBILE (Anno fiscale ${fiscalYear})
   const grossProfit = input.revenue - input.costs - input.employeeCosts;
   const taxableIncome = Math.max(0, grossProfit - input.adminSalary);
 
-  // 2. CALCOLO IRES (24%)
+  // 2. CALCOLO IRES (24%) - Imposta sui redditi societari anno ${fiscalYear}
   const iresAmount = taxableIncome * 0.24;
 
-  // 3. CALCOLO IRAP
+  // 3. CALCOLO IRAP - Imposta regionale attività produttive anno ${fiscalYear}
   // Base IRAP = Ricavi - Costi deducibili (esclusi costi del personale)
   const irapBase = input.revenue - (input.costs - input.employeeCosts); // I costi del personale non sono deducibili
   const irapRate = (IRAP_RATES[input.region as keyof typeof IRAP_RATES] || 3.9) / 100;
@@ -312,6 +320,9 @@ export function calculateSRLTaxes(input: SRLTaxCalculationInput): SRLTaxCalculat
   const calendar2025 = createFiscalCalendar2025(iresAmount, irapAmount, vatDeadlines, inpsTotalAmount);
 
   return {
+    // Anno fiscale di riferimento
+    fiscalYear: fiscalYear,
+    
     // Redditi
     grossProfit: Math.round(grossProfit * 100) / 100,
     taxableIncome: Math.round(taxableIncome * 100) / 100,

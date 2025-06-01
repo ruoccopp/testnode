@@ -160,6 +160,7 @@ export default function CalculatorSRLPage() {
         vatOnSales: data.vatOnSales,
         vatOnPurchases: data.vatOnPurchases,
         currentBalance: data.currentBalance || 0,
+        fiscalYear: 2025,
       });
       return result;
     },
