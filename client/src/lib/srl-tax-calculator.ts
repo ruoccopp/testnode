@@ -1,19 +1,10 @@
 
 export interface SRLTaxCalculationInput {
-  // Dati 2024 (anno fiscale concluso)
-  revenue2024: number;
-  costs2024: number;
-  employees2024: number;
-  employeeCosts2024: number;
-  adminSalary2024: number;
-  
-  // Previsioni 2025
-  revenue2025: number;
-  costs2025: number;
-  employees2025: number;
-  employeeCosts2025: number;
-  adminSalary2025: number;
-  
+  revenue: number;
+  costs: number;
+  employees: number;
+  employeeCosts: number;
+  adminSalary: number;
   region: string;
   vatRegime: string;
   hasVatDebt: boolean;
@@ -22,45 +13,39 @@ export interface SRLTaxCalculationInput {
 }
 
 export interface SRLTaxCalculationResult {
-  // Calcoli 2024 (anno concluso)
-  calc2024: {
-    grossProfit: number;
-    taxableIncome: number;
-    iresAmount: number;
-    irapAmount: number;
-    vatAmount: number;
-    inpsAdmin: number;
-    inpsEmployees: number;
-    totalTaxes: number;
-  };
+  // Redditi
+  grossProfit: number;
+  taxableIncome: number;
   
-  // Calcoli 2025 (previsioni)
-  calc2025: {
-    grossProfit: number;
-    taxableIncome: number;
-    iresAmount: number;
-    irapAmount: number;
-    vatAmount: number;
-    inpsAdmin: number;
-    inpsEmployees: number;
-    totalTaxes: number;
-  };
+  // IRES (24%)
+  iresAmount: number;
   
-  // Scadenze 2025 (basate su 2024)
-  scadenze2025: {
-    giugno: number;     // Saldo 2024 + I acconto 2025
-    novembre: number;   // II acconto 2025
-  };
+  // IRAP (3.9% base)
+  irapBase: number;
+  irapAmount: number;
   
-  // Scadenze 2026 (basate su 2025)
-  scadenze2026: {
-    giugno: number;     // Saldo 2025 + I acconto 2026
-  };
+  // IVA
+  vatAmount: number;
+  vatQuarterly: number;
   
-  // Piano di accantonamento
-  currentBalance: number;
-  fabbisognoTotale: number;
-  accantonamentoMensile: number;
+  // INPS
+  inpsAdmin: number;
+  inpsEmployees: number;
+  inpsTotalAmount: number;
+  
+  // Totali
+  totalTaxes: number;
+  totalDue: number;
+  
+  // Rate e acconti
+  iresFirstAcconto: number;
+  iresSecondAcconto: number;
+  irapFirstAcconto: number;
+  irapSecondAcconto: number;
+  
+  // Scadenze mensili
+  monthlyAccrual: number;
+  quarterlyPayments: number;
 }
 
 // Aliquote IRAP regionali 2024-2025
@@ -101,103 +86,90 @@ export const VAT_REGIMES = {
 };
 
 export function calculateSRLTaxes(input: SRLTaxCalculationInput): SRLTaxCalculationResult {
-  const { revenue, costs, employees, employeeCosts, adminSalary, region, vatRegime, hasVatDebt, vatDebt } = input;
+  // Funzione helper per calcolare imposte per un anno specifico
+  function calculateYearTaxes(revenue: number, costs: number, employees: number, employeeCosts: number, adminSalary: number, region: string) {
+    const grossProfit = revenue - costs - employeeCosts;
+    const taxableIncome = Math.max(0, grossProfit - adminSalary);
+    const iresAmount = taxableIncome * 0.24;
+    const irapBase = revenue - (costs - employeeCosts);
+    const irapRate = (IRAP_RATES[region as keyof typeof IRAP_RATES] || 3.9) / 100;
+    const irapAmount = Math.max(0, irapBase * irapRate);
+    const vatBase = revenue * 0.22;
+    const vatCredit = costs * 0.22;
+    const vatAmount = Math.max(0, vatBase - vatCredit);
+    
+    let inpsAdmin = 0;
+    if (adminSalary > 0) {
+      const adminMinimum = 18324;
+      const adminMaximum = 105014;
+      const adminContributionBase = Math.max(adminMinimum, Math.min(adminSalary, adminMaximum));
+      inpsAdmin = adminContributionBase * 0.24;
+    }
+    
+    let inpsEmployees = 0;
+    if (employees > 0 && employeeCosts > 0) {
+      inpsEmployees = employeeCosts * 0.30;
+    }
+    
+    const totalTaxes = iresAmount + irapAmount + vatAmount + inpsAdmin + inpsEmployees;
 
-  // 1. CALCOLO REDDITO IMPONIBILE
-  const grossProfit = revenue - costs - employeeCosts;
-  const taxableIncome = Math.max(0, grossProfit - adminSalary);
-
-  // 2. CALCOLO IRES (24%)
-  const iresAmount = taxableIncome * 0.24;
-
-  // 3. CALCOLO IRAP
-  // Base IRAP = Ricavi - Costi deducibili (esclusi costi del personale)
-  const irapBase = revenue - (costs - employeeCosts); // I costi del personale non sono deducibili
-  const irapRate = (IRAP_RATES[region as keyof typeof IRAP_RATES] || 3.9) / 100;
-  const irapAmount = Math.max(0, irapBase * irapRate);
-
-  // 4. CALCOLO IVA
-  // Stimiamo IVA al 22% sul margine (semplificazione)
-  const vatBase = revenue * 0.22; // IVA a debito stimata
-  const vatCredit = costs * 0.22; // IVA a credito stimata
-  let vatAmount = Math.max(0, vatBase - vatCredit);
-  
-  if (hasVatDebt && vatDebt > 0) {
-    vatAmount += vatDebt;
+    return {
+      grossProfit,
+      taxableIncome,
+      iresAmount,
+      irapAmount,
+      vatAmount,
+      inpsAdmin,
+      inpsEmployees,
+      totalTaxes
+    };
   }
-  
-  const vatFrequency = VAT_REGIMES[vatRegime as keyof typeof VAT_REGIMES]?.frequency || 4;
-  const vatQuarterly = vatAmount / (vatFrequency / 4); // Normalizzato su base trimestrale
 
-  // 5. CALCOLO CONTRIBUTI INPS
+  // Calcoli per 2024 e 2025
+  const calc2024 = calculateYearTaxes(
+    input.revenue2024, input.costs2024, input.employees2024, 
+    input.employeeCosts2024, input.adminSalary2024, input.region
+  );
   
-  // INPS Amministratore (se presente)
-  let inpsAdmin = 0;
-  if (adminSalary > 0) {
-    // Contributi amministratore: 24% del compenso (min €18.324, max €105.014)
-    const adminMinimum = 18324;
-    const adminMaximum = 105014;
-    const adminContributionBase = Math.max(adminMinimum, Math.min(adminSalary, adminMaximum));
-    inpsAdmin = adminContributionBase * 0.24;
-  }
+  const calc2025 = calculateYearTaxes(
+    input.revenue2025, input.costs2025, input.employees2025, 
+    input.employeeCosts2025, input.adminSalary2025, input.region
+  );
+
+  // Calcolo scadenze 2025 (basate su 2024)
+  const saldo2024 = calc2024.totalTaxes;
+  const primoAcconto2025 = calc2024.totalTaxes * 0.40;
+  const secondoAcconto2025 = calc2024.totalTaxes * 0.60;
   
-  // INPS Dipendenti (se presenti)
-  let inpsEmployees = 0;
-  if (employees > 0 && employeeCosts > 0) {
-    // Contributi dipendenti: 30% circa sui salari lordi
-    inpsEmployees = employeeCosts * 0.30;
-  }
+  const scadenze2025 = {
+    giugno: saldo2024 + primoAcconto2025,
+    novembre: secondoAcconto2025
+  };
+
+  // Calcolo scadenze 2026 (basate su 2025)
+  const saldo2025 = calc2025.totalTaxes;
+  const primoAcconto2026 = calc2025.totalTaxes * 0.40;
   
-  const inpsTotalAmount = inpsAdmin + inpsEmployees;
+  const scadenze2026 = {
+    giugno: saldo2025 + primoAcconto2026
+  };
 
-  // 6. CALCOLO TOTALI
-  const totalTaxes = iresAmount + irapAmount;
-  const totalDue = totalTaxes + inpsTotalAmount + vatAmount;
-
-  // 7. CALCOLO ACCONTI (40% prima rata, 60% seconda rata)
-  const iresFirstAcconto = iresAmount * 0.40;
-  const iresSecondAcconto = iresAmount * 0.60;
-  const irapFirstAcconto = irapAmount * 0.40;
-  const irapSecondAcconto = irapAmount * 0.60;
-
-  // 8. ACCANTONAMENTO MENSILE
-  const monthlyAccrual = totalDue / 12;
-  const quarterlyPayments = (vatQuarterly + inpsTotalAmount / 4);
+  // Calcolo piano di accantonamento
+  const today = new Date();
+  const giugno2025 = new Date(2025, 5, 30);
+  const mesiFinoGiugno2025 = Math.max(1, Math.ceil((giugno2025.getTime() - today.getTime()) / (1000 * 60 * 60 * 24 * 30)));
+  
+  const fabbisognoTotale = scadenze2025.giugno + scadenze2025.novembre + scadenze2026.giugno - input.currentBalance;
+  const accantonamentoMensile = Math.max(0, fabbisognoTotale / mesiFinoGiugno2025);
 
   return {
-    // Redditi
-    grossProfit: Math.round(grossProfit * 100) / 100,
-    taxableIncome: Math.round(taxableIncome * 100) / 100,
-    
-    // IRES
-    iresAmount: Math.round(iresAmount * 100) / 100,
-    
-    // IRAP
-    irapBase: Math.round(irapBase * 100) / 100,
-    irapAmount: Math.round(irapAmount * 100) / 100,
-    
-    // IVA
-    vatAmount: Math.round(vatAmount * 100) / 100,
-    vatQuarterly: Math.round(vatQuarterly * 100) / 100,
-    
-    // INPS
-    inpsAdmin: Math.round(inpsAdmin * 100) / 100,
-    inpsEmployees: Math.round(inpsEmployees * 100) / 100,
-    inpsTotalAmount: Math.round(inpsTotalAmount * 100) / 100,
-    
-    // Totali
-    totalTaxes: Math.round(totalTaxes * 100) / 100,
-    totalDue: Math.round(totalDue * 100) / 100,
-    
-    // Acconti
-    iresFirstAcconto: Math.round(iresFirstAcconto * 100) / 100,
-    iresSecondAcconto: Math.round(iresSecondAcconto * 100) / 100,
-    irapFirstAcconto: Math.round(irapFirstAcconto * 100) / 100,
-    irapSecondAcconto: Math.round(irapSecondAcconto * 100) / 100,
-    
-    // Pianificazione
-    monthlyAccrual: Math.round(monthlyAccrual * 100) / 100,
-    quarterlyPayments: Math.round(quarterlyPayments * 100) / 100
+    calc2024,
+    calc2025,
+    scadenze2025,
+    scadenze2026,
+    currentBalance: input.currentBalance,
+    fabbisognoTotale: Math.max(0, fabbisognoTotale),
+    accantonamentoMensile
   };
 }
 
