@@ -29,6 +29,8 @@ const calculationSchema = z.object({
   vatRegime: z.string().min(1, "Seleziona il regime IVA"),
   hasVatDebt: z.boolean().default(false),
   vatDebt: z.number().min(0).optional(),
+  vatOnSales: z.number().min(0, "L'IVA sui ricavi deve essere positiva").optional(),
+  vatOnPurchases: z.number().min(0, "L'IVA sugli acquisti deve essere positiva").optional(),
   currentBalance: z.number().min(0, "Il saldo deve essere positivo").optional(),
   
   // Pianificazione avanzata

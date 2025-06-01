@@ -10,6 +10,9 @@ export interface SRLTaxCalculationInput {
   hasVatDebt: boolean;
   vatDebt: number;
   currentBalance: number;
+  // IVA dettagliata
+  vatOnSales?: number;    // IVA a debito sui ricavi (se diversa dal 22%)
+  vatOnPurchases?: number; // IVA a credito sugli acquisti
 }
 
 export interface SRLTaxCalculationResult {
@@ -25,7 +28,9 @@ export interface SRLTaxCalculationResult {
   irapAmount: number;
   
   // IVA
-  vatAmount: number;
+  vatOnSales: number;      // IVA a debito
+  vatOnPurchases: number;  // IVA a credito
+  vatAmount: number;       // IVA netta da versare
   vatQuarterly: number;
   vatDeadlines: Array<{
     date: string;
@@ -249,10 +254,14 @@ export function calculateSRLTaxes(input: SRLTaxCalculationInput): SRLTaxCalculat
   const irapAmount = Math.max(0, irapBase * irapRate);
 
   // 4. CALCOLO IVA
-  // Stimiamo IVA al 22% sul margine (semplificazione)
-  const vatBase = input.revenue * 0.22; // IVA a debito stimata
-  const vatCredit = input.costs * 0.22; // IVA a credito stimata
-  let vatAmount = Math.max(0, vatBase - vatCredit);
+  // IVA a debito sui ricavi (default 22% se non specificato)
+  const vatOnSales = input.vatOnSales || (input.revenue * 0.22);
+  
+  // IVA a credito sugli acquisti (default 22% sui costi se non specificato)
+  const vatOnPurchases = input.vatOnPurchases || (input.costs * 0.22);
+  
+  // IVA netta da versare = IVA a debito - IVA a credito
+  let vatAmount = Math.max(0, vatOnSales - vatOnPurchases);
   
   if (input.hasVatDebt && input.vatDebt > 0) {
     vatAmount += input.vatDebt;
@@ -315,6 +324,8 @@ export function calculateSRLTaxes(input: SRLTaxCalculationInput): SRLTaxCalculat
     irapAmount: Math.round(irapAmount * 100) / 100,
     
     // IVA
+    vatOnSales: Math.round(vatOnSales * 100) / 100,
+    vatOnPurchases: Math.round(vatOnPurchases * 100) / 100,
     vatAmount: Math.round(vatAmount * 100) / 100,
     vatQuarterly: Math.round(vatQuarterly * 100) / 100,
     vatDeadlines: vatDeadlines.map(deadline => ({
