@@ -4,11 +4,11 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/use-auth";
-import { lazy } from "react";
 
 // Pages
 import HomePage from "@/pages/home";
 import Calculator from "@/pages/calculator";
+import CalculatorSRL from "@/pages/calculator-srl";
 import Leads from "@/pages/leads";
 import NotFound from "@/pages/not-found";
 
@@ -19,7 +19,7 @@ function AuthenticatedApp() {
         <Switch>
           <Route path="/" component={HomePage} />
           <Route path="/calculator" component={Calculator} />
-          <Route path="/calculator-srl" component={lazy(() => import("./pages/calculator-srl"))} />
+          <Route path="/calculator-srl" component={CalculatorSRL} />
           <Route path="/leads" component={Leads} />
           <Route component={NotFound} />
         </Switch>
