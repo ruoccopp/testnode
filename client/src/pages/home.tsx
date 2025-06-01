@@ -126,14 +126,13 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <Button 
-                className="w-full bg-purple-600 hover:bg-purple-700 py-3 text-lg"
-                onClick={() => window.open('https://calcolatore-srl.smartratesrl.com', '_blank')}
-              >
-                <Building className="mr-2 h-5 w-5" />
-                Calcola SRL
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
+              <Link href="/calculator-srl">
+                <Button className="w-full bg-purple-600 hover:bg-purple-700 py-3 text-lg">
+                  <Building className="mr-2 h-5 w-5" />
+                  Calcola SRL
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
             </CardContent>
           </Card>
         </div>
