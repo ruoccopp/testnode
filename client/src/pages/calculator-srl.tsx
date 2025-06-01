@@ -462,35 +462,9 @@ export default function CalculatorSRLPage() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-6">
               
-              {/* Switch Pianificazione Avanzata */}
-              <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg border-2 border-blue-200">
-                <FormField
-                  control={form.control}
-                  name="advancedPlanning"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-lg font-semibold text-blue-900">
-                          🎯 Pianificazione Fiscale Avanzata
-                        </FormLabel>
-                        <div className="text-sm text-blue-700">
-                          Abilita raccolta dati 2024 e situazione corrente 2025 per pianificazione completa
-                        </div>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                          className="data-[state=checked]:bg-blue-600"
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </div>
 
-              {/* Sezione Dati 2024 (se pianificazione avanzata abilitata) */}
-              {form.watch('advancedPlanning') && (
+
+              {/* Sezione Dati 2024 */}
                 <div className="bg-orange-50 p-4 rounded-lg border-2 border-orange-200">
                   <h3 className="font-semibold text-orange-900 mb-4 flex items-center">
                     <Calendar className="h-5 w-5 mr-2" />
@@ -578,10 +552,8 @@ export default function CalculatorSRLPage() {
                     />
                   </div>
                 </div>
-              )}
 
-              {/* Sezione Situazione 2025 (se pianificazione avanzata abilitata) */}
-              {form.watch('advancedPlanning') && (
+              {/* Sezione Situazione 2025 */}
                 <div className="bg-green-50 p-4 rounded-lg border-2 border-green-200">
                   <h3 className="font-semibold text-green-900 mb-4 flex items-center">
                     <TrendingUp className="h-5 w-5 mr-2" />
@@ -707,11 +679,10 @@ export default function CalculatorSRLPage() {
                     />
                   </div>
                 </div>
-              )}
 
               {/* Dati Economici Standard */}
               <div className="bg-blue-50 p-3 md:p-4 rounded-lg mb-4 md:mb-6">
-                <h3 className="font-medium text-blue-900 mb-3 md:mb-4 text-sm md:text-base">📊 Dati Economici {form.watch('advancedPlanning') ? '2025 (Proiezione Annuale)' : ''}</h3>
+                <h3 className="font-medium text-blue-900 mb-3 md:mb-4 text-sm md:text-base">📊 Dati Economici 2025 (Proiezione Annuale)</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
