@@ -148,7 +148,7 @@ function getMonthName(month: number): string {
   return months[month] || '';
 }
 
-function createFiscalCalendar2025(iresAmount: number, irapAmount: number, vatDeadlines: any[], inpsTotalAmount: number) {
+function createFiscalCalendar2025(iresAmount: number, irapAmount: number, vatDeadlines: any[], inpsTotalAmount: number, fiscalYear: number) {
   const calendar = [];
   
   // Scadenze IVA (già calcolate)
@@ -158,80 +158,79 @@ function createFiscalCalendar2025(iresAmount: number, irapAmount: number, vatDea
     description: deadline.type
   })));
   
-  // Scadenze IRES e IRAP 2025
-  // 16 giugno 2025: Saldo 2024 + I acconto 2025
-  const saldo2024IRES = iresAmount;
-  const saldo2024IRAP = irapAmount;
-  const primoAccontoIRES = iresAmount * 0.40;
-  const primoAccontoIRAP = irapAmount * 0.40;
+  // ========== SCADENZE ANNO 2025 ==========
   
+  // ACCONTI IRES/IRAP per anno ${fiscalYear} (calcolati sui dati inseriti)
+  const primoAccontoIRES2025 = iresAmount * 0.40; // 40% primo acconto
+  const secondoAccontoIRES2025 = iresAmount * 0.60; // 60% secondo acconto
+  const primoAccontoIRAP2025 = irapAmount * 0.40;
+  const secondoAccontoIRAP2025 = irapAmount * 0.60;
+  
+  // Primo acconto IRES/IRAP ${fiscalYear} - da pagare a giugno ${fiscalYear}
   calendar.push({
-    date: '16/06/2025',
-    amount: saldo2024IRES + primoAccontoIRES,
-    type: 'IRES Saldo 2024 + I Acconto 2025',
+    date: `30/06/${fiscalYear}`,
+    amount: primoAccontoIRES2025,
+    type: `IRES I Acconto ${fiscalYear}`,
     category: 'IRES' as const,
-    description: `Saldo ${saldo2024IRES.toFixed(2)}€ + I Acconto ${primoAccontoIRES.toFixed(2)}€`
+    description: `Primo acconto IRES anno ${fiscalYear} (40% sui dati previsionali)`
   });
   
   calendar.push({
-    date: '16/06/2025',
-    amount: saldo2024IRAP + primoAccontoIRAP,
-    type: 'IRAP Saldo 2024 + I Acconto 2025',
+    date: `30/06/${fiscalYear}`,
+    amount: primoAccontoIRAP2025,
+    type: `IRAP I Acconto ${fiscalYear}`,
     category: 'IRAP' as const,
-    description: `Saldo ${saldo2024IRAP.toFixed(2)}€ + I Acconto ${primoAccontoIRAP.toFixed(2)}€`
+    description: `Primo acconto IRAP anno ${fiscalYear} (40% sui dati previsionali)`
   });
   
-  // 30 novembre 2025: II acconto IRES e IRAP
-  const secondoAccontoIRES = iresAmount * 0.60;
-  const secondoAccontoIRAP = irapAmount * 0.60;
-  
+  // Secondo acconto IRES/IRAP ${fiscalYear} - da pagare a novembre ${fiscalYear}
   calendar.push({
-    date: '30/11/2025',
-    amount: secondoAccontoIRES,
-    type: 'IRES II Acconto 2025',
+    date: `30/11/${fiscalYear}`,
+    amount: secondoAccontoIRES2025,
+    type: `IRES II Acconto ${fiscalYear}`,
     category: 'IRES' as const,
-    description: 'Secondo acconto basato su reddito 2024'
+    description: `Secondo acconto IRES anno ${fiscalYear} (60% sui dati previsionali)`
   });
   
   calendar.push({
-    date: '30/11/2025',
-    amount: secondoAccontoIRAP,
-    type: 'IRAP II Acconto 2025',
+    date: `30/11/${fiscalYear}`,
+    amount: secondoAccontoIRAP2025,
+    type: `IRAP II Acconto ${fiscalYear}`,
     category: 'IRAP' as const,
-    description: 'Secondo acconto basato su reddito 2024'
+    description: `Secondo acconto IRAP anno ${fiscalYear} (60% sui dati previsionali)`
   });
   
-  // Scadenze INPS trimestrali (approssimative)
-  const inpsQuarterly = inpsTotalAmount / 4;
-  if (inpsQuarterly > 0) {
+  // CONTRIBUTI INPS per anno ${fiscalYear} - da pagare durante ${fiscalYear}
+  const inpsQuarterly2025 = inpsTotalAmount / 4;
+  if (inpsQuarterly2025 > 0) {
     calendar.push(
       {
-        date: '16/01/2025',
-        amount: inpsQuarterly,
-        type: 'INPS Trimestrale Q4 2024',
+        date: `16/05/${fiscalYear}`,
+        amount: inpsQuarterly2025,
+        type: `INPS I Trim ${fiscalYear}`,
         category: 'INPS' as const,
-        description: 'Contributi previdenziali trimestrali'
+        description: `Contributi INPS anno ${fiscalYear} - I trimestre`
       },
       {
-        date: '16/04/2025',
-        amount: inpsQuarterly,
-        type: 'INPS Trimestrale Q1 2025',
+        date: `20/08/${fiscalYear}`,
+        amount: inpsQuarterly2025,
+        type: `INPS II Trim ${fiscalYear}`,
         category: 'INPS' as const,
-        description: 'Contributi previdenziali trimestrali'
+        description: `Contributi INPS anno ${fiscalYear} - II trimestre`
       },
       {
-        date: '16/07/2025',
-        amount: inpsQuarterly,
-        type: 'INPS Trimestrale Q2 2025',
+        date: `16/11/${fiscalYear}`,
+        amount: inpsQuarterly2025,
+        type: `INPS III Trim ${fiscalYear}`,
         category: 'INPS' as const,
-        description: 'Contributi previdenziali trimestrali'
+        description: `Contributi INPS anno ${fiscalYear} - III trimestre`
       },
       {
-        date: '16/10/2025',
-        amount: inpsQuarterly,
-        type: 'INPS Trimestrale Q3 2025',
+        date: `16/02/${fiscalYear + 1}`,
+        amount: inpsQuarterly2025,
+        type: `INPS IV Trim ${fiscalYear}`,
         category: 'INPS' as const,
-        description: 'Contributi previdenziali trimestrali'
+        description: `Contributi INPS anno ${fiscalYear} - IV trimestre`
       }
     );
   }
@@ -317,7 +316,7 @@ export function calculateSRLTaxes(input: SRLTaxCalculationInput): SRLTaxCalculat
   const quarterlyPayments = (vatQuarterly + inpsTotalAmount / 4);
 
   // 9. CALCOLO CALENDARIO COMPLETO 2025
-  const calendar2025 = createFiscalCalendar2025(iresAmount, irapAmount, vatDeadlines, inpsTotalAmount);
+  const calendar2025 = createFiscalCalendar2025(iresAmount, irapAmount, vatDeadlines, inpsTotalAmount, fiscalYear);
 
   return {
     // Anno fiscale di riferimento
