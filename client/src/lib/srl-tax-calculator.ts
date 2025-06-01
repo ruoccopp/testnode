@@ -258,29 +258,40 @@ function createFiscalCalendar2025(iresAmount: number, irapAmount: number, vatDea
 function createPaymentSchedule(calendar: any[], currentBalance: number, monthlyAccrual: number, fiscalYear: number) {
   let runningBalance = currentBalance;
   const schedule = [];
+  const today = new Date();
   
   // Crea un array completo che include sia versamenti mensili che pagamenti tasse
   const allEvents = [];
   
-  // Aggiungi versamenti mensili consigliati
+  // Aggiungi versamenti mensili consigliati solo per i mesi futuri
   for (let month = 1; month <= 12; month++) {
     const monthStr = month.toString().padStart(2, '0');
-    allEvents.push({
-      date: `01/${monthStr}/${fiscalYear}`,
-      amount: monthlyAccrual,
-      type: `Versamento Mensile ${month}`,
-      category: 'ACCUMULO' as const,
-      description: `Accantonamento mensile consigliato per imposte`,
-      isIncome: true
-    });
+    const paymentDate = new Date(`${fiscalYear}-${monthStr}-01`);
+    
+    // Include solo le date future
+    if (paymentDate >= today) {
+      allEvents.push({
+        date: `01/${monthStr}/${fiscalYear}`,
+        amount: monthlyAccrual,
+        type: `Versamento Mensile ${month}`,
+        category: 'ACCUMULO' as const,
+        description: `Accantonamento mensile consigliato per imposte`,
+        isIncome: true
+      });
+    }
   }
   
-  // Aggiungi pagamenti tasse
+  // Aggiungi pagamenti tasse solo per le date future
   calendar.forEach(payment => {
-    allEvents.push({
-      ...payment,
-      isIncome: false
-    });
+    const paymentDate = new Date(payment.date.split('/').reverse().join('-'));
+    
+    // Include solo le scadenze future
+    if (paymentDate >= today) {
+      allEvents.push({
+        ...payment,
+        isIncome: false
+      });
+    }
   });
   
   // Ordina tutti gli eventi per data

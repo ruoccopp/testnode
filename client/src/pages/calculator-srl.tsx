@@ -1715,7 +1715,7 @@ export default function CalculatorSRLPage() {
             <CardContent className="p-4 md:p-6">
               <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-4">💰 Scadenziere con Liquidità Progressiva</h3>
               <p className="text-sm text-gray-600 mb-4">
-                Piano completo che mostra versamenti consigliati e scadenze fiscali in ordine cronologico (Saldo Iniziale: {formatCurrency(form.watch('currentBalance') || 0)})
+                Piano completo dal {new Date().toLocaleDateString('it-IT')} in poi - Solo scadenze future con versamenti consigliati (Saldo Attuale: {formatCurrency(form.watch('currentBalance') || 0)})
               </p>
               
               {/* Legenda */}
