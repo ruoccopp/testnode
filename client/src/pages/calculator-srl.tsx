@@ -1038,6 +1038,32 @@ export default function CalculatorSRLPage() {
                 <span className="text-sm font-medium">Report completo bloccato</span>
               </div>
             </div>
+
+            {/* Sezione Anno Fiscale di Riferimento */}
+            <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 mb-6">
+              <h4 className="font-semibold text-blue-900 mb-3 flex items-center">
+                <Calendar className="h-5 w-5 mr-2" />
+                Anno Fiscale di Riferimento: {results.fiscalYear}
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-blue-700">
+                <div className="space-y-2">
+                  <p><strong>IRES (24%):</strong> Anno fiscale {results.fiscalYear}</p>
+                  <p><strong>IRAP:</strong> Anno fiscale {results.fiscalYear}</p>
+                </div>
+                <div className="space-y-2">
+                  <p><strong>IVA:</strong> Liquidazioni anno {results.fiscalYear}</p>
+                  <p><strong>INPS:</strong> Contributi anno {results.fiscalYear}</p>
+                </div>
+              </div>
+              <div className="mt-3 pt-3 border-t border-blue-300">
+                <p className="text-sm text-blue-800 font-medium">
+                  📅 Scadenze di pagamento: Calendario fiscale {results.fiscalYear + 1}
+                </p>
+                <p className="text-xs text-blue-600 mt-1">
+                  Le imposte calcolate per il {results.fiscalYear} sono da pagare nell'anno successivo
+                </p>
+              </div>
+            </div>
             
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6 md:mb-8">
               <Card className="opacity-100">
@@ -1302,6 +1328,36 @@ export default function CalculatorSRLPage() {
       {/* Full Results (Unlocked) */}
       {results && isUnlocked && (
         <>
+          {/* Sezione Anno Fiscale di Riferimento - Report Completo */}
+          <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4 mb-6">
+            <h4 className="font-semibold text-green-900 mb-3 flex items-center">
+              <Calendar className="h-5 w-5 mr-2" />
+              Anno Fiscale di Riferimento: {results.fiscalYear}
+            </h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm text-green-700">
+              <div className="space-y-2">
+                <p><strong>IRES (24%):</strong> Anno fiscale {results.fiscalYear}</p>
+                <p><strong>IRAP ({((IRAP_RATES[form.watch('region') as keyof typeof IRAP_RATES] || 3.9))}%):</strong> Anno fiscale {results.fiscalYear}</p>
+              </div>
+              <div className="space-y-2">
+                <p><strong>IVA ({form.watch('vatRegime')}):</strong> Liquidazioni anno {results.fiscalYear}</p>
+                <p><strong>INPS:</strong> Contributi anno {results.fiscalYear}</p>
+              </div>
+              <div className="space-y-2">
+                <p><strong>IVA a Debito:</strong> {formatCurrency(results.vatOnSales)}</p>
+                <p><strong>IVA a Credito:</strong> {formatCurrency(results.vatOnPurchases)}</p>
+              </div>
+            </div>
+            <div className="mt-3 pt-3 border-t border-green-300">
+              <p className="text-sm text-green-800 font-medium">
+                Scadenze di pagamento: Calendario fiscale {results.fiscalYear + 1}
+              </p>
+              <p className="text-xs text-green-600 mt-1">
+                Le imposte calcolate per il {results.fiscalYear} sono da versare nell'anno successivo secondo il calendario fiscale mostrato sotto
+              </p>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5 mb-6 md:mb-8">
             <Card>
               <CardContent className="p-4 md:p-6">
