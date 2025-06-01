@@ -7,7 +7,7 @@ import { useMutation } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
@@ -148,10 +148,18 @@ export default function CalculatorSRLPage() {
     mutationFn: async (data: CalculationForm) => {
       // Calcolo diretto senza API per semplicità
       const result = calculateSRLTaxes({
-        ...data,
-        irapRate: IRAP_RATES[data.region as keyof typeof IRAP_RATES] || 3.9,
-        currentYear: 2024,
+        revenue: data.revenue,
+        costs: data.costs,
+        employees: data.employees,
+        employeeCosts: data.employeeCosts,
+        adminSalary: data.adminSalary,
+        region: data.region,
+        vatRegime: data.vatRegime,
+        hasVatDebt: data.hasVatDebt,
         vatDebt: data.vatDebt || 0,
+        vatOnSales: data.vatOnSales,
+        vatOnPurchases: data.vatOnPurchases,
+        currentBalance: data.currentBalance || 0,
       });
       return result;
     },
@@ -921,6 +929,62 @@ export default function CalculatorSRLPage() {
                       )}
                     />
                   )}
+                  
+                  {/* Campi IVA dettagliata */}
+                  <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <h4 className="font-medium text-blue-900 mb-3">📊 IVA Dettagliata (Opzionale)</h4>
+                    <p className="text-sm text-blue-700 mb-4">
+                      Se conosci gli importi esatti, inserisci l'IVA sui ricavi e sugli acquisti per un calcolo più preciso
+                    </p>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="vatOnSales"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>📈 IVA a Debito sui Ricavi (€)</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                placeholder="es: 110000"
+                                {...field}
+                                onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                                value={field.value || ""}
+                              />
+                            </FormControl>
+                            <FormDescription className="text-xs">
+                              Se vuoto, verrà calcolato automaticamente al 22% sui ricavi
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={form.control}
+                        name="vatOnPurchases"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>📉 IVA a Credito sugli Acquisti (€)</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                placeholder="es: 44000"
+                                {...field}
+                                onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                                value={field.value || ""}
+                              />
+                            </FormControl>
+                            <FormDescription className="text-xs">
+                              Se vuoto, verrà calcolato automaticamente al 22% sui costi
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
 
