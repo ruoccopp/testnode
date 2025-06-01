@@ -51,6 +51,15 @@ export interface SRLTaxCalculationResult {
   // Scadenze mensili
   monthlyAccrual: number;
   quarterlyPayments: number;
+  
+  // Calendario completo 2025
+  calendar2025: Array<{
+    date: string;
+    amount: number;
+    type: string;
+    category: 'IRES' | 'IRAP' | 'IVA' | 'INPS';
+    description: string;
+  }>;
 }
 
 // Aliquote IRAP regionali 2024-2025
@@ -129,6 +138,102 @@ function getMonthName(month: number): string {
   return months[month] || '';
 }
 
+function createFiscalCalendar2025(iresAmount: number, irapAmount: number, vatDeadlines: any[], inpsTotalAmount: number) {
+  const calendar = [];
+  
+  // Scadenze IVA (già calcolate)
+  calendar.push(...vatDeadlines.map(deadline => ({
+    ...deadline,
+    category: 'IVA' as const,
+    description: deadline.type
+  })));
+  
+  // Scadenze IRES e IRAP 2025
+  // 16 giugno 2025: Saldo 2024 + I acconto 2025
+  const saldo2024IRES = iresAmount;
+  const saldo2024IRAP = irapAmount;
+  const primoAccontoIRES = iresAmount * 0.40;
+  const primoAccontoIRAP = irapAmount * 0.40;
+  
+  calendar.push({
+    date: '16/06/2025',
+    amount: saldo2024IRES + primoAccontoIRES,
+    type: 'IRES Saldo 2024 + I Acconto 2025',
+    category: 'IRES' as const,
+    description: `Saldo ${saldo2024IRES.toFixed(2)}€ + I Acconto ${primoAccontoIRES.toFixed(2)}€`
+  });
+  
+  calendar.push({
+    date: '16/06/2025',
+    amount: saldo2024IRAP + primoAccontoIRAP,
+    type: 'IRAP Saldo 2024 + I Acconto 2025',
+    category: 'IRAP' as const,
+    description: `Saldo ${saldo2024IRAP.toFixed(2)}€ + I Acconto ${primoAccontoIRAP.toFixed(2)}€`
+  });
+  
+  // 30 novembre 2025: II acconto IRES e IRAP
+  const secondoAccontoIRES = iresAmount * 0.60;
+  const secondoAccontoIRAP = irapAmount * 0.60;
+  
+  calendar.push({
+    date: '30/11/2025',
+    amount: secondoAccontoIRES,
+    type: 'IRES II Acconto 2025',
+    category: 'IRES' as const,
+    description: 'Secondo acconto basato su reddito 2024'
+  });
+  
+  calendar.push({
+    date: '30/11/2025',
+    amount: secondoAccontoIRAP,
+    type: 'IRAP II Acconto 2025',
+    category: 'IRAP' as const,
+    description: 'Secondo acconto basato su reddito 2024'
+  });
+  
+  // Scadenze INPS trimestrali (approssimative)
+  const inpsQuarterly = inpsTotalAmount / 4;
+  if (inpsQuarterly > 0) {
+    calendar.push(
+      {
+        date: '16/01/2025',
+        amount: inpsQuarterly,
+        type: 'INPS Trimestrale Q4 2024',
+        category: 'INPS' as const,
+        description: 'Contributi previdenziali trimestrali'
+      },
+      {
+        date: '16/04/2025',
+        amount: inpsQuarterly,
+        type: 'INPS Trimestrale Q1 2025',
+        category: 'INPS' as const,
+        description: 'Contributi previdenziali trimestrali'
+      },
+      {
+        date: '16/07/2025',
+        amount: inpsQuarterly,
+        type: 'INPS Trimestrale Q2 2025',
+        category: 'INPS' as const,
+        description: 'Contributi previdenziali trimestrali'
+      },
+      {
+        date: '16/10/2025',
+        amount: inpsQuarterly,
+        type: 'INPS Trimestrale Q3 2025',
+        category: 'INPS' as const,
+        description: 'Contributi previdenziali trimestrali'
+      }
+    );
+  }
+  
+  // Ordina per data
+  return calendar.sort((a, b) => {
+    const dateA = new Date(a.date.split('/').reverse().join('-'));
+    const dateB = new Date(b.date.split('/').reverse().join('-'));
+    return dateA.getTime() - dateB.getTime();
+  });
+}
+
 export function calculateSRLTaxes(input: SRLTaxCalculationInput): SRLTaxCalculationResult {
   // 1. CALCOLO REDDITO IMPONIBILE
   const grossProfit = input.revenue - input.costs - input.employeeCosts;
@@ -194,6 +299,9 @@ export function calculateSRLTaxes(input: SRLTaxCalculationInput): SRLTaxCalculat
   const monthlyAccrual = totalDue / 12;
   const quarterlyPayments = (vatQuarterly + inpsTotalAmount / 4);
 
+  // 9. CALCOLO CALENDARIO COMPLETO 2025
+  const calendar2025 = createFiscalCalendar2025(iresAmount, irapAmount, vatDeadlines, inpsTotalAmount);
+
   return {
     // Redditi
     grossProfit: Math.round(grossProfit * 100) / 100,
@@ -231,7 +339,10 @@ export function calculateSRLTaxes(input: SRLTaxCalculationInput): SRLTaxCalculat
     
     // Pianificazione
     monthlyAccrual: Math.round(monthlyAccrual * 100) / 100,
-    quarterlyPayments: Math.round(quarterlyPayments * 100) / 100
+    quarterlyPayments: Math.round(quarterlyPayments * 100) / 100,
+    
+    // Calendario completo 2025
+    calendar2025: calendar2025
   };
 }
 
