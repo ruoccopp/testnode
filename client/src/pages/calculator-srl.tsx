@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Building2, Euro, Users, Calculator, Download, Lock, Mail, User, MapPin, Calendar } from "lucide-react";
+import { Building2, Euro, Users, Calculator, Download, Lock, Mail, User, MapPin, Calendar, AlertTriangle, TrendingUp } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import * as XLSX from 'xlsx';
 import logoPath from "@assets/SmartRate - Colors.png";
@@ -30,6 +30,23 @@ const calculationSchema = z.object({
   hasVatDebt: z.boolean().default(false),
   vatDebt: z.number().min(0).optional(),
   currentBalance: z.number().min(0, "Il saldo deve essere positivo").optional(),
+  
+  // Pianificazione avanzata
+  advancedPlanning: z.boolean().default(false),
+  
+  // Dati 2024 (anno chiuso)
+  revenue2024: z.number().min(0).optional(),
+  taxableIncome2024: z.number().min(0).optional(),
+  iresAcconto2024: z.number().min(0).optional(),
+  irapAcconto2024: z.number().min(0).optional(),
+  
+  // Situazione 2025 (parziale)
+  currentDate: z.string().optional(),
+  revenue2025Partial: z.number().min(0).optional(),
+  iresPaid2025: z.number().min(0).optional(),
+  irapPaid2025: z.number().min(0).optional(),
+  vatPaid2025: z.number().min(0).optional(),
+  inpsPaid2025: z.number().min(0).optional(),
 });
 
 const leadSchema = z.object({
@@ -93,6 +110,17 @@ export default function CalculatorSRLPage() {
       hasVatDebt: false,
       vatDebt: undefined,
       currentBalance: undefined,
+      advancedPlanning: false,
+      revenue2024: undefined,
+      taxableIncome2024: undefined,
+      iresAcconto2024: undefined,
+      irapAcconto2024: undefined,
+      currentDate: new Date().toISOString().split('T')[0],
+      revenue2025Partial: undefined,
+      iresPaid2025: undefined,
+      irapPaid2025: undefined,
+      vatPaid2025: undefined,
+      inpsPaid2025: undefined,
     },
   });
 
@@ -119,6 +147,8 @@ export default function CalculatorSRLPage() {
       // Calcolo diretto senza API per semplicità
       const result = calculateSRLTaxes({
         ...data,
+        irapRate: IRAP_RATES[data.region as keyof typeof IRAP_RATES] || 3.9,
+        currentYear: 2024,
         vatDebt: data.vatDebt || 0,
       });
       return result;
@@ -258,14 +288,30 @@ export default function CalculatorSRLPage() {
     }).format(amount);
   };
 
+  const getUrgencyLevel = (dateString: string) => {
+    const deadline = new Date(dateString.split('/').reverse().join('-'));
+    const today = new Date();
+    const daysUntil = Math.ceil((deadline.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    
+    if (daysUntil < 0) return { level: 'overdue', text: '🚨 Scaduto', class: 'bg-red-100 text-red-800 border-red-300' };
+    if (daysUntil <= 30) return { level: 'urgent', text: `🚨 ${daysUntil} giorni`, class: 'bg-red-100 text-red-800 border-red-300' };
+    if (daysUntil <= 60) return { level: 'warning', text: `⚠️ ${daysUntil} giorni`, class: 'bg-yellow-100 text-yellow-800 border-yellow-300' };
+    return { level: 'normal', text: `✅ ${daysUntil} giorni`, class: 'bg-green-100 text-green-800 border-green-300' };
+  };
+
+  const calculateSafetyMargin = (amount: number) => {
+    return Math.round(amount * 1.1 * 100) / 100; // 10% margine di sicurezza
+  };
+
   const exportToExcel = () => {
     if (!results || !isUnlocked) return;
 
     const formData = form.getValues();
     const currentBalance = formData.currentBalance || 0;
+    const safeMonthlyAccrual = calculateSafetyMargin(results.monthlyAccrual);
     
     const worksheetData = [
-      ['PIANIFICATORE IMPOSTE SRL - REPORT COMPLETO'],
+      ['PIANIFICATORE IMPOSTE SRL - REPORT AVANZATO'],
       ['Data:', new Date().toLocaleDateString('it-IT')],
       [''],
       
@@ -281,8 +327,26 @@ export default function CalculatorSRLPage() {
       ['Saldo Accantonato:', currentBalance],
       [''],
       
+      // Pianificazione avanzata (se abilitata)
+      ...(formData.advancedPlanning ? [
+        ['PIANIFICAZIONE AVANZATA 2024-2025'],
+        ['Dati 2024 (definitivi):'],
+        ['- Fatturato 2024:', formData.revenue2024 || 0],
+        ['- Reddito Imponibile 2024:', formData.taxableIncome2024 || 0],
+        ['- Acconti IRES Versati:', formData.iresAcconto2024 || 0],
+        ['- Acconti IRAP Versati:', formData.irapAcconto2024 || 0],
+        [''],
+        ['Situazione 2025 (al ' + (formData.currentDate || 'oggi') + '):'],
+        ['- Fatturato Parziale 2025:', formData.revenue2025Partial || 0],
+        ['- IRES Già Versata:', formData.iresPaid2025 || 0],
+        ['- IRAP Già Versata:', formData.irapPaid2025 || 0],
+        ['- IVA Già Versata:', formData.vatPaid2025 || 0],
+        ['- INPS Già Versati:', formData.inpsPaid2025 || 0],
+        [''],
+      ] : []),
+      
       // Calcoli fiscali
-      ['CALCOLI FISCALI 2024'],
+      ['CALCOLI FISCALI 2025'],
       ['Utile Lordo:', results.grossProfit],
       ['Reddito Imponibile:', results.taxableIncome],
       ['IRES (24%):', results.iresAmount],
@@ -295,44 +359,49 @@ export default function CalculatorSRLPage() {
       ['Totale Dovuto:', results.totalDue],
       [''],
       
-      // Scadenze fiscali
-      ['SCADENZE FISCALI'],
-      ['30 Giugno 2025 - IRES Saldo:', results.iresAmount],
-      ['30 Giugno 2025 - IRES 1° Acconto:', results.iresFirstAcconto],
-      ['30 Novembre 2025 - IRES 2° Acconto:', results.iresSecondAcconto],
-      ['30 Giugno 2025 - IRAP Saldo:', results.irapAmount],
-      ['30 Giugno 2025 - IRAP 1° Acconto:', results.irapFirstAcconto],
-      ['30 Novembre 2025 - IRAP 2° Acconto:', results.irapSecondAcconto],
+      // Scadenze fiscali con urgenza
+      ['SCADENZE FISCALI CON INDICATORI URGENZA'],
+      ['30 Giugno 2025 - IRES Saldo:', results.iresAmount, getUrgencyLevel('30/06/2025').text],
+      ['30 Giugno 2025 - IRES 1° Acconto:', results.iresFirstAcconto, getUrgencyLevel('30/06/2025').text],
+      ['30 Novembre 2025 - IRES 2° Acconto:', results.iresSecondAcconto, getUrgencyLevel('30/11/2025').text],
+      ['30 Giugno 2025 - IRAP Saldo:', results.irapAmount, getUrgencyLevel('30/06/2025').text],
+      ['30 Giugno 2025 - IRAP 1° Acconto:', results.irapFirstAcconto, getUrgencyLevel('30/06/2025').text],
+      ['30 Novembre 2025 - IRAP 2° Acconto:', results.irapSecondAcconto, getUrgencyLevel('30/11/2025').text],
       [''],
       
-      // Scadenze IVA
-      ['SCADENZE IVA (' + (VAT_REGIMES[formData.vatRegime as keyof typeof VAT_REGIMES]?.label || '') + ')'],
-      ['Importo per Periodo:', results.vatQuarterly],
-      ['Frequenza:', VAT_REGIMES[formData.vatRegime as keyof typeof VAT_REGIMES]?.frequency + ' volte/anno'],
-      [''],
-      
-      // Piano accantonamento
-      ['PIANO ACCANTONAMENTO'],
-      ['Accantonamento Mensile Totale:', results.monthlyAccrual],
-      ['Pagamenti Trimestrali (IVA+INPS):', results.quarterlyPayments],
+      // Piano accantonamento con margine
+      ['PIANO ACCANTONAMENTO CON MARGINE SICUREZZA'],
+      ['Accantonamento Mensile Standard:', results.monthlyAccrual],
+      ['Accantonamento con Margine 10%:', safeMonthlyAccrual],
+      ['Margine di Sicurezza Mensile:', safeMonthlyAccrual - results.monthlyAccrual],
       ['% su Fatturato Mensile:', ((results.monthlyAccrual / ((formData.revenue || 1) / 12)) * 100).toFixed(1) + '%'],
+      ['% con Margine su Fatturato:', ((safeMonthlyAccrual / ((formData.revenue || 1) / 12)) * 100).toFixed(1) + '%'],
+      [''],
+      
+      // Cashflow ottimizzato
+      ['DISTRIBUZIONE CASHFLOW OTTIMIZZATA'],
+      ['Pagamenti Trimestrali Base:', results.quarterlyPayments],
+      ['Pagamenti Trimestrali con Margine:', calculateSafetyMargin(results.quarterlyPayments)],
+      ['Accumulo Fondi Annuale:', safeMonthlyAccrual * 12],
+      ['Copertura Totale Dovuto:', ((safeMonthlyAccrual * 12) / results.totalDue * 100).toFixed(1) + '%'],
     ];
 
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.aoa_to_sheet(worksheetData);
     
     ws['!cols'] = [
-      { width: 35 },
+      { width: 40 },
+      { width: 20 },
       { width: 20 }
     ];
 
-    XLSX.utils.book_append_sheet(wb, ws, 'Report Imposte SRL');
+    XLSX.utils.book_append_sheet(wb, ws, 'Report Avanzato SRL');
     
-    const fileName = `Report_Imposte_SRL_${new Date().getFullYear()}_${new Date().getMonth() + 1}_${new Date().getDate()}.xlsx`;
+    const fileName = `Report_Avanzato_SRL_${new Date().getFullYear()}_${new Date().getMonth() + 1}_${new Date().getDate()}.xlsx`;
     XLSX.writeFile(wb, fileName);
     
     toast({
-      title: "Report scaricato",
+      title: "Report avanzato scaricato",
       description: `Il file ${fileName} è stato scaricato con successo`,
     });
   };
@@ -344,11 +413,11 @@ export default function CalculatorSRLPage() {
         <div className="flex flex-col md:flex-row md:items-start md:justify-between">
           <div className="min-w-0 flex-1">
             <h2 className="text-xl md:text-2xl lg:text-3xl font-bold leading-tight text-gray-900">
-              🏢 Calcolatore Imposte SRL GRATUITO
+              🏢 Calcolatore Imposte SRL AVANZATO
             </h2>
             <div className="mt-2">
               <p className="text-xs md:text-sm text-gray-500 leading-relaxed">
-                Calcola IRES, IRAP, IVA e Contributi INPS per società a responsabilità limitata
+                Pianificazione fiscale completa con dati 2024-2025 e gestione scadenze intelligente
               </p>
               <span className="text-xs text-blue-600 font-medium">Powered by SmartRate</span>
             </div>
@@ -381,16 +450,263 @@ export default function CalculatorSRLPage() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-6">
               
-              {/* Dati Economici */}
+              {/* Switch Pianificazione Avanzata */}
+              <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg border-2 border-blue-200">
+                <FormField
+                  control={form.control}
+                  name="advancedPlanning"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-lg font-semibold text-blue-900">
+                          🎯 Pianificazione Fiscale Avanzata
+                        </FormLabel>
+                        <div className="text-sm text-blue-700">
+                          Abilita raccolta dati 2024 e situazione corrente 2025 per pianificazione completa
+                        </div>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          className="data-[state=checked]:bg-blue-600"
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Sezione Dati 2024 (se pianificazione avanzata abilitata) */}
+              {form.watch('advancedPlanning') && (
+                <div className="bg-orange-50 p-4 rounded-lg border-2 border-orange-200">
+                  <h3 className="font-semibold text-orange-900 mb-4 flex items-center">
+                    <Calendar className="h-5 w-5 mr-2" />
+                    📊 Dati Definitivi 2024 (Anno Chiuso)
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="revenue2024"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>💼 Fatturato 2024 (€)</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              placeholder="es: 480000"
+                              {...field}
+                              onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="taxableIncome2024"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>📈 Reddito Imponibile 2024 (€)</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              placeholder="es: 150000"
+                              {...field}
+                              onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="iresAcconto2024"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>💰 Acconti IRES Versati 2024 (€)</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              placeholder="es: 30000"
+                              {...field}
+                              onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="irapAcconto2024"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>🏛️ Acconti IRAP Versati 2024 (€)</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              placeholder="es: 8000"
+                              {...field}
+                              onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Sezione Situazione 2025 (se pianificazione avanzata abilitata) */}
+              {form.watch('advancedPlanning') && (
+                <div className="bg-green-50 p-4 rounded-lg border-2 border-green-200">
+                  <h3 className="font-semibold text-green-900 mb-4 flex items-center">
+                    <TrendingUp className="h-5 w-5 mr-2" />
+                    🔄 Situazione Parziale 2025 (Anno in Corso)
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="currentDate"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>📅 Data Situazione Attuale</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="date"
+                              {...field}
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="revenue2025Partial"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>💼 Fatturato Parziale 2025 (€)</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              placeholder="es: 250000"
+                              {...field}
+                              onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="iresPaid2025"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>💰 IRES Già Versata 2025 (€)</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              placeholder="es: 15000"
+                              {...field}
+                              onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="irapPaid2025"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>🏛️ IRAP Già Versata 2025 (€)</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              placeholder="es: 4000"
+                              {...field}
+                              onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="vatPaid2025"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>📋 IVA Già Versata 2025 (€)</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              placeholder="es: 20000"
+                              {...field}
+                              onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="inpsPaid2025"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>👥 INPS Già Versati 2025 (€)</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              placeholder="es: 12000"
+                              {...field}
+                              onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Dati Economici Standard */}
               <div className="bg-blue-50 p-3 md:p-4 rounded-lg mb-4 md:mb-6">
-                <h3 className="font-medium text-blue-900 mb-3 md:mb-4 text-sm md:text-base">📊 Dati Economici</h3>
+                <h3 className="font-medium text-blue-900 mb-3 md:mb-4 text-sm md:text-base">📊 Dati Economici {form.watch('advancedPlanning') ? '2025 (Proiezione Annuale)' : ''}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
                     name="revenue"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-sm md:text-base">💼 Fatturato Annuo (€)</FormLabel>
+                        <FormLabel className="text-sm md:text-base">💼 Fatturato Annuo 2025 (€)</FormLabel>
                         <FormControl>
                           <Input
                             type="number"
@@ -636,7 +952,7 @@ export default function CalculatorSRLPage() {
                 disabled={calculateMutation.isPending}
               >
                 <Calculator className="mr-2 h-5 w-5" />
-                {calculateMutation.isPending ? "Calcolo in corso..." : "🎯 CALCOLA IMPOSTE SRL"}
+                {calculateMutation.isPending ? "Calcolo in corso..." : "🎯 CALCOLA IMPOSTE SRL AVANZATO"}
               </Button>
             </form>
           </Form>
@@ -714,17 +1030,17 @@ export default function CalculatorSRLPage() {
 
             <div className="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-6 text-center">
               <h4 className="text-lg font-bold text-yellow-800 mb-2">
-                🔓 Sblocca il Report Completo GRATIS
+                🔓 Sblocca il Report Avanzato GRATIS
               </h4>
               <p className="text-yellow-700 mb-4">
-                Ottieni calcoli dettagliati IRES, IRAP, IVA, INPS e piano di accantonamento completo!
+                Pianificazione fiscale completa con dati 2024-2025 e margine di sicurezza del 10%!
               </p>
               <ul className="text-left text-yellow-700 text-sm mb-4 max-w-md mx-auto">
-                <li>• ✅ Calcolo IRES e IRAP dettagliato</li>
-                <li>• ✅ Pianificazione IVA mensile/trimestrale</li>
-                <li>• ✅ Contributi INPS amministratori e dipendenti</li>
-                <li>• ✅ Calendar scadenze fiscali complete</li>
-                <li>• ✅ Report Excel professionale</li>
+                <li>• ✅ Pianificazione avanzata 2024-2025</li>
+                <li>• ✅ Indicatori di urgenza scadenze (🚨 &lt; 30 giorni)</li>
+                <li>• ✅ Accantonamento con margine sicurezza 10%</li>
+                <li>• ✅ Distribuzione cashflow ottimizzata</li>
+                <li>• ✅ Proiezioni intelligenti per resto 2025</li>
               </ul>
             </div>
           </CardContent>
@@ -737,10 +1053,10 @@ export default function CalculatorSRLPage() {
           <CardContent className="p-4 md:p-6">
             <div className="text-center mb-4 md:mb-6">
               <h3 className="text-xl md:text-2xl font-bold text-green-800 mb-2">
-                🎯 Ottieni il Report Completo GRATIS
+                🎯 Ottieni il Report Avanzato GRATIS
               </h3>
               <p className="text-sm md:text-base text-gray-600">
-                Inserisci i dati della tua società per sbloccare tutti i dettagli del calcolo
+                Inserisci i dati della tua società per sbloccare la pianificazione fiscale completa
               </p>
             </div>
 
@@ -985,13 +1301,13 @@ export default function CalculatorSRLPage() {
           <Card className="mb-8 bg-green-50 border-2 border-green-200">
             <CardContent className="p-6 text-center">
               <h3 className="text-2xl font-bold text-green-800 mb-2">
-                🎉 Report SRL Completo Sbloccato!
+                🎉 Report SRL Avanzato Sbloccato!
               </h3>
               <p className="text-green-700 mb-4">
-                Grazie! Ora hai accesso ai calcoli fiscali completi per la tua SRL.
+                Pianificazione fiscale completa con tutti i calcoli avanzati per la tua SRL.
               </p>
               <div className="text-green-600 text-sm mb-4">
-                ✅ Report inviato anche via email • ✅ Salva questa pagina nei preferiti
+                ✅ Report avanzato inviato anche via email • ✅ Salva questa pagina nei preferiti
               </div>
               
               <div className="flex gap-4 justify-center">
@@ -1000,7 +1316,7 @@ export default function CalculatorSRLPage() {
                   className="bg-green-600 hover:bg-green-700"
                 >
                   <Download className="h-4 w-4 mr-2" />
-                  Scarica Excel
+                  Scarica Excel Avanzato
                 </Button>
                 
                 <Dialog>
@@ -1012,9 +1328,9 @@ export default function CalculatorSRLPage() {
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
-                      <DialogTitle>📧 Invia Report SRL via Email</DialogTitle>
+                      <DialogTitle>📧 Invia Report SRL Avanzato via Email</DialogTitle>
                       <DialogDescription>
-                        Riceverai il report completo con calcoli IRES, IRAP, IVA e INPS
+                        Riceverai il report completo con pianificazione fiscale avanzata
                       </DialogDescription>
                     </DialogHeader>
                     
@@ -1043,7 +1359,7 @@ export default function CalculatorSRLPage() {
                           className="w-full"
                           disabled={sendEmailMutation.isPending}
                         >
-                          {sendEmailMutation.isPending ? "Invio in corso..." : "📧 Invia Report"}
+                          {sendEmailMutation.isPending ? "Invio in corso..." : "📧 Invia Report Avanzato"}
                         </Button>
                       </form>
                     </Form>
@@ -1053,11 +1369,174 @@ export default function CalculatorSRLPage() {
             </CardContent>
           </Card>
 
-          {/* Breakdown Dettagliato */}
+          {/* Scadenze Fiscali con Indicatori di Urgenza */}
+          <Card className="mb-8">
+            <CardContent className="p-6">
+              <h3 className="text-xl font-bold mb-6 text-gray-900">📅 Scadenze Fiscali 2025 con Indicatori di Urgenza</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className={`p-4 rounded-lg border-2 ${getUrgencyLevel('30/06/2025').class}`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-semibold">30 Giugno 2025</h4>
+                    <span className="text-sm font-medium px-2 py-1 rounded">
+                      {getUrgencyLevel('30/06/2025').text}
+                    </span>
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span>• IRES Saldo:</span>
+                      <span className="font-semibold">{formatCurrency(results.iresAmount)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>• IRES 1° Acconto:</span>
+                      <span className="font-semibold">{formatCurrency(results.iresFirstAcconto)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>• IRAP Saldo:</span>
+                      <span className="font-semibold">{formatCurrency(results.irapAmount)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>• IRAP 1° Acconto:</span>
+                      <span className="font-semibold">{formatCurrency(results.irapFirstAcconto)}</span>
+                    </div>
+                    <div className="flex justify-between pt-2 border-t font-bold">
+                      <span>Totale:</span>
+                      <span>{formatCurrency(results.iresAmount + results.iresFirstAcconto + results.irapAmount + results.irapFirstAcconto)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className={`p-4 rounded-lg border-2 ${getUrgencyLevel('30/11/2025').class}`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-semibold">30 Novembre 2025</h4>
+                    <span className="text-sm font-medium px-2 py-1 rounded">
+                      {getUrgencyLevel('30/11/2025').text}
+                    </span>
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span>• IRES 2° Acconto:</span>
+                      <span className="font-semibold">{formatCurrency(results.iresSecondAcconto)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>• IRAP 2° Acconto:</span>
+                      <span className="font-semibold">{formatCurrency(results.irapSecondAcconto)}</span>
+                    </div>
+                    <div className="flex justify-between pt-2 border-t font-bold">
+                      <span>Totale:</span>
+                      <span>{formatCurrency(results.iresSecondAcconto + results.irapSecondAcconto)}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Scadenze IVA con Urgenza */}
+          <Card className="mb-8">
+            <CardContent className="p-6">
+              <h3 className="text-xl font-bold mb-6 text-gray-900">📅 Scadenze IVA {new Date().getFullYear() + 1} con Urgenza</h3>
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {results.vatDeadlines.map((deadline, index) => {
+                  const urgency = getUrgencyLevel(deadline.date);
+                  return (
+                    <div key={index} className={`p-4 rounded-lg border-2 ${urgency.class}`}>
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="text-sm font-medium">{deadline.type}</div>
+                        <span className="text-xs px-2 py-1 rounded bg-white/50">
+                          {urgency.text}
+                        </span>
+                      </div>
+                      <div className="text-lg font-bold">{deadline.date}</div>
+                      <div className="text-xl font-bold mt-2">
+                        {formatCurrency(deadline.amount)}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Piano di Accantonamento con Margine di Sicurezza */}
+          <Card className="mb-8">
+            <CardContent className="p-6">
+              <h3 className="text-xl font-bold mb-6 text-gray-900">💰 Piano di Accantonamento con Margine di Sicurezza</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="bg-green-50 p-4 rounded-lg border-2 border-green-200">
+                  <h4 className="font-semibold text-green-900 mb-3">📊 Accantonamento Standard</h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-green-700">Mensile base:</span>
+                      <span className="font-bold text-green-900">{formatCurrency(results.monthlyAccrual)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-green-700">% su fatturato:</span>
+                      <span className="font-semibold">{((results.monthlyAccrual / ((form.watch('revenue') || 1) / 12)) * 100).toFixed(1)}%</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-blue-50 p-4 rounded-lg border-2 border-blue-200">
+                  <h4 className="font-semibold text-blue-900 mb-3">🛡️ Con Margine Sicurezza (10%)</h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-blue-700">Mensile sicuro:</span>
+                      <span className="font-bold text-blue-900">{formatCurrency(calculateSafetyMargin(results.monthlyAccrual))}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-blue-700">Margine extra:</span>
+                      <span className="font-semibold text-blue-800">+{formatCurrency(calculateSafetyMargin(results.monthlyAccrual) - results.monthlyAccrual)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-purple-50 p-4 rounded-lg border-2 border-purple-200">
+                  <h4 className="font-semibold text-purple-900 mb-3">🎯 Distribuzione Cashflow</h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-purple-700">Accumulo annuale:</span>
+                      <span className="font-semibold">{formatCurrency(calculateSafetyMargin(results.monthlyAccrual) * 12)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-purple-700">Copertura:</span>
+                      <span className="font-bold text-purple-900">{((calculateSafetyMargin(results.monthlyAccrual) * 12) / results.totalDue * 100).toFixed(0)}%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {form.watch('advancedPlanning') && (
+                <div className="mt-6 bg-yellow-50 p-4 rounded-lg border-2 border-yellow-200">
+                  <h4 className="font-semibold text-yellow-900 mb-3">⚡ Ottimizzazione Cashflow Basata su Dati Reali</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-yellow-700">Proiezione basata su:</span>
+                      <ul className="list-disc list-inside text-yellow-600 mt-1">
+                        <li>Dati definitivi 2024</li>
+                        <li>Situazione parziale 2025</li>
+                        <li>Imposte già versate</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <span className="text-yellow-700">Vantaggi pianificazione:</span>
+                      <ul className="list-disc list-inside text-yellow-600 mt-1">
+                        <li>Calcoli più precisi</li>
+                        <li>Riduzione margine errore</li>
+                        <li>Ottimizzazione liquidità</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Breakdown Dettagliato con Informazioni Avanzate */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <Card>
               <CardContent className="p-6">
-                <h3 className="text-lg font-bold mb-4 text-gray-900">💰 Breakdown Imposte</h3>
+                <h3 className="text-lg font-bold mb-4 text-gray-900">💰 Breakdown Imposte Dettagliato</h3>
                 <div className="space-y-3">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Reddito Imponibile:</span>
@@ -1085,7 +1564,7 @@ export default function CalculatorSRLPage() {
 
             <Card>
               <CardContent className="p-6">
-                <h3 className="text-lg font-bold mb-4 text-gray-900">👥 Contributi INPS</h3>
+                <h3 className="text-lg font-bold mb-4 text-gray-900">👥 Contributi e Altri Oneri</h3>
                 <div className="space-y-3">
                   <div className="flex justify-between">
                     <span className="text-gray-600">INPS Amministratore:</span>
@@ -1108,150 +1587,20 @@ export default function CalculatorSRLPage() {
             </Card>
           </div>
 
-          {/* Scadenze Fiscali */}
-          <Card className="mb-8">
-            <CardContent className="p-6">
-              <h3 className="text-xl font-bold mb-6 text-gray-900">📅 Scadenze Fiscali 2025</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-red-50 p-4 rounded-lg">
-                  <h4 className="font-semibold text-red-900 mb-2">30 Giugno 2025</h4>
-                  <div className="space-y-2 text-sm text-red-700">
-                    <div>• IRES Saldo: {formatCurrency(results.iresAmount)}</div>
-                    <div>• IRES 1° Acconto: {formatCurrency(results.iresFirstAcconto)}</div>
-                    <div>• IRAP Saldo: {formatCurrency(results.irapAmount)}</div>
-                    <div>• IRAP 1° Acconto: {formatCurrency(results.irapFirstAcconto)}</div>
-                    <div className="font-semibold pt-2 border-t border-red-200">
-                      Totale: {formatCurrency(results.iresAmount + results.iresFirstAcconto + results.irapAmount + results.irapFirstAcconto)}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-orange-50 p-4 rounded-lg">
-                  <h4 className="font-semibold text-orange-900 mb-2">30 Novembre 2025</h4>
-                  <div className="space-y-2 text-sm text-orange-700">
-                    <div>• IRES 2° Acconto: {formatCurrency(results.iresSecondAcconto)}</div>
-                    <div>• IRAP 2° Acconto: {formatCurrency(results.irapSecondAcconto)}</div>
-                    <div className="font-semibold pt-2 border-t border-orange-200">
-                      Totale: {formatCurrency(results.iresSecondAcconto + results.irapSecondAcconto)}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <h4 className="font-semibold text-blue-900 mb-2">IVA {VAT_REGIMES[form.watch('vatRegime') as keyof typeof VAT_REGIMES]?.label}</h4>
-                  <div className="space-y-2 text-sm text-blue-700">
-                    <div>• Per periodo: {formatCurrency(results.vatQuarterly)}</div>
-                    <div>• Frequenza: {VAT_REGIMES[form.watch('vatRegime') as keyof typeof VAT_REGIMES]?.frequency} volte/anno</div>
-                    <div className="font-semibold pt-2 border-t border-blue-200">
-                      Anno: {formatCurrency(results.vatAmount)}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Scadenze IVA */}
-          <Card className="mb-8">
-            <CardContent className="p-6">
-              <h3 className="text-xl font-bold mb-6 text-gray-900">📅 Scadenze IVA {new Date().getFullYear() + 1}</h3>
-              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {results.vatDeadlines && results.vatDeadlines.map((deadline, index) => (
-                  <div key={index} className="bg-orange-50 p-4 rounded-lg border border-orange-200">
-                    <div className="text-sm text-orange-600 font-medium">{deadline.type}</div>
-                    <div className="text-lg font-bold text-orange-900">{deadline.date}</div>
-                    <div className="text-xl font-bold text-orange-700 mt-2">
-                      {formatCurrency(deadline.amount)}
-                    </div>
-                  </div>
-                ))}
-              </div>
-              
-              {results.vatDeadlines && results.vatDeadlines.length > 0 && (
-                <div className="mt-4 p-4 bg-orange-100 rounded-lg">
-                  <div className="text-sm text-orange-700">
-                    <strong>Totale IVA annuale:</strong> {formatCurrency(results.vatAmount)}
-                  </div>
-                  <div className="text-xs text-orange-600 mt-1">
-                    Regime: {VAT_REGIMES[form.watch('vatRegime') as keyof typeof VAT_REGIMES]?.label}
-                  </div>
-                </div>
-              )}
-              
-              {(!results.vatDeadlines || results.vatDeadlines.length === 0) && (
-                <div className="text-center py-8 text-gray-500">
-                  <Calendar className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <p>Compila il form per visualizzare le scadenze IVA</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Piano di Accantonamento */}
-          <Card className="mb-8">
-            <CardContent className="p-6">
-              <h3 className="text-xl font-bold mb-6 text-gray-900">💰 Piano di Accantonamento Mensile</h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-green-50 p-4 rounded-lg">
-                  <h4 className="font-semibold text-green-900 mb-3">📊 Accantonamento Generale</h4>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-green-700">Mensile totale:</span>
-                      <span className="font-bold text-green-900">{formatCurrency(results.monthlyAccrual)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-green-700">% su fatturato:</span>
-                      <span className="font-semibold">{((results.monthlyAccrual / ((form.watch('revenue') || 1) / 12)) * 100).toFixed(1)}%</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <h4 className="font-semibold text-blue-900 mb-3">📅 Pagamenti Trimestrali</h4>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-blue-700">IVA + INPS:</span>
-                      <span className="font-bold text-blue-900">{formatCurrency(results.quarterlyPayments)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-blue-700">Solo INPS:</span>
-                      <span className="font-semibold">{formatCurrency(results.inpsTotalAmount / 4)}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-purple-50 p-4 rounded-lg">
-                  <h4 className="font-semibold text-purple-900 mb-3">🎯 Breakdown Imposte</h4>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-purple-700">IRES mensile:</span>
-                      <span className="font-semibold">{formatCurrency(results.iresAmount / 12)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-purple-700">IRAP mensile:</span>
-                      <span className="font-semibold">{formatCurrency(results.irapAmount / 12)}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
           {/* Download Report */}
           <Card className="mb-6 md:mb-8">
             <CardContent className="p-4 md:p-6">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
-                  <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-2">📄 Report SRL Completo</h3>
-                  <p className="text-sm md:text-base text-gray-600">Scarica il report dettagliato con tutti i calcoli fiscali per SRL</p>
+                  <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-2">📄 Report SRL Avanzato</h3>
+                  <p className="text-sm md:text-base text-gray-600">Scarica il report con pianificazione fiscale avanzata e margine di sicurezza</p>
                 </div>
                 <Button 
                   onClick={exportToExcel}
                   className="bg-green-600 hover:bg-green-700 h-12 md:h-auto px-6 py-3 touch-manipulation"
                 >
                   <Download className="mr-2 h-4 w-4" />
-                  Scarica Excel
+                  Scarica Excel Avanzato
                 </Button>
               </div>
             </CardContent>
