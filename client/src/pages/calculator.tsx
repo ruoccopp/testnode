@@ -1334,6 +1334,48 @@ export default function CalculatorPage() {
               </div>
             </CardContent>
           </Card>
+
+          {/* CTA per Calcolatore SRL */}
+          <Card className="mb-6 md:mb-8 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+            <CardContent className="p-6">
+              <div className="text-center">
+                <div className="mb-4">
+                  <h3 className="text-xl md:text-2xl font-bold text-blue-900 mb-2">
+                    🏢 Stai pensando di aprire una SRL?
+                  </h3>
+                  <p className="text-blue-700 text-base md:text-lg">
+                    Scopri i vantaggi fiscali e i costi di gestione rispetto al regime forfettario
+                  </p>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                  <div className="bg-white p-4 rounded-lg shadow-sm">
+                    <div className="text-blue-600 font-semibold text-sm">IRES 24%</div>
+                    <div className="text-gray-600 text-xs mt-1">Su utili aziendali</div>
+                  </div>
+                  <div className="bg-white p-4 rounded-lg shadow-sm">
+                    <div className="text-blue-600 font-semibold text-sm">IRAP 3.9%</div>
+                    <div className="text-gray-600 text-xs mt-1">Imposta regionale</div>
+                  </div>
+                  <div className="bg-white p-4 rounded-lg shadow-sm">
+                    <div className="text-blue-600 font-semibold text-sm">26% Dividendi</div>
+                    <div className="text-gray-600 text-xs mt-1">Tassazione distribuzione</div>
+                  </div>
+                </div>
+
+                <Button 
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 text-lg font-medium rounded-lg shadow-lg hover:shadow-xl transition-all touch-manipulation"
+                  onClick={() => window.open('https://calcolatore-srl.smartratesrl.com', '_blank')}
+                >
+                  🚀 Prova il Calcolatore SRL
+                </Button>
+                
+                <p className="text-xs text-gray-500 mt-3">
+                  Confronta regime forfettario vs SRL e scopri qual è più conveniente per te
+                </p>
+              </div>
+            </CardContent>
+          </Card>
         </>
       )}
     </div>
