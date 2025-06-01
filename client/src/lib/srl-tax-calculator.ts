@@ -82,6 +82,7 @@ export interface SRLTaxCalculationResult {
     newBalance: number;
     deficit: number; // Eventuale deficit se il saldo non è sufficiente
     isIncome: boolean; // true per versamenti, false per pagamenti
+    requiredPayment: number; // Versamento necessario per coprire la scadenza
   }>;
 }
 
@@ -257,7 +258,18 @@ function createFiscalCalendar2025(iresAmount: number, irapAmount: number, vatDea
 
 function createPaymentSchedule(calendar: any[], currentBalance: number, monthlyAccrual: number, fiscalYear: number) {
   let runningBalance = currentBalance;
-  const schedule = [];
+  const schedule: Array<{
+    date: string;
+    amount: number;
+    type: string;
+    category: 'IRES' | 'IRAP' | 'IVA' | 'INPS' | 'ACCUMULO';
+    description: string;
+    previousBalance: number;
+    newBalance: number;
+    deficit: number;
+    isIncome: boolean;
+    requiredPayment: number;
+  }> = [];
   const today = new Date();
   
   // Crea un array completo che include sia versamenti mensili che pagamenti tasse
@@ -304,13 +316,25 @@ function createPaymentSchedule(calendar: any[], currentBalance: number, monthlyA
   // Calcola il saldo progressivo
   allEvents.forEach(event => {
     const previousBalance = runningBalance;
+    let requiredPayment = 0;
     
     if (event.isIncome) {
       // Versamento - aumenta il saldo
       runningBalance += event.amount;
+      requiredPayment = event.amount; // Per i versamenti, mostra l'importo del versamento
     } else {
-      // Pagamento - diminuisce il saldo
-      runningBalance -= event.amount;
+      // Pagamento - calcola se serve versamento aggiuntivo
+      const balanceAfterPayment = runningBalance - event.amount;
+      
+      if (balanceAfterPayment < 0) {
+        // Serve un versamento per coprire il deficit
+        requiredPayment = Math.abs(balanceAfterPayment);
+        runningBalance = 0; // Il saldo rimane a zero dopo aver coperto il deficit
+      } else {
+        // Il saldo è sufficiente, nessun versamento necessario
+        requiredPayment = 0;
+        runningBalance = balanceAfterPayment;
+      }
     }
     
     const deficit = runningBalance < 0 ? Math.abs(runningBalance) : 0;
@@ -324,11 +348,9 @@ function createPaymentSchedule(calendar: any[], currentBalance: number, monthlyA
       previousBalance: Math.round(previousBalance * 100) / 100,
       newBalance: Math.round(runningBalance * 100) / 100,
       deficit: Math.round(deficit * 100) / 100,
-      isIncome: event.isIncome
+      isIncome: event.isIncome,
+      requiredPayment: Math.round(requiredPayment * 100) / 100
     });
-    
-    // Il saldo non può andare sotto zero fisicamente, ma lo teniamo per il calcolo
-    // runningBalance = Math.max(0, runningBalance);
   });
   
   return schedule;

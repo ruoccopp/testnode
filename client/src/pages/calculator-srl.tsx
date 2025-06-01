@@ -1820,7 +1820,7 @@ export default function CalculatorSRLPage() {
                       <th className="text-left p-3 font-semibold">Scadenza</th>
                       <th className="text-right p-3 font-semibold">Importo</th>
                       <th className="text-right p-3 font-semibold">Saldo Prima</th>
-                      <th className="text-right p-3 font-semibold">Versamento Necessario</th>
+                      <th className="text-right p-3 font-semibold">Versamento</th>
                       <th className="text-right p-3 font-semibold">Saldo Dopo</th>
                       <th className="text-center p-3 font-semibold">Stato</th>
                     </tr>
@@ -1856,13 +1856,11 @@ export default function CalculatorSRLPage() {
                           {formatCurrency(payment.previousBalance)}
                         </td>
                         <td className="p-3 text-right">
-                          {payment.isIncome ? (
-                            <span className="text-emerald-600 font-semibold">
-                              {formatCurrency(useSafetyMargin ? calculateSafetyMargin(results.monthlyAccrual) : results.monthlyAccrual)}
-                            </span>
-                          ) : payment.deficit > 0 ? (
-                            <span className="text-red-600 font-semibold">
-                              {formatCurrency(payment.deficit)}
+                          {payment.requiredPayment > 0 ? (
+                            <span className={`font-semibold ${
+                              payment.isIncome ? 'text-emerald-600' : 'text-red-600'
+                            }`}>
+                              {formatCurrency(payment.requiredPayment)}
                             </span>
                           ) : (
                             <span className="text-gray-400">-</span>
