@@ -873,8 +873,8 @@ export default function CalculatorPage() {
         </Card>
       )}
 
-      {/* Full Results (Unlocked) */}
-      {results && isUnlocked && (
+      {/* Full Results (Always Unlocked) */}
+      {results && (
         <div className="space-y-6">
           {/* Piano di Accantonamento con Margine di Sicurezza */}
           <Card>
