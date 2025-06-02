@@ -1003,62 +1003,7 @@ export default function CalculatorPage() {
             </CardContent>
           </Card>
 
-          {/* Anno Fiscale di Riferimento */}
-          <Card className="bg-green-50 border-green-200">
-            <CardContent className="p-6">
-              <h3 className="text-lg font-semibold mb-4 flex items-center text-green-800">
-                <Calendar className="mr-2 h-5 w-5" />
-                Anno Fiscale di Riferimento: 2025
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <div className="text-sm text-green-700">Imposta sostitutiva: Anno fiscale 2025</div>
-                </div>
-                <div>
-                  <div className="text-sm text-green-700">INPS: Contributi anno 2025</div>
-                </div>
-                <div>
-                  <div className="text-sm text-green-700">Regime: Forfettario 15%</div>
-                </div>
-              </div>
-              <div className="mt-4 text-sm text-green-600">
-                <strong>Scadenze di pagamento:</strong> Calendario fiscale 2025<br/>
-                Le imposte calcolate per il 2025 sono da versare nell'anno successivo secondo il calendario fiscale mostrato sotto.
-              </div>
-            </CardContent>
-          </Card>
 
-          {/* Summary Cards con icone */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Card className="text-center">
-              <CardContent className="p-4">
-                <Building className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                <div className="text-lg font-bold text-blue-600">{formatCurrency(results.taxableIncome)}</div>
-                <div className="text-xs text-gray-600">Reddito Imponibile</div>
-              </CardContent>
-            </Card>
-            <Card className="text-center">
-              <CardContent className="p-4">
-                <Euro className="h-8 w-8 text-green-600 mx-auto mb-2" />
-                <div className="text-lg font-bold text-green-600">{formatCurrency(results.taxAmount)}</div>
-                <div className="text-xs text-gray-600">Imposta Sostitutiva (15%)</div>
-              </CardContent>
-            </Card>
-            <Card className="text-center">
-              <CardContent className="p-4">
-                <User className="h-8 w-8 text-orange-600 mx-auto mb-2" />
-                <div className="text-lg font-bold text-orange-600">{formatCurrency(results.inpsAmount)}</div>
-                <div className="text-xs text-gray-600">Contributi INPS</div>
-              </CardContent>
-            </Card>
-            <Card className="text-center">
-              <CardContent className="p-4">
-                <Download className="h-8 w-8 text-red-600 mx-auto mb-2" />
-                <div className="text-lg font-bold text-red-600">{formatCurrency(results.totalDue)}</div>
-                <div className="text-xs text-gray-600">Totale Dovuto</div>
-              </CardContent>
-            </Card>
-          </div>
 
           {/* Pianificatore Scadenze 2025 */}
           <Card>
