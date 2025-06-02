@@ -401,10 +401,10 @@ export default function CalculatorPage() {
         <CardContent className="p-4 md:p-6">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-6">
-              {/* Regime Fiscale - PRIMO BLOCCO */}
+              {/* Informazioni Attività - PRIMO BLOCCO */}
               <div className="bg-blue-50 p-3 md:p-4 rounded-lg mb-4 md:mb-6 border-2 border-blue-200">
-                <h3 className="font-medium text-blue-900 mb-3 md:mb-4 text-sm md:text-base">🎯 Regime Fiscale</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <h3 className="font-medium text-blue-900 mb-3 md:mb-4 text-sm md:text-base">📋 Informazioni Attività</h3>
+                <div className="grid grid-cols-1 gap-4">
                   <FormField
                     control={form.control}
                     name="startDate"
@@ -422,6 +422,60 @@ export default function CalculatorPage() {
                         <FormDescription className="text-xs">
                           Inserisci la data di apertura della tua Partita IVA
                         </FormDescription>
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="category"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>📋 Categoria Professionale</FormLabel>
+                        <Select onValueChange={(value) => {
+                          field.onChange(value);
+                          // Auto-selezione del regime contributivo basato sulla categoria
+                          const selectedCategory = TAX_COEFFICIENTS[value as keyof typeof TAX_COEFFICIENTS];
+                          if (selectedCategory) {
+                            if (selectedCategory.sector === 'COMMERCIO') {
+                              if (value === 'FOOD_COMMERCE' || value === 'STREET_COMMERCE' || value === 'OTHER_ACTIVITIES') {
+                                form.setValue('contributionRegime', 'IVS_COMMERCIANTI');
+                              }
+                            } else if (selectedCategory.sector === 'ARTIGIANATO') {
+                              form.setValue('contributionRegime', 'IVS_ARTIGIANI');
+                            } else {
+                              form.setValue('contributionRegime', 'GESTIONE_SEPARATA');
+                            }
+                          }
+                        }} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Seleziona la tua categoria di attività" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {/* Raggruppamento per settori con codici colore */}
+                            {Object.entries(SECTORS).map(([sectorKey, sector]) => (
+                              <div key={sectorKey}>
+                                <div className={`px-3 py-2 text-sm font-semibold text-${sector.color}-700 bg-${sector.color}-50 border-b border-${sector.color}-200`}>
+                                  {sector.icon} {sector.label}
+                                </div>
+                                {Object.entries(TAX_COEFFICIENTS)
+                                  .filter(([, category]) => category.sector === sectorKey)
+                                  .map(([key, category]) => (
+                                    <SelectItem key={key} value={key} className={`pl-6 border-l-2 border-${category.color}-300`}>
+                                      <div className="flex flex-col items-start w-full">
+                                        <span className="font-medium">{category.label}</span>
+                                        <span className={`text-xs text-${category.color}-600 font-medium`}>
+                                          ({(category.value * 100).toFixed(0)}%)
+                                        </span>
+                                      </div>
+                                    </SelectItem>
+                                  ))}
+                              </div>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </FormItem>
                     )}
                   />
@@ -497,63 +551,7 @@ export default function CalculatorPage() {
                 </div>
               </div>
 
-              {/* Categoria */}
-              <div className="bg-amber-50 p-4 rounded-lg mb-6">
-                <h3 className="font-medium text-amber-900 mb-4">🏷️ Categoria di Attività</h3>
-                <FormField
-                  control={form.control}
-                  name="category"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>📋 Categoria Professionale</FormLabel>
-                      <Select onValueChange={(value) => {
-                        field.onChange(value);
-                        // Auto-selezione del regime contributivo basato sulla categoria
-                        const selectedCategory = TAX_COEFFICIENTS[value as keyof typeof TAX_COEFFICIENTS];
-                        if (selectedCategory) {
-                          if (selectedCategory.sector === 'COMMERCIO') {
-                            if (value === 'FOOD_COMMERCE' || value === 'STREET_COMMERCE' || value === 'OTHER_ACTIVITIES') {
-                              form.setValue('contributionRegime', 'IVS_COMMERCIANTI');
-                            }
-                          } else if (selectedCategory.sector === 'ARTIGIANATO') {
-                            form.setValue('contributionRegime', 'IVS_ARTIGIANI');
-                          } else {
-                            form.setValue('contributionRegime', 'GESTIONE_SEPARATA');
-                          }
-                        }
-                      }} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Seleziona la tua categoria di attività" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {/* Raggruppamento per settori con codici colore */}
-                          {Object.entries(SECTORS).map(([sectorKey, sector]) => (
-                            <div key={sectorKey}>
-                              <div className={`px-3 py-2 text-sm font-semibold text-${sector.color}-700 bg-${sector.color}-50 border-b border-${sector.color}-200`}>
-                                {sector.icon} {sector.label}
-                              </div>
-                              {Object.entries(TAX_COEFFICIENTS)
-                                .filter(([, category]) => category.sector === sectorKey)
-                                .map(([key, category]) => (
-                                  <SelectItem key={key} value={key} className={`pl-6 border-l-2 border-${category.color}-300`}>
-                                    <div className="flex flex-col items-start w-full">
-                                      <span className="font-medium">{category.label}</span>
-                                      <span className={`text-xs text-${category.color}-600 font-medium`}>
-                                        ({(category.value * 100).toFixed(0)}%)
-                                      </span>
-                                    </div>
-                                  </SelectItem>
-                                ))}
-                            </div>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </FormItem>
-                  )}
-                />
-              </div>
+
 
               {/* Contributi INPS - Ora posizionato dopo la categoria */}
               {form.watch('category') && (
