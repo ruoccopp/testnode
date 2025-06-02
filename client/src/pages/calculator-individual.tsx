@@ -1106,7 +1106,7 @@ export default function CalculatorIndividualPage() {
                           <span>Contributo Soggettivo:</span>
                           <span>€{results.contributionDetails.calculatedAmount.toLocaleString()}</span>
                         </div>
-                        {results.contributionDetails.integrative > 0 && (
+                        {results.contributionDetails.integrative && results.contributionDetails.integrative > 0 && (
                           <div className="flex justify-between">
                             <span>Contributo Integrativo:</span>
                             <span>€{results.contributionDetails.integrative.toLocaleString()}</span>
@@ -1124,28 +1124,145 @@ export default function CalculatorIndividualPage() {
               </CardContent>
             </Card>
 
-            {/* Payment Schedule */}
+            {/* Liquidity Analysis */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  <Clock className="mr-2 h-5 w-5" />
-                  Scadenziere Fiscale 2025
+                  <PiggyBank className="mr-2 h-5 w-5" />
+                  Analisi Liquidità e Scadenze 2025
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
-                  {results.calendar2025.map((payment, index) => (
-                    <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                      <div>
-                        <div className="font-medium">{payment.type}</div>
-                        <div className="text-sm text-gray-600">{payment.date}</div>
+                <div className="space-y-4">
+                  {/* Summary Stats */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div className="bg-blue-50 p-3 rounded-lg text-center">
+                      <div className="text-lg font-bold text-blue-600">
+                        €{results.paymentSchedule
+                          .filter(p => p.deficit > 0)
+                          .reduce((sum, p) => sum + p.deficit, 0)
+                          .toLocaleString()}
                       </div>
-                      <div className="text-right">
-                        <div className="font-semibold">€{payment.amount.toLocaleString()}</div>
-                        <div className="text-xs text-gray-500">{payment.category}</div>
-                      </div>
+                      <div className="text-sm text-blue-700">Deficit Totale</div>
                     </div>
-                  ))}
+                    <div className="bg-green-50 p-3 rounded-lg text-center">
+                      <div className="text-lg font-bold text-green-600">
+                        {results.paymentSchedule.filter(p => p.deficit > 0).length}
+                      </div>
+                      <div className="text-sm text-green-700">Scadenze Critiche</div>
+                    </div>
+                    <div className="bg-orange-50 p-3 rounded-lg text-center">
+                      <div className="text-lg font-bold text-orange-600">
+                        €{Math.max(...results.paymentSchedule.map(p => p.requiredPayment)).toLocaleString()}
+                      </div>
+                      <div className="text-sm text-orange-700">Pagamento Max Richiesto</div>
+                    </div>
+                  </div>
+
+                  {/* Payment Schedule with Balance Tracking */}
+                  <div className="space-y-3">
+                    <h4 className="font-semibold text-gray-900">Scadenziere con Liquidità Progressiva</h4>
+                    {results.paymentSchedule.map((event, index) => {
+                      const isPayment = !event.isIncome;
+                      const hasDeficit = event.deficit > 0;
+                      
+                      return (
+                        <div 
+                          key={index} 
+                          className={`p-4 rounded-lg border-l-4 ${
+                            hasDeficit 
+                              ? 'border-red-400 bg-red-50' 
+                              : isPayment 
+                                ? 'border-blue-400 bg-blue-50' 
+                                : 'border-green-400 bg-green-50'
+                          }`}
+                        >
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium">{event.type}</span>
+                                <span className="text-sm text-gray-500">({event.date})</span>
+                                {hasDeficit && (
+                                  <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">
+                                    ATTENZIONE
+                                  </span>
+                                )}
+                              </div>
+                              <div className="text-sm text-gray-600 mt-1">
+                                {event.description}
+                              </div>
+                              
+                              {/* Balance Flow */}
+                              <div className="mt-2 text-xs text-gray-500">
+                                Saldo: €{event.previousBalance.toLocaleString()} 
+                                {isPayment ? ' → ' : ' + '}
+                                {isPayment ? '-' : '+'}€{event.amount.toLocaleString()} 
+                                = €{event.newBalance.toLocaleString()}
+                              </div>
+                              
+                              {hasDeficit && (
+                                <div className="mt-2 p-2 bg-yellow-100 rounded text-sm">
+                                  <strong>💡 Azione richiesta:</strong> Versare €{event.requiredPayment.toLocaleString()} 
+                                  per coprire il deficit di €{event.deficit.toLocaleString()}
+                                </div>
+                              )}
+                            </div>
+                            
+                            <div className="text-right ml-4">
+                              <div className={`text-lg font-semibold ${
+                                isPayment ? 'text-red-600' : 'text-green-600'
+                              }`}>
+                                {isPayment ? '-' : '+'}€{event.amount.toLocaleString()}
+                              </div>
+                              <div className="text-sm text-gray-500">{event.category}</div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Monthly Savings Plan */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Calculator className="mr-2 h-5 w-5" />
+                  Piano di Accumulo Mensile
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg">
+                  <div className="text-center mb-4">
+                    <div className="text-3xl font-bold text-blue-600 mb-2">
+                      €{results.monthlyAccrual.toLocaleString()}
+                    </div>
+                    <div className="text-gray-600">
+                      Importo da accantonare ogni mese per coprire tutte le imposte 2025
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center text-sm">
+                    <div>
+                      <div className="font-semibold text-blue-600">IRPEF + Addizionali</div>
+                      <div>€{(results.totalTaxes / 12).toLocaleString()}/mese</div>
+                    </div>
+                    <div>
+                      <div className="font-semibold text-purple-600">Contributi</div>
+                      <div>€{(results.totalContributions / 12).toLocaleString()}/mese</div>
+                    </div>
+                    <div>
+                      <div className="font-semibold text-green-600">IVA</div>
+                      <div>€{(results.vatAmount / 12).toLocaleString()}/mese</div>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-4 p-3 bg-white rounded border text-sm text-gray-600">
+                    💡 <strong>Consiglio:</strong> Imposta un bonifico automatico mensile di €{results.monthlyAccrual.toLocaleString()} 
+                    su un conto dedicato per le tasse. Questo ti garantirà liquidità sufficiente per tutte le scadenze.
+                  </div>
                 </div>
               </CardContent>
             </Card>
