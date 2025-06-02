@@ -1437,7 +1437,10 @@ export default function CalculatorSRLPage() {
                   📅 Scadenze di pagamento: Calendario fiscale {results.fiscalYear + 1}
                 </p>
                 <p className="text-xs text-blue-600 mt-1">
-                  Le imposte calcolate per il {results.fiscalYear} sono da pagare nell'anno successivo
+                  📊 <strong>Redditi e imposte {results.fiscalYear}</strong> → 💰 <strong>Pagamenti {results.fiscalYear + 1}</strong>
+                </p>
+                <p className="text-xs text-blue-600">
+                  Gli importi sotto si riferiscono ai redditi 2025, da dichiarare e pagare nel 2026
                 </p>
               </div>
             </div>
@@ -1448,7 +1451,7 @@ export default function CalculatorSRLPage() {
                   <div className="flex items-center">
                     <Building2 className="h-6 w-6 md:h-8 md:w-8 text-blue-500" />
                     <div className="ml-3 md:ml-4">
-                      <p className="text-xs md:text-sm font-medium text-gray-500">Utile Lordo</p>
+                      <p className="text-xs md:text-sm font-medium text-gray-500">Utile Lordo 2025</p>
                       <p className="text-lg md:text-2xl font-bold text-gray-900">{formatCurrency(results.grossProfit)}</p>
                     </div>
                   </div>
@@ -1460,7 +1463,7 @@ export default function CalculatorSRLPage() {
                   <div className="flex items-center">
                     <Euro className="h-6 w-6 md:h-8 md:w-8 text-green-500" />
                     <div className="ml-3 md:ml-4">
-                      <p className="text-xs md:text-sm font-medium text-gray-500">IRES (24%)</p>
+                      <p className="text-xs md:text-sm font-medium text-gray-500">IRES 2025 (24%)</p>
                       <p className="text-lg md:text-2xl font-bold text-gray-900">{formatCurrency(results.iresAmount)}</p>
                     </div>
                   </div>
