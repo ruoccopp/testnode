@@ -65,6 +65,24 @@ export interface IndividualTaxCalculationResult {
   regionalSurcharge: number;
   municipalSurcharge: number;
   
+  // Calcoli 2026 (se presenti dati 2025)
+  planning2026?: {
+    businessRevenue: number;
+    businessExpenses: number;
+    businessIncome: number;
+    totalTaxableIncome: number;
+    irpefNetAmount: number;
+    irpefRate: number;
+    regionalSurcharge: number;
+    municipalSurcharge: number;
+    contributionAmount: number;
+    totalTaxes: number;
+    totalContributions: number;
+    totalDue: number;
+    irpefFirstAcconto: number;
+    irpefSecondAcconto: number;
+  };
+  
   // Contributi previdenziali
   contributionDetails: {
     type: string;
@@ -521,6 +539,53 @@ export function calculateIndividualTaxes(input: IndividualTaxCalculationInput): 
     monthlyAccrual,
     fiscalYear
   );
+
+  // 12. CALCOLO 2026 (se presenti dati 2025)
+  let planning2026 = undefined;
+  if (input.revenue2025 && input.revenue2025 > 0) {
+    const businessIncome2025 = Math.max(0, input.revenue2025 - (input.documentedExpenses2025 || 0));
+    const totalTaxableIncome2025 = businessIncome2025 + (input.otherIncome || 0) + (input.employmentIncome || 0);
+    
+    const irpef2025Calculation = calculateIrpef(totalTaxableIncome2025);
+    const contribution2025Details = calculateContributions(
+      businessIncome2025,
+      input.contributionType,
+      input.hasOtherPension,
+      input.isPensioner,
+      input.rivalsa4Percent
+    );
+    
+    const irpef2025Net = irpef2025Calculation.grossAmount;
+    const regional2025 = totalTaxableIncome2025 * REGIONAL_SURCHARGE_RATES.DEFAULT;
+    const municipal2025 = totalTaxableIncome2025 * 0.008;
+    
+    const totalTaxes2025 = irpef2025Net + regional2025 + municipal2025;
+    const totalContributions2025 = contribution2025Details.calculatedAmount + 
+                                  (contribution2025Details.integrative || 0) + 
+                                  (contribution2025Details.maternity || 0);
+    const totalDue2025 = totalTaxes2025 + totalContributions2025;
+    
+    // Acconti 2026 basati su imposte 2025
+    const irpefFirstAcconto2026 = totalTaxes2025 * 0.40;
+    const irpefSecondAcconto2026 = totalTaxes2025 * 0.60;
+    
+    planning2026 = {
+      businessRevenue: Math.round(input.revenue2025 * 100) / 100,
+      businessExpenses: Math.round((input.documentedExpenses2025 || 0) * 100) / 100,
+      businessIncome: Math.round(businessIncome2025 * 100) / 100,
+      totalTaxableIncome: Math.round(totalTaxableIncome2025 * 100) / 100,
+      irpefNetAmount: Math.round(irpef2025Net * 100) / 100,
+      irpefRate: Math.round(irpef2025Calculation.rate * 10000) / 100,
+      regionalSurcharge: Math.round(regional2025 * 100) / 100,
+      municipalSurcharge: Math.round(municipal2025 * 100) / 100,
+      contributionAmount: Math.round(totalContributions2025 * 100) / 100,
+      totalTaxes: Math.round(totalTaxes2025 * 100) / 100,
+      totalContributions: Math.round(totalContributions2025 * 100) / 100,
+      totalDue: Math.round(totalDue2025 * 100) / 100,
+      irpefFirstAcconto: Math.round(irpefFirstAcconto2026 * 100) / 100,
+      irpefSecondAcconto: Math.round(irpefSecondAcconto2026 * 100) / 100,
+    };
+  }
   
   return {
     fiscalYear,
@@ -572,7 +637,10 @@ export function calculateIndividualTaxes(input: IndividualTaxCalculationInput): 
     // Pianificazione
     monthlyAccrual: Math.round(monthlyAccrual * 100) / 100,
     calendar2025,
-    paymentSchedule
+    paymentSchedule,
+    
+    // Pianificazione 2026 (se presente)
+    planning2026
   };
 }
 
