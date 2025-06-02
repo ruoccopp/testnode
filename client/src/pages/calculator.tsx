@@ -949,15 +949,80 @@ export default function CalculatorPage() {
 
       {/* Full Results (Unlocked) */}
       {results && isUnlocked && (
-        <>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6 md:mb-8">
+        <div className="space-y-6">
+          {/* Piano di Accantonamento con Margine di Sicurezza */}
+          <Card>
+            <CardContent className="p-6">
+              <h3 className="text-lg font-semibold mb-4 flex items-center">
+                <Building className="mr-2 h-5 w-5 text-yellow-600" />
+                Piano di Accantonamento con Margine di Sicurezza
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div className="bg-blue-50 p-4 rounded-lg text-center border border-blue-200">
+                  <div className="flex items-center justify-center mb-2">
+                    <Calculator className="h-5 w-5 text-blue-600 mr-1" />
+                    <span className="text-sm font-medium text-blue-900">Accantonamento Standard</span>
+                  </div>
+                  <div className="space-y-1">
+                    <div className="text-sm text-gray-600">Mensile base:</div>
+                    <div className="text-xl font-bold text-blue-600">{formatCurrency(results.monthlyAccrual)}</div>
+                    <div className="text-xs text-gray-500">% su fatturato: {((results.monthlyAccrual * 12 / (results.revenue2025 || 1)) * 100).toFixed(1)}%</div>
+                  </div>
+                </div>
+
+                <div className="bg-orange-50 p-4 rounded-lg text-center border border-orange-200">
+                  <div className="flex items-center justify-center mb-2">
+                    <Euro className="h-5 w-5 text-orange-600 mr-1" />
+                    <span className="text-sm font-medium text-orange-900">Con Margine Sicurezza (10%)</span>
+                  </div>
+                  <div className="space-y-1">
+                    <div className="text-sm text-gray-600">Mensile sicuro:</div>
+                    <div className="text-xl font-bold text-orange-600">{formatCurrency(Math.round(results.monthlyAccrual * 1.1))}</div>
+                    <div className="text-xs text-gray-500">Margine extra: +{formatCurrency(Math.round(results.monthlyAccrual * 0.1))}</div>
+                  </div>
+                </div>
+
+                <div className="bg-purple-50 p-4 rounded-lg text-center border border-purple-200">
+                  <div className="flex items-center justify-center mb-2">
+                    <Calendar className="h-5 w-5 text-purple-600 mr-1" />
+                    <span className="text-sm font-medium text-purple-900">Distribuzione Cashflow</span>
+                  </div>
+                  <div className="space-y-1">
+                    <div className="text-sm text-gray-600">Accumulo annuale:</div>
+                    <div className="text-xl font-bold text-purple-600">{formatCurrency(results.totalDue)}</div>
+                    <div className="text-xs text-gray-500">Copertura: 100%</div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Breakdown Imposte e Contributi */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
-              <CardContent className="p-4 md:p-6">
-                <div className="flex items-center">
-                  <Building className="h-8 w-8 text-blue-500" />
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-500">Reddito Imponibile</p>
-                    <p className="text-2xl font-bold text-gray-900">{formatCurrency(results.taxableIncome)}</p>
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold mb-4 flex items-center">
+                  <Euro className="mr-2 h-5 w-5 text-blue-600" />
+                  Breakdown Imposte Dettagliato
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span>Reddito imponibile:</span>
+                    <span className="font-medium">{formatCurrency(results.taxableIncome)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Aliquota forfettaria:</span>
+                    <span className="font-medium">{results.taxRate}%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Imposta sostitutiva:</span>
+                    <span className="font-medium">{formatCurrency(results.taxAmount)}</span>
+                  </div>
+                  <div className="border-t pt-2">
+                    <div className="flex justify-between font-semibold text-lg">
+                      <span>Totale Imposte:</span>
+                      <span>{formatCurrency(results.taxAmount)}</span>
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -965,68 +1030,111 @@ export default function CalculatorPage() {
 
             <Card>
               <CardContent className="p-6">
-                <div className="flex items-center">
-                  <Euro className="h-8 w-8 text-green-500" />
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-500">Imposta Sostitutiva</p>
-                    <p className="text-2xl font-bold text-gray-900">{formatCurrency(results.taxAmount)}</p>
+                <h3 className="text-lg font-semibold mb-4 flex items-center">
+                  <User className="mr-2 h-5 w-5 text-orange-600" />
+                  Contributi e Altri Oneri
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span>Contributi INPS:</span>
+                    <span className="font-medium">{formatCurrency(results.inpsAmount)}</span>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center">
-                  <Calendar className="h-8 w-8 text-orange-500" />
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-500">Contributi INPS</p>
-                    <p className="text-2xl font-bold text-gray-900">{formatCurrency(results.inpsAmount)}</p>
+                  <div className="flex justify-between">
+                    <span>Regime contributivo:</span>
+                    <span className="text-sm">{CONTRIBUTION_REGIMES[results.contributionRegime as keyof typeof CONTRIBUTION_REGIMES]?.label || 'N/A'}</span>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center">
-                  <Download className="h-8 w-8 text-red-500" />
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-500">Totale Dovuto</p>
-                    <p className="text-2xl font-bold text-gray-900">{formatCurrency(results.totalDue)}</p>
+                  <div className="border-t pt-2">
+                    <div className="flex justify-between font-semibold text-lg">
+                      <span>Totale Altri Oneri:</span>
+                      <span>{formatCurrency(results.inpsAmount)}</span>
+                    </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Success Message */}
-          <Card className="mb-8 bg-green-50 border-2 border-green-200">
-            <CardContent className="p-6 text-center">
-              <h3 className="text-2xl font-bold text-green-800 mb-2">
-                🎉 Report Completo Sbloccato!
+          {/* Anno Fiscale di Riferimento */}
+          <Card className="bg-green-50 border-green-200">
+            <CardContent className="p-6">
+              <h3 className="text-lg font-semibold mb-4 flex items-center text-green-800">
+                <Calendar className="mr-2 h-5 w-5" />
+                Anno Fiscale di Riferimento: 2025
               </h3>
-              <p className="text-green-700 mb-4">
-                Grazie per i tuoi dati! Ora hai accesso a tutti i dettagli del calcolo.
-              </p>
-              <div className="text-green-600 text-sm mb-4">
-                ✅ Report inviato anche via email • ✅ Salva questa pagina nei preferiti
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <div className="text-sm text-green-700">Imposta sostitutiva: Anno fiscale 2025</div>
+                </div>
+                <div>
+                  <div className="text-sm text-green-700">INPS: Contributi anno 2025</div>
+                </div>
+                <div>
+                  <div className="text-sm text-green-700">Regime: Forfettario {results.taxRate}%</div>
+                </div>
+              </div>
+              <div className="mt-4 text-sm text-green-600">
+                <strong>Scadenze di pagamento:</strong> Calendario fiscale 2025<br/>
+                Le imposte calcolate per il 2025 sono da versare nell'anno successivo secondo il calendario fiscale mostrato sotto.
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Summary Cards con icone */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Card className="text-center">
+              <CardContent className="p-4">
+                <Building className="h-8 w-8 text-blue-600 mx-auto mb-2" />
+                <div className="text-lg font-bold text-blue-600">{formatCurrency(results.taxableIncome)}</div>
+                <div className="text-xs text-gray-600">Reddito Imponibile</div>
+              </CardContent>
+            </Card>
+            <Card className="text-center">
+              <CardContent className="p-4">
+                <Euro className="h-8 w-8 text-green-600 mx-auto mb-2" />
+                <div className="text-lg font-bold text-green-600">{formatCurrency(results.taxAmount)}</div>
+                <div className="text-xs text-gray-600">Imposta Sostitutiva ({results.taxRate}%)</div>
+              </CardContent>
+            </Card>
+            <Card className="text-center">
+              <CardContent className="p-4">
+                <User className="h-8 w-8 text-orange-600 mx-auto mb-2" />
+                <div className="text-lg font-bold text-orange-600">{formatCurrency(results.inpsAmount)}</div>
+                <div className="text-xs text-gray-600">Contributi INPS</div>
+              </CardContent>
+            </Card>
+            <Card className="text-center">
+              <CardContent className="p-4">
+                <Download className="h-8 w-8 text-red-600 mx-auto mb-2" />
+                <div className="text-lg font-bold text-red-600">{formatCurrency(results.totalDue)}</div>
+                <div className="text-xs text-gray-600">Totale Dovuto</div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Report Avanzato Sbloccato */}
+          <Card className="bg-green-50 border-green-200">
+            <CardContent className="p-6">
+              <h3 className="text-lg font-semibold mb-4 flex items-center text-green-800">
+                🎉 Report Forfettario Avanzato Sbloccato!
+              </h3>
+              <div className="text-center mb-4">
+                <div className="text-green-700">Pianificazione fiscale completa con tutti i calcoli avanzati per la tua attività.</div>
               </div>
               
-              <div className="flex gap-4 justify-center">
+              <div className="flex justify-center gap-4">
                 <Button 
                   onClick={exportToExcel}
                   className="bg-green-600 hover:bg-green-700"
                 >
                   <Download className="h-4 w-4 mr-2" />
-                  Scarica Excel
+                  📥 Scarica Excel Avanzato
                 </Button>
                 
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
+                    <Button variant="outline" className="border-green-600 text-green-600 hover:bg-green-50">
                       <Mail className="h-4 w-4 mr-2" />
-                      Invia via Email
+                      📧 Invia via Email
                     </Button>
                   </DialogTrigger>
                   <DialogContent>
@@ -1082,301 +1190,74 @@ export default function CalculatorPage() {
             </CardContent>
           </Card>
 
-          {/* Scadenze Fiscali */}
-          <Card className="mb-8">
+          {/* Scadenze Fiscali 2025 */}
+          <Card>
             <CardContent className="p-6">
-              <h3 className="text-xl font-bold mb-6 text-gray-900">📅 Scadenze Fiscali 2025</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-red-50 p-4 rounded-lg">
-                  <h4 className="font-semibold text-red-900 mb-2">30 Giugno 2025</h4>
-                  <div className="space-y-2 text-sm text-red-700">
-                    <div>• Saldo 2024: {formatCurrency(results.taxAmount)}</div>
-                    <div>• 1° Acconto 2025: {formatCurrency(results.taxAmount * 0.40)}</div>
-                    <div className="font-semibold pt-2 border-t border-red-200">
-                      Totale: {formatCurrency(results.taxAmount + (results.taxAmount * 0.40))}
+              <h3 className="text-lg font-semibold mb-4 flex items-center">
+                📅 Scadenze Fiscali 2025
+              </h3>
+              <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <div className="flex items-center text-yellow-800">
+                  <span className="text-sm font-medium">⚠️ Nota importante:</span>
+                </div>
+                <div className="text-sm text-yellow-700 mt-1">
+                  Le scadenze forfettario 2025 si basano sull'imposta 2024 (saldi + acconti calcolati su imposta 2024). 
+                  Gli importi mostrati sono una stima basata sulla proiezione 2025.
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="font-semibold text-red-800">30 Giugno 2025</span>
+                    <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">28 giorni</span>
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span>• Saldo imposta sostitutiva:</span>
+                      <span className="font-medium">{formatCurrency(Math.round(results.taxAmount * 0.6))}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>• Primo acconto:</span>
+                      <span className="font-medium">{formatCurrency(Math.round(results.taxAmount * 0.4))}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>• Contributi INPS:</span>
+                      <span className="font-medium">{formatCurrency(Math.round(results.inpsAmount * 0.5))}</span>
+                    </div>
+                    <hr className="my-2" />
+                    <div className="flex justify-between font-semibold">
+                      <span>Totale:</span>
+                      <span>{formatCurrency(Math.round(results.taxAmount + results.inpsAmount * 0.5))}</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-orange-50 p-4 rounded-lg">
-                  <h4 className="font-semibold text-orange-900 mb-2">30 Novembre 2025</h4>
-                  <div className="space-y-2 text-sm text-orange-700">
-                    <div>• 2° Acconto 2025: {formatCurrency(results.taxAmount * 0.60)}</div>
-                    <div className="font-semibold pt-2 border-t border-orange-200">
-                      Totale: {formatCurrency(results.taxAmount * 0.60)}
-                    </div>
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="font-semibold text-green-800">30 Novembre 2025</span>
+                    <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">181 giorni</span>
                   </div>
-                </div>
-
-                <div className="bg-green-50 p-4 rounded-lg">
-                  <h4 className="font-semibold text-green-900 mb-2">INPS Trimestrale</h4>
-                  <div className="space-y-2 text-sm text-green-700">
-                    <div>• Ogni trimestre: {formatCurrency(results.inpsAmount / 4)}</div>
-                    <div>• Scadenze: 16/5, 20/8, 16/11, 16/2</div>
-                    <div className="font-semibold pt-2 border-t border-green-200">
-                      Anno: {formatCurrency(results.inpsAmount)}
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span>• Secondo acconto:</span>
+                      <span className="font-medium">{formatCurrency(Math.round(results.taxAmount * 0.6))}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>• Contributi INPS:</span>
+                      <span className="font-medium">{formatCurrency(Math.round(results.inpsAmount * 0.5))}</span>
+                    </div>
+                    <hr className="my-2" />
+                    <div className="flex justify-between font-semibold">
+                      <span>Totale:</span>
+                      <span>{formatCurrency(Math.round(results.taxAmount * 0.6 + results.inpsAmount * 0.5))}</span>
                     </div>
                   </div>
                 </div>
               </div>
             </CardContent>
           </Card>
-
-          {/* Piano di Accantonamento Avanzato */}
-          <Card className="mb-8">
-            <CardContent className="p-6">
-              <h3 className="text-xl font-bold mb-6 text-gray-900">💰 Piano di Accantonamento Progressivo</h3>
-              
-              {(() => {
-                const currentBalance = form.watch('currentBalance') || 0;
-                const revenue2025 = form.watch('revenue2025') || form.watch('revenue') || 0;
-                
-                // Calcolo scadenze 2025
-                const giugno2025 = results.taxAmount + (results.taxAmount * 0.40); // Saldo 2024 + 1° acconto 2025
-                const novembre2025 = results.taxAmount * 0.60; // 2° acconto 2025
-                
-                // Calcolo tasse 2026 (se c'è fatturato 2025)
-                let taxAmount2026 = 0;
-                if (revenue2025 > 0) {
-                  const selectedCategory = TAX_COEFFICIENTS[form.watch('category') as keyof typeof TAX_COEFFICIENTS];
-                  const coefficient = selectedCategory?.value || 0.78;
-                  const taxableIncome2025 = revenue2025 * coefficient;
-                  const taxRate = form.watch('isStartup') ? 0.05 : 0.15;
-                  taxAmount2026 = taxableIncome2025 * taxRate;
-                }
-                
-                const giugno2026 = taxAmount2026 + (taxAmount2026 * 0.40); // Saldo 2025 + 1° acconto 2026
-                
-                // Calcolo mesi fino alle scadenze
-                const now = new Date();
-                const scadenzaGiugno2025 = new Date(2025, 5, 30); // 30 giugno 2025
-                const scadenzaNovembre2025 = new Date(2025, 10, 30); // 30 novembre 2025
-                const scadenzaGiugno2026 = new Date(2026, 5, 30); // 30 giugno 2026
-                
-                const mesiFinoGiugno2025 = Math.max(1, Math.ceil((scadenzaGiugno2025.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 30)));
-                const mesiFinoNovembre2025 = Math.max(1, Math.ceil((scadenzaNovembre2025.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 30)));
-                const mesiFinoGiugno2026 = Math.max(1, Math.ceil((scadenzaGiugno2026.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 30)));
-                
-                // Calcolo fabbisogni progressivi
-                let saldoAttuale = currentBalance;
-                
-                // Fabbisogno per giugno 2025
-                const fabbisognoGiugno2025 = Math.max(0, giugno2025 - saldoAttuale);
-                const accantonamentoMensileGiugno = fabbisognoGiugno2025 / mesiFinoGiugno2025;
-                
-                // Aggiornamento saldo dopo giugno 2025
-                let saldoDopoGiugno = saldoAttuale + (accantonamentoMensileGiugno * mesiFinoGiugno2025) - giugno2025;
-                saldoDopoGiugno = Math.max(0, saldoDopoGiugno);
-                
-                // Fabbisogno per novembre 2025
-                const mesiTraScadenze = Math.max(1, Math.ceil((scadenzaNovembre2025.getTime() - scadenzaGiugno2025.getTime()) / (1000 * 60 * 60 * 24 * 30)));
-                const fabbisognoNovembre2025 = Math.max(0, novembre2025 - saldoDopoGiugno);
-                const accantonamentoMensileNovembre = fabbisognoNovembre2025 / mesiTraScadenze;
-                
-                // Aggiornamento saldo dopo novembre 2025
-                let saldoDopoNovembre = saldoDopoGiugno + (accantonamentoMensileNovembre * mesiTraScadenze) - novembre2025;
-                saldoDopoNovembre = Math.max(0, saldoDopoNovembre);
-                
-                // Fabbisogno per giugno 2026 (solo se c'è fatturato 2025)
-                let fabbisognoGiugno2026 = 0;
-                let accantonamentoMensileGiugno2026 = 0;
-                if (revenue2025 > 0) {
-                  const mesiTraScadenze2026 = Math.max(1, Math.ceil((scadenzaGiugno2026.getTime() - scadenzaNovembre2025.getTime()) / (1000 * 60 * 60 * 24 * 30)));
-                  fabbisognoGiugno2026 = Math.max(0, giugno2026 - saldoDopoNovembre);
-                  accantonamentoMensileGiugno2026 = fabbisognoGiugno2026 / mesiTraScadenze2026;
-                }
-                
-                // Accantonamento immediato consigliato
-                const accantonamentoImmediato = accantonamentoMensileGiugno + accantonamentoMensileNovembre + accantonamentoMensileGiugno2026;
-                
-                return (
-                  <div className="space-y-6">
-                    {/* Situazione Attuale */}
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <h4 className="font-semibold text-gray-900 mb-3">📊 Situazione Attuale</h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="flex justify-between">
-                          <span className="text-gray-700">Saldo accantonato:</span>
-                          <span className="font-semibold">{formatCurrency(currentBalance)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-700">Mesi a giugno 2025:</span>
-                          <span className="font-semibold">{mesiFinoGiugno2025} mesi</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Scadenze Progressive */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      {/* Giugno 2025 */}
-                      <div className="bg-red-50 p-4 rounded-lg">
-                        <h4 className="font-semibold text-red-900 mb-3">🎯 30 Giugno 2025</h4>
-                        <div className="space-y-2 text-sm">
-                          <div className="flex justify-between">
-                            <span className="text-red-700">Totale dovuto:</span>
-                            <span className="font-semibold">{formatCurrency(giugno2025)}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-red-700">Fabbisogno:</span>
-                            <span className="font-semibold">{formatCurrency(fabbisognoGiugno2025)}</span>
-                          </div>
-                          <div className="flex justify-between border-t border-red-200 pt-2">
-                            <span className="text-red-700">Mensile fino a scadenza:</span>
-                            <span className="font-bold text-red-900">{formatCurrency(accantonamentoMensileGiugno)}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Novembre 2025 */}
-                      <div className="bg-orange-50 p-4 rounded-lg">
-                        <h4 className="font-semibold text-orange-900 mb-3">🎯 30 Novembre 2025</h4>
-                        <div className="space-y-2 text-sm">
-                          <div className="flex justify-between">
-                            <span className="text-orange-700">Totale dovuto:</span>
-                            <span className="font-semibold">{formatCurrency(novembre2025)}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-orange-700">Saldo dopo giugno:</span>
-                            <span className="font-semibold">{formatCurrency(saldoDopoGiugno)}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-orange-700">Fabbisogno aggiuntivo:</span>
-                            <span className="font-semibold">{formatCurrency(fabbisognoNovembre2025)}</span>
-                          </div>
-                          <div className="flex justify-between border-t border-orange-200 pt-2">
-                            <span className="text-orange-700">Mensile aggiuntivo:</span>
-                            <span className="font-bold text-orange-900">{formatCurrency(accantonamentoMensileNovembre)}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Giugno 2026 (solo se c'è fatturato 2025) */}
-                      {revenue2025 > 0 && (
-                        <div className="bg-blue-50 p-4 rounded-lg">
-                          <h4 className="font-semibold text-blue-900 mb-3">🎯 30 Giugno 2026</h4>
-                          <div className="space-y-2 text-sm">
-                            <div className="flex justify-between">
-                              <span className="text-blue-700">Totale dovuto:</span>
-                              <span className="font-semibold">{formatCurrency(giugno2026)}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-blue-700">Saldo dopo nov 2025:</span>
-                              <span className="font-semibold">{formatCurrency(saldoDopoNovembre)}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-blue-700">Fabbisogno aggiuntivo:</span>
-                              <span className="font-semibold">{formatCurrency(fabbisognoGiugno2026)}</span>
-                            </div>
-                            <div className="flex justify-between border-t border-blue-200 pt-2">
-                              <span className="text-blue-700">Mensile aggiuntivo:</span>
-                              <span className="font-bold text-blue-900">{formatCurrency(accantonamentoMensileGiugno2026)}</span>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Raccomandazione Finale */}
-                    <div className="bg-green-50 p-6 rounded-lg border-2 border-green-200">
-                      <h4 className="font-bold text-green-900 mb-4">💡 Raccomandazione di Accantonamento</h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                          <div className="text-2xl font-bold text-green-900 mb-2">
-                            {formatCurrency(accantonamentoImmediato)}
-                          </div>
-                          <div className="text-green-700 text-sm">
-                            Accantona questo importo ogni mese da adesso per coprire tutte le scadenze future
-                          </div>
-                        </div>
-                        <div className="space-y-2 text-sm">
-                          <div className="flex justify-between">
-                            <span className="text-green-700">Per giugno 2025:</span>
-                            <span className="font-semibold">{formatCurrency(accantonamentoMensileGiugno)}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-green-700">Per novembre 2025:</span>
-                            <span className="font-semibold">{formatCurrency(accantonamentoMensileNovembre)}</span>
-                          </div>
-                          {revenue2025 > 0 && (
-                            <div className="flex justify-between">
-                              <span className="text-green-700">Per giugno 2026:</span>
-                              <span className="font-semibold">{formatCurrency(accantonamentoMensileGiugno2026)}</span>
-                            </div>
-                          )}
-                          <div className="flex justify-between border-t border-green-300 pt-2">
-                            <span className="text-green-700 font-semibold">% su fatturato mensile:</span>
-                            <span className="font-bold">{((accantonamentoImmediato / ((form.watch('revenue') || 1) / 12)) * 100).toFixed(1)}%</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })()}
-            </CardContent>
-          </Card>
-
-          {/* Download Report */}
-          <Card className="mb-6 md:mb-8">
-            <CardContent className="p-4 md:p-6">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div>
-                  <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-2">📄 Report Completo</h3>
-                  <p className="text-sm md:text-base text-gray-600">Scarica il report dettagliato con tutti i calcoli e le scadenze</p>
-                </div>
-                <Button 
-                  onClick={exportToExcel}
-                  className="bg-green-600 hover:bg-green-700 h-12 md:h-auto px-6 py-3 touch-manipulation"
-                >
-                  <Download className="mr-2 h-4 w-4" />
-                  Scarica Excel
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* CTA per Calcolatore SRL */}
-          <Card className="mb-6 md:mb-8 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
-            <CardContent className="p-6">
-              <div className="text-center">
-                <div className="mb-4">
-                  <h3 className="text-xl md:text-2xl font-bold text-blue-900 mb-2">
-                    🏢 Stai pensando di aprire una SRL?
-                  </h3>
-                  <p className="text-blue-700 text-base md:text-lg">
-                    Scopri i vantaggi fiscali e i costi di gestione rispetto al regime forfettario
-                  </p>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                  <div className="bg-white p-4 rounded-lg shadow-sm">
-                    <div className="text-blue-600 font-semibold text-sm">IRES 24%</div>
-                    <div className="text-gray-600 text-xs mt-1">Su utili aziendali</div>
-                  </div>
-                  <div className="bg-white p-4 rounded-lg shadow-sm">
-                    <div className="text-blue-600 font-semibold text-sm">IRAP 3.9%</div>
-                    <div className="text-gray-600 text-xs mt-1">Imposta regionale</div>
-                  </div>
-                  <div className="bg-white p-4 rounded-lg shadow-sm">
-                    <div className="text-blue-600 font-semibold text-sm">26% Dividendi</div>
-                    <div className="text-gray-600 text-xs mt-1">Tassazione distribuzione</div>
-                  </div>
-                </div>
-
-                <Button 
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 text-lg font-medium rounded-lg shadow-lg hover:shadow-xl transition-all touch-manipulation"
-                  onClick={() => window.open('https://calcolatore-srl.smartratesrl.com', '_blank')}
-                >
-                  🚀 Prova il Calcolatore SRL
-                </Button>
-                
-                <p className="text-xs text-gray-500 mt-3">
-                  Confronta regime forfettario vs SRL e scopri qual è più conveniente per te
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </>
+        </div>
       )}
     </div>
   );
