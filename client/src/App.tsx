@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/use-auth";
 import HomePage from "@/pages/home";
 import Calculator from "@/pages/calculator";
 import CalculatorSRL from "@/pages/calculator-srl";
+import CalculatorIndividual from "@/pages/calculator-individual";
 import Leads from "@/pages/leads";
 import NotFound from "@/pages/not-found";
 
@@ -20,6 +21,7 @@ function AuthenticatedApp() {
           <Route path="/" component={HomePage} />
           <Route path="/calculator" component={Calculator} />
           <Route path="/calculator-srl" component={CalculatorSRL} />
+          <Route path="/calculator-individual" component={CalculatorIndividual} />
           <Route path="/leads" component={Leads} />
           <Route component={NotFound} />
         </Switch>
