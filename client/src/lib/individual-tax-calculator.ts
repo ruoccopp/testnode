@@ -7,9 +7,13 @@ export interface IndividualTaxCalculationInput {
   atecoCode: string;
   businessType: 'professional' | 'business' | 'artisan' | 'commercial';
   
-  // Ricavi e spese
+  // Ricavi e spese (dati principali per il calcolo)
   revenue: number;
   documentedExpenses: number;
+  
+  // Dati 2025 per pianificazione (opzionali)
+  revenue2025?: number;
+  documentedExpenses2025?: number;
   
   // Altri redditi per IRPEF complessiva
   otherIncome?: number;

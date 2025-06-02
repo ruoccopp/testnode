@@ -28,9 +28,15 @@ const calculationSchema = z.object({
   atecoCode: z.string().min(1, "Seleziona il codice ATECO"),
   businessType: z.enum(["professional", "business", "artisan", "commercial"]),
   
-  // Ricavi e spese
-  revenue: z.number().min(0, "I ricavi devono essere positivi"),
-  documentedExpenses: z.number().min(0, "Le spese devono essere positive"),
+  // Dati economici 2024 (anno di imposta)
+  revenue2024: z.number().min(0, "I ricavi 2024 devono essere positivi"),
+  documentedExpenses2024: z.number().min(0, "Le spese 2024 devono essere positive"),
+  otherIncome2024: z.number().min(0).optional(),
+  taxWithholdings2024: z.number().min(0).optional(),
+  
+  // Dati economici 2025 (per pianificazione 2026)
+  revenue: z.number().min(0, "I ricavi devono essere positivi").optional(),
+  documentedExpenses: z.number().min(0, "Le spese devono essere positive").optional(),
   
   // Altri redditi
   otherIncome: z.number().min(0).optional(),
@@ -136,6 +142,12 @@ export default function CalculatorIndividualPage() {
       startDate: "",
       atecoCode: "",
       businessType: "professional",
+      // Dati 2024
+      revenue2024: 0,
+      documentedExpenses2024: 0,
+      otherIncome2024: 0,
+      taxWithholdings2024: 0,
+      // Dati 2025
       revenue: 0,
       documentedExpenses: 0,
       otherIncome: 0,
@@ -183,11 +195,15 @@ export default function CalculatorIndividualPage() {
         startYear: startYear,
         atecoCode: data.atecoCode,
         businessType: data.businessType,
-        revenue: data.revenue,
-        documentedExpenses: data.documentedExpenses,
-        otherIncome: data.otherIncome,
+        // Usa i dati 2024 per il calcolo principale
+        revenue: data.revenue2024 || 0,
+        documentedExpenses: data.documentedExpenses2024 || 0,
+        // Dati 2025 per pianificazione
+        revenue2025: data.revenue,
+        documentedExpenses2025: data.documentedExpenses,
+        otherIncome: data.otherIncome2024,
         employmentIncome: data.employmentIncome,
-        taxWithholdings: data.taxWithholdings,
+        taxWithholdings: data.taxWithholdings2024,
         contributionType: data.contributionType,
         hasOtherPension: data.hasOtherPension,
         isPensioner: data.isPensioner,
@@ -450,7 +466,7 @@ export default function CalculatorIndividualPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
-                      name="revenue"
+                      name="revenue2024"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>💰 Ricavi/Compensi 2024 (€) *</FormLabel>
@@ -470,7 +486,7 @@ export default function CalculatorIndividualPage() {
                     
                     <FormField
                       control={form.control}
-                      name="documentedExpenses"
+                      name="documentedExpenses2024"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>📋 Spese Documentate 2024 (€) *</FormLabel>
@@ -490,7 +506,7 @@ export default function CalculatorIndividualPage() {
 
                     <FormField
                       control={form.control}
-                      name="otherIncome"
+                      name="otherIncome2024"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>💼 Altri Redditi 2024 (€)</FormLabel>
@@ -509,7 +525,7 @@ export default function CalculatorIndividualPage() {
 
                     <FormField
                       control={form.control}
-                      name="taxWithholdings"
+                      name="taxWithholdings2024"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>💳 Ritenute Subite 2024 (€)</FormLabel>
