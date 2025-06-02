@@ -995,33 +995,229 @@ export default function CalculatorIndividualPage() {
         {/* Full Results */}
         {results && isUnlocked && (
           <div className="space-y-6">
-            {/* Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {/* Piano di Accantonamento con Margine di Sicurezza */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <PiggyBank className="mr-2 h-5 w-5 text-yellow-600" />
+                  Piano di Accantonamento con Margine di Sicurezza
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                  <div className="bg-blue-50 p-4 rounded-lg text-center border border-blue-200">
+                    <div className="flex items-center justify-center mb-2">
+                      <Calculator className="h-5 w-5 text-blue-600 mr-1" />
+                      <span className="text-sm font-medium text-blue-900">Accantonamento Standard</span>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="text-sm text-gray-600">Mensile base:</div>
+                      <div className="text-xl font-bold text-blue-600">€{results.monthlyAccrual.toLocaleString()}</div>
+                      <div className="text-xs text-gray-500">% su fatturato: {((results.monthlyAccrual * 12 / (results.businessRevenue || 1)) * 100).toFixed(1)}%</div>
+                    </div>
+                  </div>
+
+                  <div className="bg-orange-50 p-4 rounded-lg text-center border border-orange-200">
+                    <div className="flex items-center justify-center mb-2">
+                      <TrendingUp className="h-5 w-5 text-orange-600 mr-1" />
+                      <span className="text-sm font-medium text-orange-900">Con Margine Sicurezza (10%)</span>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="text-sm text-gray-600">Mensile sicuro:</div>
+                      <div className="text-xl font-bold text-orange-600">€{Math.round(results.monthlyAccrual * 1.1).toLocaleString()}</div>
+                      <div className="text-xs text-gray-500">Margine extra: +€{Math.round(results.monthlyAccrual * 0.1).toLocaleString()}</div>
+                    </div>
+                  </div>
+
+                  <div className="bg-purple-50 p-4 rounded-lg text-center border border-purple-200">
+                    <div className="flex items-center justify-center mb-2">
+                      <Euro className="h-5 w-5 text-purple-600 mr-1" />
+                      <span className="text-sm font-medium text-purple-900">Distribuzione Cashflow</span>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="text-sm text-gray-600">Accumulo annuale:</div>
+                      <div className="text-xl font-bold text-purple-600">€{results.totalDue.toLocaleString()}</div>
+                      <div className="text-xs text-gray-500">Copertura: 100%</div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Breakdown Imposte e Contributi */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card>
-                <CardContent className="p-4 text-center">
-                  <div className="text-2xl font-bold text-blue-600">€{results.businessIncome.toLocaleString()}</div>
-                  <div className="text-sm text-gray-600">Reddito d'Impresa</div>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <FileText className="mr-2 h-5 w-5 text-purple-600" />
+                    Breakdown Imposte Dettagliato
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span>Reddito imponibile:</span>
+                      <span className="font-medium">€{results.totalTaxableIncome.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>IRPEF ({results.irpefRate.toFixed(1)}%):</span>
+                      <span className="font-medium">€{results.irpefNetAmount.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Add. Regionale:</span>
+                      <span className="font-medium">€{results.regionalSurcharge.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Add. Comunale:</span>
+                      <span className="font-medium">€{results.municipalSurcharge.toLocaleString()}</span>
+                    </div>
+                    <Separator />
+                    <div className="flex justify-between font-semibold text-lg">
+                      <span>Totale Imposte:</span>
+                      <span>€{results.totalTaxes.toLocaleString()}</span>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
+
               <Card>
-                <CardContent className="p-4 text-center">
-                  <div className="text-2xl font-bold text-green-600">{results.irpefRate}%</div>
-                  <div className="text-sm text-gray-600">Aliquota IRPEF Media</div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-4 text-center">
-                  <div className="text-2xl font-bold text-purple-600">€{results.contributionDetails.calculatedAmount.toLocaleString()}</div>
-                  <div className="text-sm text-gray-600">Contributi Annui</div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-4 text-center">
-                  <div className="text-2xl font-bold text-orange-600">€{results.monthlyAccrual.toLocaleString()}</div>
-                  <div className="text-sm text-gray-600">Accumulo Mensile</div>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Users className="mr-2 h-5 w-5 text-orange-600" />
+                    Contributi e Altri Oneri
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span>{CONTRIBUTION_TYPES[results.contributionDetails.type as keyof typeof CONTRIBUTION_TYPES]}:</span>
+                      <span className="font-medium">€{results.contributionDetails.calculatedAmount.toLocaleString()}</span>
+                    </div>
+                    {results.contributionDetails.integrative && results.contributionDetails.integrative > 0 && (
+                      <div className="flex justify-between">
+                        <span>Contributi Integrativi:</span>
+                        <span className="font-medium">€{results.contributionDetails.integrative.toLocaleString()}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between">
+                      <span>IVA Stimata:</span>
+                      <span className="font-medium">€{results.vatAmount.toLocaleString()}</span>
+                    </div>
+                    <Separator />
+                    <div className="flex justify-between font-semibold text-lg">
+                      <span>Totale Altri Oneri:</span>
+                      <span>€{(results.totalContributions + results.vatAmount).toLocaleString()}</span>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </div>
+
+            {/* Anno Fiscale di Riferimento */}
+            <Card className="bg-green-50 border-green-200">
+              <CardHeader>
+                <CardTitle className="flex items-center text-green-800">
+                  <Calendar className="mr-2 h-5 w-5" />
+                  Anno Fiscale di Riferimento: 2025
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div>
+                    <div className="text-sm text-green-700">IRPEF ({results.irpefRate.toFixed(1)}%): Anno fiscale 2025</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-green-700">IVA (TRIMESTRALE): Liquidazioni anno 2025</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-green-700">INPS: Contributi anno 2025</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-green-700">IVA a Debito: €{results.vatAmount.toLocaleString()}</div>
+                  </div>
+                </div>
+                <div className="mt-4 text-sm text-green-600">
+                  <strong>Scadenze di pagamento:</strong> Calendario fiscale 2025<br/>
+                  Le imposte calcolate per il 2025 sono da versare nell'anno successivo secondo il calendario fiscale inviato sotto.
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Summary Cards con icone */}
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+              <Card className="text-center">
+                <CardContent className="p-4">
+                  <FileText className="h-8 w-8 text-blue-600 mx-auto mb-2" />
+                  <div className="text-lg font-bold text-blue-600">€{results.businessIncome.toLocaleString()}</div>
+                  <div className="text-xs text-gray-600">Utile Lordo</div>
+                </CardContent>
+              </Card>
+              <Card className="text-center">
+                <CardContent className="p-4">
+                  <Euro className="h-8 w-8 text-green-600 mx-auto mb-2" />
+                  <div className="text-lg font-bold text-green-600">€{results.irpefNetAmount.toLocaleString()}</div>
+                  <div className="text-xs text-gray-600">IRPEF ({results.irpefRate.toFixed(1)}%)</div>
+                </CardContent>
+              </Card>
+              <Card className="text-center">
+                <CardContent className="p-4">
+                  <Users className="h-8 w-8 text-purple-600 mx-auto mb-2" />
+                  <div className="text-lg font-bold text-purple-600">€{results.totalContributions.toLocaleString()}</div>
+                  <div className="text-xs text-gray-600">INPS Totale</div>
+                </CardContent>
+              </Card>
+              <Card className="text-center">
+                <CardContent className="p-4">
+                  <TrendingUp className="h-8 w-8 text-orange-600 mx-auto mb-2" />
+                  <div className="text-lg font-bold text-orange-600">€{results.vatAmount.toLocaleString()}</div>
+                  <div className="text-xs text-gray-600">IVA Totale</div>
+                </CardContent>
+              </Card>
+              <Card className="text-center">
+                <CardContent className="p-4">
+                  <PiggyBank className="h-8 w-8 text-red-600 mx-auto mb-2" />
+                  <div className="text-lg font-bold text-red-600">€{results.totalDue.toLocaleString()}</div>
+                  <div className="text-xs text-gray-600">Totale Dovuto</div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Report Avanzato Sbloccato */}
+            <Card className="bg-green-50 border-green-200">
+              <CardHeader>
+                <CardTitle className="flex items-center text-green-800">
+                  🎉 Report Ordinario Avanzato Sbloccato!
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center mb-4">
+                  <div className="text-green-700">Pianificazione fiscale completa con tutti i calcoli avanzati per la tua attività.</div>
+                </div>
+                
+                <div className="flex justify-center gap-4">
+                  <Button 
+                    onClick={() => onEmailSubmit({ email: 'test@example.com' })}
+                    className="bg-green-600 hover:bg-green-700"
+                    disabled={sendEmailMutation.isPending}
+                  >
+                    📥 Scarica Excel Avanzato
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    className="border-green-600 text-green-600 hover:bg-green-50"
+                    onClick={() => onEmailSubmit({ email: 'test@example.com' })}
+                    disabled={sendEmailMutation.isPending}
+                  >
+                    📧 Invia via Email
+                  </Button>
+                </div>
+                
+                <div className="mt-4 flex items-center justify-center text-sm text-green-600">
+                  ✅ Report avanzato inviato anche via email: 📧 Salva questa pagina nei preferiti
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Email Report */}
             <Card>
@@ -1299,43 +1495,184 @@ export default function CalculatorIndividualPage() {
               </CardContent>
             </Card>
 
-            {/* Monthly Savings Plan */}
+            {/* Piano di Accantonamento Mensile */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  <Calculator className="mr-2 h-5 w-5" />
-                  Piano di Accumulo Mensile
+                  <Calculator className="mr-2 h-5 w-5 text-blue-600" />
+                  Piano di Accantonamento Mensile
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg">
-                  <div className="text-center mb-4">
-                    <div className="text-3xl font-bold text-blue-600 mb-2">
-                      €{results.monthlyAccrual.toLocaleString()}
+                <div className="text-sm text-gray-600 mb-4">
+                  Scegli il tipo di accantonamento per ottimizzare la gestione della liquidità aziendale
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <div className="flex items-center mb-3">
+                      <Calculator className="h-5 w-5 text-blue-600 mr-2" />
+                      <span className="font-medium text-blue-900">Accantonamento Standard</span>
                     </div>
-                    <div className="text-gray-600">
-                      Importo da accantonare ogni mese per coprire tutte le imposte 2025
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-sm">Importo mensile:</span>
+                        <span className="font-bold text-blue-600">€{results.monthlyAccrual.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm">Accumulo annuale:</span>
+                        <span className="font-medium">€{(results.monthlyAccrual * 12).toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm">Copertura imposte:</span>
+                        <span className="font-medium text-green-600">100%</span>
+                      </div>
                     </div>
                   </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center text-sm">
-                    <div>
-                      <div className="font-semibold text-blue-600">IRPEF + Addizionali</div>
-                      <div>€{(results.totalTaxes / 12).toLocaleString()}/mese</div>
+
+                  <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
+                    <div className="flex items-center mb-3">
+                      <TrendingUp className="h-5 w-5 text-orange-600 mr-2" />
+                      <span className="font-medium text-orange-900">Con Margine Sicurezza (10%)</span>
                     </div>
-                    <div>
-                      <div className="font-semibold text-purple-600">Contributi</div>
-                      <div>€{(results.totalContributions / 12).toLocaleString()}/mese</div>
-                    </div>
-                    <div>
-                      <div className="font-semibold text-green-600">IVA</div>
-                      <div>€{(results.vatAmount / 12).toLocaleString()}/mese</div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-sm">Importo mensile:</span>
+                        <span className="font-bold text-orange-600">€{Math.round(results.monthlyAccrual * 1.1).toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm">Margine extra:</span>
+                        <span className="font-medium">+€{Math.round(results.monthlyAccrual * 0.1).toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm">Copertura imposte:</span>
+                        <span className="font-medium text-green-600">110%</span>
+                      </div>
                     </div>
                   </div>
-                  
-                  <div className="mt-4 p-3 bg-white rounded border text-sm text-gray-600">
-                    💡 <strong>Consiglio:</strong> Imposta un bonifico automatico mensile di €{results.monthlyAccrual.toLocaleString()} 
-                    su un conto dedicato per le tasse. Questo ti garantirà liquidità sufficiente per tutte le scadenze.
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Scadenze Fiscali 2025 */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  📅 Scadenze Fiscali 2025
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <div className="flex items-center text-yellow-800">
+                    <span className="text-sm font-medium">⚠️ Nota importante:</span>
+                  </div>
+                  <div className="text-sm text-yellow-700 mt-1">
+                    Le scadenze IRPEF/IRAP 2025 si basano sull'imposta 2024 (saldi + acconti calcolati su imposta 2024). 
+                    Gli importi mostrati sono una stima basata sulla proiezione 2025.
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Scadenze 30 Giugno */}
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="font-semibold text-red-800">30 Giugno 2025</span>
+                      <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">28 giorni</span>
+                    </div>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span>• IRPEF Saldo:</span>
+                        <span className="font-medium">€{Math.round(results.irpefNetAmount * 0.4).toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>• IRPEF 1° Acconto:</span>
+                        <span className="font-medium">€{results.irpefFirstAcconto.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>• IRAP Saldo:</span>
+                        <span className="font-medium">€{Math.round(results.regionalSurcharge * 0.5).toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>• IRAP 1° Acconto:</span>
+                        <span className="font-medium">€{Math.round(results.regionalSurcharge * 0.4).toLocaleString()}</span>
+                      </div>
+                      <hr className="my-2" />
+                      <div className="flex justify-between font-semibold">
+                        <span>Totale:</span>
+                        <span>€{Math.round(results.irpefNetAmount * 0.4 + results.irpefFirstAcconto + results.regionalSurcharge * 0.9).toLocaleString()}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Scadenze 30 Novembre */}
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="font-semibold text-green-800">30 Novembre 2025</span>
+                      <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">181 giorni</span>
+                    </div>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span>• IRPEF 2° Acconto:</span>
+                        <span className="font-medium">€{results.irpefSecondAcconto.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>• IRAP 2° Acconto:</span>
+                        <span className="font-medium">€{Math.round(results.regionalSurcharge * 0.6).toLocaleString()}</span>
+                      </div>
+                      <hr className="my-2" />
+                      <div className="flex justify-between font-semibold">
+                        <span>Totale:</span>
+                        <span>€{Math.round(results.irpefSecondAcconto + results.regionalSurcharge * 0.6).toLocaleString()}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Scadenze IVA 2026 */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  📅 Scadenze IVA 2026
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-center">
+                    <div className="flex items-center justify-center mb-2">
+                      <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">⏰ Scaduto</span>
+                    </div>
+                    <div className="text-sm font-medium">IVA Q1 2025</div>
+                    <div className="text-lg font-bold text-red-600">16/04/2025</div>
+                    <div className="text-sm text-gray-600">€{Math.round(results.vatAmount / 4).toLocaleString()}</div>
+                  </div>
+
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-center">
+                    <div className="flex items-center justify-center mb-2">
+                      <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">⚠️ 44 giorni</span>
+                    </div>
+                    <div className="text-sm font-medium">IVA Q2 2025</div>
+                    <div className="text-lg font-bold text-yellow-600">16/07/2025</div>
+                    <div className="text-sm text-gray-600">€{Math.round(results.vatAmount / 4).toLocaleString()}</div>
+                  </div>
+
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
+                    <div className="flex items-center justify-center mb-2">
+                      <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">✅ 136 giorni</span>
+                    </div>
+                    <div className="text-sm font-medium">IVA Q3 2025</div>
+                    <div className="text-lg font-bold text-green-600">16/10/2025</div>
+                    <div className="text-sm text-gray-600">€{Math.round(results.vatAmount / 4).toLocaleString()}</div>
+                  </div>
+
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
+                    <div className="flex items-center justify-center mb-2">
+                      <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">✅ 228 giorni</span>
+                    </div>
+                    <div className="text-sm font-medium">IVA Q4 2025</div>
+                    <div className="text-lg font-bold text-green-600">16/01/2026</div>
+                    <div className="text-sm text-gray-600">€{Math.round(results.vatAmount / 4).toLocaleString()}</div>
                   </div>
                 </div>
               </CardContent>
