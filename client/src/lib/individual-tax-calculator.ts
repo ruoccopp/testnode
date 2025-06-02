@@ -425,35 +425,61 @@ function createIndividualPaymentSchedule(
 ) {
   const schedule = [];
   let runningBalance = currentBalance;
+  const today = new Date();
+  const allEvents = [];
   
-  // Aggiungi accumuli mensili
+  // Aggiungi accumuli mensili solo per mesi futuri
   for (let month = 1; month <= 12; month++) {
     const date = new Date(fiscalYear, month - 1, 1);
-    const monthString = date.toISOString().split('T')[0];
     
-    runningBalance += monthlyAccrual;
-    
-    schedule.push({
-      date: monthString,
-      amount: monthlyAccrual,
-      type: 'Accumulo Mensile',
-      category: 'ACCUMULO' as const,
-      description: `Accumulo per tasse del mese ${month}`,
-      previousBalance: runningBalance - monthlyAccrual,
-      newBalance: runningBalance,
-      deficit: 0,
-      isIncome: true,
-      requiredPayment: 0
-    });
+    // Solo se la data è futura
+    if (date >= today) {
+      allEvents.push({
+        date: `${fiscalYear}-${month.toString().padStart(2, '0')}-01`,
+        amount: monthlyAccrual,
+        type: 'Accumulo Mensile',
+        category: 'ACCUMULO' as const,
+        description: `Accumulo per tasse del mese ${month}`,
+        isIncome: true
+      });
+    }
   }
   
-  // Aggiungi eventi del calendario
+  // Aggiungi eventi del calendario solo se futuri
   calendar.forEach(event => {
+    const eventDate = new Date(event.date);
+    if (eventDate >= today) {
+      allEvents.push({
+        ...event,
+        isIncome: false
+      });
+    }
+  });
+  
+  // Ordina tutti gli eventi per data
+  allEvents.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  
+  // Processa gli eventi ordinati
+  allEvents.forEach(event => {
     const previousBalance = runningBalance;
-    runningBalance -= event.amount;
+    let requiredPayment = 0;
+    
+    if (event.isIncome) {
+      runningBalance += event.amount;
+      requiredPayment = event.amount;
+    } else {
+      const balanceAfterPayment = runningBalance - event.amount;
+      
+      if (balanceAfterPayment < 0) {
+        requiredPayment = Math.abs(balanceAfterPayment);
+        runningBalance = 0;
+      } else {
+        requiredPayment = 0;
+        runningBalance = balanceAfterPayment;
+      }
+    }
     
     const deficit = runningBalance < 0 ? Math.abs(runningBalance) : 0;
-    const requiredPayment = deficit;
     
     schedule.push({
       date: event.date,
@@ -464,7 +490,7 @@ function createIndividualPaymentSchedule(
       previousBalance: Math.round(previousBalance * 100) / 100,
       newBalance: Math.round(runningBalance * 100) / 100,
       deficit: Math.round(deficit * 100) / 100,
-      isIncome: false,
+      isIncome: event.isIncome,
       requiredPayment: Math.round(requiredPayment * 100) / 100
     });
   });

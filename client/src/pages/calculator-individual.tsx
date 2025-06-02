@@ -1566,7 +1566,7 @@ export default function CalculatorIndividualPage() {
                   <div className="space-y-3">
                     <h4 className="font-semibold text-gray-900">Scadenziere con Liquidità Progressiva</h4>
                     <div className="text-sm text-gray-600 mb-4">
-                      Piano completo dal 02/06/2025 in poi - Solo scadenze future (Saldo Attuale: €{results.paymentSchedule[0]?.previousBalance.toLocaleString() || '0'})
+                      Piano dal {new Date().toLocaleDateString('it-IT')} in poi - Solo scadenze future (Saldo Iniziale: €{(form.watch('currentBalance') || 0).toLocaleString()})
                     </div>
                     
                     {results.paymentSchedule && results.paymentSchedule.length > 0 ? (
