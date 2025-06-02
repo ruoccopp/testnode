@@ -52,7 +52,7 @@ interface CalculationResult {
 }
 
 // Importiamo le categorie dal file constants
-import { TAX_COEFFICIENTS, SECTORS, CONTRIBUTION_REGIMES } from "@/lib/constants";
+import { TAX_COEFFICIENTS, SECTORS, CONTRIBUTION_REGIMES, FORFETTARIO_LIMITS_2025 } from "@/lib/constants";
 
 const BUSINESS_SECTORS = {
   RETAIL: "Commercio al dettaglio",

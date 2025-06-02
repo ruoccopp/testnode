@@ -125,32 +125,32 @@ export const IRPEF_BRACKETS = [
   { min: 55000, max: Infinity, rate: 0.43 }
 ];
 
-// Aliquote contributive 2025
+// Aliquote contributive 2025 aggiornate dal manuale tecnico-operativo
 export const CONTRIBUTION_RATES = {
   inps_gestione_separata: {
-    withoutOtherPension: 0.2607, // 26,07%
+    withoutOtherPension: 0.2607, // 26,07% (include 0,72% maternità + 0,35% ISCRO)
     withOtherPension: 0.24, // 24%
     pensioner: 0.24, // 24%
-    maxBase: 120607
+    maxBase: 120607 // Massimale 2025
   },
   cassa_forense: {
     subjectiveRate: 0.16, // 16% fino a €130.000
     subjectiveRateHigh: 0.03, // 3% oltre €130.000
     subjectiveThreshold: 130000,
     integrativeRate: 0.04, // 4%
-    minimumSubjective: 2750,
-    minimumIntegrative: 350
+    minimumSubjective: 2750, // Minimo soggettivo 2025
+    minimumIntegrative: 350 // Minimo integrativo 2025
   },
   inarcassa: {
     subjectiveRate: 0.145, // 14,5% fino a €142.650
     maxSubjectiveBase: 142650,
     integrativeRate: 0.04, // 4% su volume d'affari
-    minimumIntegrative: 815,
-    maternity: 72
+    minimumIntegrative: 815, // Minimo integrativo 2025
+    maternity: 72 // Contributo maternità/paternità 2025
   },
   inps_artigiani: {
-    minimumIncome: 18555,
-    fixedContribution: 4460.64,
+    minimumIncome: 18555, // Reddito minimale 2025
+    fixedContribution: 4460.64, // Contributi fissi 2025
     percentageRate1: 0.24, // 24% fino a €55.448
     percentageRate2: 0.25, // 25% oltre €55.448
     threshold: 55448,
@@ -158,8 +158,8 @@ export const CONTRIBUTION_RATES = {
     maxBase2025_post1996: 120607
   },
   inps_commercianti: {
-    minimumIncome: 18555,
-    fixedContribution: 4549.70,
+    minimumIncome: 18555, // Reddito minimale 2025
+    fixedContribution: 4549.70, // Contributi fissi 2025
     percentageRate1: 0.2448, // 24,48% fino a €55.448
     percentageRate2: 0.2548, // 25,48% oltre €55.448
     threshold: 55448,
