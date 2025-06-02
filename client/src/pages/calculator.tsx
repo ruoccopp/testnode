@@ -1094,47 +1094,62 @@ export default function CalculatorPage() {
             </CardContent>
           </Card>
 
-          {/* SEZIONE 1: Dettaglio Fiscale del 2025 */}
+          {/* SEZIONE 1: Dettaglio Fiscale Completo Anno 2025 */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
-                <Calculator className="mr-2 h-5 w-5" />
-                Dettaglio Fiscale del 2025
+                <Euro className="mr-2 h-5 w-5 text-blue-600" />
+                Dettaglio Fiscale Completo Anno 2025
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Sezione Imposte */}
                 <div className="space-y-3">
                   <div className="flex justify-between">
-                    <span>Fatturato 2025:</span>
-                    <span className="font-medium">{formatCurrency(form.watch('revenue2025') || 0)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Coefficiente di redditività:</span>
-                    <span className="font-medium">{((TAX_COEFFICIENTS[form.watch('category') as keyof typeof TAX_COEFFICIENTS]?.value || 0) * 100).toFixed(0)}%</span>
-                  </div>
-                  <div className="flex justify-between">
                     <span>Reddito imponibile:</span>
-                    <span className="font-medium">{formatCurrency(results.taxableIncome)}</span>
+                    <span className="font-medium">{formatCurrency((form.watch('revenue2025') || 0) * (TAX_COEFFICIENTS[form.watch('category') as keyof typeof TAX_COEFFICIENTS]?.value || 0.67))}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Aliquota forfettaria:</span>
-                    <span className="font-medium">15%</span>
+                    <span className="font-medium">{form.watch('isStartup') ? '5%' : '15%'}</span>
                   </div>
-                  <div className="flex justify-between font-semibold">
-                    <span>Imposta sostitutiva 2025:</span>
-                    <span>{formatCurrency(results.taxAmount)}</span>
+                  <div className="flex justify-between">
+                    <span>Imposta sostitutiva:</span>
+                    <span className="font-medium">{formatCurrency((form.watch('revenue2025') || 0) * (TAX_COEFFICIENTS[form.watch('category') as keyof typeof TAX_COEFFICIENTS]?.value || 0.67) * (form.watch('isStartup') ? 0.05 : 0.15))}</span>
+                  </div>
+                  <div className="border-t pt-2">
+                    <div className="flex justify-between font-semibold">
+                      <span>Totale Imposte:</span>
+                      <span>{formatCurrency((form.watch('revenue2025') || 0) * (TAX_COEFFICIENTS[form.watch('category') as keyof typeof TAX_COEFFICIENTS]?.value || 0.67) * (form.watch('isStartup') ? 0.05 : 0.15))}</span>
+                    </div>
                   </div>
                 </div>
+
+                {/* Sezione Contributi */}
                 <div className="space-y-3">
                   <div className="flex justify-between">
-                    <span>Contributi INPS 2025:</span>
+                    <span>Contributi INPS:</span>
                     <span className="font-medium">{formatCurrency(results.inpsAmount)}</span>
                   </div>
-                  <div className="flex justify-between font-semibold text-lg">
-                    <span>Totale dovuto 2025:</span>
-                    <span>{formatCurrency(results.totalDue)}</span>
+                  <div className="flex justify-between">
+                    <span>Regime contributivo:</span>
+                    <span className="text-sm">{CONTRIBUTION_REGIMES[form.watch('contributionRegime') as keyof typeof CONTRIBUTION_REGIMES] || 'Gestione separata'}</span>
                   </div>
+                  <div className="border-t pt-2">
+                    <div className="flex justify-between font-semibold">
+                      <span>Totale Contributi:</span>
+                      <span>{formatCurrency(results.inpsAmount)}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Totale Generale */}
+              <div className="mt-6 p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
+                <div className="flex justify-between items-center">
+                  <span className="text-lg font-bold text-blue-900">Totale Dovuto Anno 2025:</span>
+                  <span className="text-2xl font-bold text-blue-600">{formatCurrency(((form.watch('revenue2025') || 0) * (TAX_COEFFICIENTS[form.watch('category') as keyof typeof TAX_COEFFICIENTS]?.value || 0.67) * (form.watch('isStartup') ? 0.05 : 0.15)) + results.inpsAmount)}</span>
                 </div>
               </div>
             </CardContent>
