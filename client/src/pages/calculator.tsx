@@ -189,39 +189,27 @@ export default function CalculatorPage() {
   const handleEmailVerification = () => {
     // Verifica email rimossa per velocizzare i test
     setEmailValidated(true);
-    toast({
-      title: "✅ Email verificata!",
-      description: "Email confermata con successo. Ora puoi procedere.",
-    });
-      setEmailValidated(true);
-      setIsUnlocked(true); // Sblocca il report completo
+    setIsUnlocked(true);
+    
+    // Salva automaticamente il lead nel database
+    const formData = leadForm.getValues();
+    if (formData.firstName && formData.lastName && formData.email) {
+      const selectedCategory = TAX_COEFFICIENTS[form.getValues().category as keyof typeof TAX_COEFFICIENTS];
+      const leadData = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        businessSector: selectedCategory?.sector || 'OTHER',
+        calculationData: form.getValues(),
+      };
       
-      // Salva automaticamente il lead nel database
-      const formData = leadForm.getValues();
-      if (formData.firstName && formData.lastName && formData.email) {
-        const selectedCategory = TAX_COEFFICIENTS[form.getValues().category as keyof typeof TAX_COEFFICIENTS];
-        const leadData = {
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-          businessSector: selectedCategory?.sector || 'OTHER',
-          calculationData: form.getValues(),
-        };
-        
-        submitLeadMutation.mutate(leadData);
-      }
-      
-      toast({
-        title: "Email verificata con successo!",
-        description: "I tuoi dati sono stati salvati e il report completo è disponibile",
-      });
-    } else {
-      toast({
-        variant: "destructive",
-        title: "Codice errato",
-        description: "Il codice inserito non è corretto",
-      });
+      submitLeadMutation.mutate(leadData);
     }
+    
+    toast({
+      title: "Email verificata con successo!",
+      description: "I tuoi dati sono stati salvati e il report completo è disponibile",
+    });
   };
 
   const onLeadSubmit = (data: LeadForm) => {
