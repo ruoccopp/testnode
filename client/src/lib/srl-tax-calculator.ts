@@ -181,6 +181,7 @@ function checkIresPremialeConditions(input: SRLTaxCalculationInput): {
   isApplicable: boolean;
   details: any;
 } {
+  // Solo per anno fiscale 2025 (Art. 1, co. 436-444, L. 207/2024)
   if (input.fiscalYear !== 2025) {
     return { isApplicable: false, details: null };
   }
@@ -188,30 +189,38 @@ function checkIresPremialeConditions(input: SRLTaxCalculationInput): {
   const utile2024 = input.utile2024 || 0;
   const utile2023 = input.utile2023 || 0;
   
-  // Condizione 1: Accantonamento 80% utili 2024
+  // Condizione 1: Accantonamento almeno 80% utili civilistici 2024 a riserva
+  // L'utile deve essere positivo e deve essere destinato ad apposita riserva patrimoniale
   const requiredReserve = utile2024 * 0.8;
   const condition1 = utile2024 > 0 && requiredReserve > 0;
   
-  // Condizione 2: Investimenti qualificati
-  const investmentFromReserve = requiredReserve * 0.3; // 30% della riserva
+  // Condizione 2: Investimenti qualificati (Industria 4.0/Transizione 5.0)
+  // Min tra: 30% riserva accantonata OR 24% utili 2023, comunque >= €20.000
+  // Investimenti devono essere effettuati 1.1.2025 - 31.10.2026 (termine dichiarazione)
+  const investmentFromReserve = requiredReserve * 0.3; // 30% della riserva accantonata
   const investmentFrom2023 = utile2023 * 0.24; // 24% utili 2023
   const requiredInvestment = Math.max(investmentFromReserve, investmentFrom2023, 20000);
   const actualInvestment = input.investimentiPrevisti || 0;
   const condition2 = actualInvestment >= requiredInvestment;
   
-  // Condizione 3: Mantenimento livelli occupazionali (ULA)
-  const mediaULA = input.mediaULA2022_2024 || 0;
-  const condition3 = mediaULA > 0; // Semplificato - andrebbe verificato ULA 2025 >= media
+  // Condizione 3: Mantenimento livelli occupazionali
+  // ULA 2025 >= Media ULA triennio 2022-2024 (solo lavoratori subordinati)
+  const mediaULA2022_2024 = input.mediaULA2022_2024 || 0;
+  const ulaStimate2025 = input.dipendentiTempo2024 || 0; // Approssimazione
+  const condition3 = mediaULA2022_2024 > 0 && ulaStimate2025 >= mediaULA2022_2024;
   
-  // Condizione 4: Nuove assunzioni
+  // Condizione 4: Nuove assunzioni tempo indeterminato nel 2025
+  // Min 1 dipendente OR 1% dei dipendenti mediamente occupati nel 2024 (se superiore)
   const dipendenti2024 = input.dipendentiTempo2024 || 0;
-  const incrementoMinimo = Math.max(1, dipendenti2024 * 0.01);
+  const incrementoMinimo = Math.max(1, Math.ceil(dipendenti2024 * 0.01));
   const nuoveAssunzioni = input.nuoveAssunzioni2025 || 0;
   const condition4 = nuoveAssunzioni >= incrementoMinimo;
   
-  // Condizione 5: No CIG
+  // Condizione 5: Assenza ricorso CIG nel 2024 e 2025
+  // Esclusa CIGO per eventi transitori/meteorologici non imputabili
   const condition5 = !input.hasUsedCIG;
   
+  // Tutte le 5 condizioni devono essere soddisfatte cumulativamente
   const isApplicable = condition1 && condition2 && condition3 && condition4 && condition5;
   
   return {
@@ -223,7 +232,9 @@ function checkIresPremialeConditions(input: SRLTaxCalculationInput): {
       condition4_nuoveAssunzioni: condition4,
       condition5_noCIG: condition5,
       requiredInvestment,
-      actualInvestment
+      actualInvestment,
+      requiredReserve,
+      incrementoMinimo
     }
   };
 }
