@@ -1186,87 +1186,114 @@ export default function CalculatorIndividualPage() {
                   <div className="space-y-3">
                     <h4 className="font-semibold text-gray-900">Scadenziere con Liquidità Progressiva</h4>
                     <div className="text-sm text-gray-600 mb-4">
-                      Piano completo dal 02/06/2025 in poi - Solo scadenze future (Saldo Attuale: €{results.paymentSchedule[0]?.previousBalance.toLocaleString() || '10.000'})
+                      Piano completo dal 02/06/2025 in poi - Solo scadenze future (Saldo Attuale: €{results.paymentSchedule[0]?.previousBalance.toLocaleString() || '0'})
                     </div>
                     
-                    <div className="overflow-x-auto">
-                      <table className="min-w-full bg-white border border-gray-200 rounded-lg">
-                        <thead>
-                          <tr className="bg-gray-50 border-b">
-                            <th className="text-left p-3 font-medium text-gray-900">Data</th>
-                            <th className="text-left p-3 font-medium text-gray-900">Scadenza</th>
-                            <th className="text-right p-3 font-medium text-gray-900">Importo</th>
-                            <th className="text-right p-3 font-medium text-gray-900">Saldo Prima</th>
-                            <th className="text-right p-3 font-medium text-gray-900">Versamento</th>
-                            <th className="text-right p-3 font-medium text-gray-900">Saldo Dopo</th>
-                            <th className="text-center p-3 font-medium text-gray-900">Stato</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {results.paymentSchedule.map((event, index) => {
-                            const isPayment = !event.isIncome;
-                            const hasDeficit = event.deficit > 0;
-                            
-                            // Color based on category
-                            let dotColor = 'bg-gray-400';
-                            if (event.category === 'ACCUMULO') dotColor = 'bg-green-500';
-                            else if (event.category === 'IVA') dotColor = 'bg-blue-500';
-                            else if (event.category === 'IRPEF') dotColor = 'bg-purple-500';
-                            else if (event.category === 'CONTRIBUTI') dotColor = 'bg-orange-500';
-                            
-                            return (
-                              <tr key={index} className={`border-b hover:bg-gray-50 ${hasDeficit ? 'bg-red-50' : ''}`}>
-                                <td className="p-3 text-sm">{event.date}</td>
-                                <td className="p-3 text-sm">
-                                  <div className="flex items-center">
-                                    <div className={`w-2 h-2 rounded-full mr-2 ${dotColor}`}></div>
-                                    <div>
-                                      <div className="font-medium">{event.type}</div>
-                                      <div className="text-xs text-gray-500">{event.description}</div>
+                    {results.paymentSchedule && results.paymentSchedule.length > 0 ? (
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full bg-white border border-gray-200 rounded-lg">
+                          <thead>
+                            <tr className="bg-gray-50 border-b">
+                              <th className="text-left p-3 font-medium text-gray-900">Data</th>
+                              <th className="text-left p-3 font-medium text-gray-900">Scadenza</th>
+                              <th className="text-right p-3 font-medium text-gray-900">Importo</th>
+                              <th className="text-right p-3 font-medium text-gray-900">Saldo Prima</th>
+                              <th className="text-right p-3 font-medium text-gray-900">Versamento</th>
+                              <th className="text-right p-3 font-medium text-gray-900">Saldo Dopo</th>
+                              <th className="text-center p-3 font-medium text-gray-900">Stato</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {results.paymentSchedule.map((event, index) => {
+                              const isPayment = !event.isIncome;
+                              const hasDeficit = event.deficit > 0;
+                              
+                              // Color based on category
+                              let dotColor = 'bg-gray-400';
+                              if (event.category === 'ACCUMULO') dotColor = 'bg-green-500';
+                              else if (event.category === 'IVA') dotColor = 'bg-blue-500';
+                              else if (event.category === 'IRPEF') dotColor = 'bg-purple-500';
+                              else if (event.category === 'CONTRIBUTI') dotColor = 'bg-orange-500';
+                              
+                              return (
+                                <tr key={index} className={`border-b hover:bg-gray-50 ${hasDeficit ? 'bg-red-50' : ''}`}>
+                                  <td className="p-3 text-sm">{event.date}</td>
+                                  <td className="p-3 text-sm">
+                                    <div className="flex items-center">
+                                      <div className={`w-2 h-2 rounded-full mr-2 ${dotColor}`}></div>
+                                      <div>
+                                        <div className="font-medium">{event.type}</div>
+                                        <div className="text-xs text-gray-500">{event.description}</div>
+                                      </div>
                                     </div>
-                                  </div>
-                                </td>
-                                <td className={`p-3 text-sm text-right font-medium ${
-                                  isPayment ? 'text-red-600' : 'text-green-600'
-                                }`}>
-                                  {isPayment ? '-' : '+'}€{event.amount.toLocaleString()}
-                                </td>
-                                <td className="p-3 text-sm text-right">
-                                  €{event.previousBalance.toLocaleString()}
-                                </td>
-                                <td className="p-3 text-sm text-right">
-                                  {hasDeficit ? (
-                                    <span className="text-red-600 font-medium">
-                                      €{event.requiredPayment.toLocaleString()}
-                                    </span>
-                                  ) : (
-                                    <span className="text-gray-400">-</span>
-                                  )}
-                                </td>
-                                <td className="p-3 text-sm text-right font-medium">
-                                  €{event.newBalance.toLocaleString()}
-                                </td>
-                                <td className="p-3 text-center">
-                                  {hasDeficit ? (
-                                    <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">
-                                      ATTENZIONE
-                                    </span>
-                                  ) : event.isIncome ? (
-                                    <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
-                                      Versamento
-                                    </span>
-                                  ) : (
-                                    <span className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded">
-                                      OK
-                                    </span>
-                                  )}
-                                </td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
+                                  </td>
+                                  <td className={`p-3 text-sm text-right font-medium ${
+                                    isPayment ? 'text-red-600' : 'text-green-600'
+                                  }`}>
+                                    {isPayment ? '-' : '+'}€{event.amount.toLocaleString()}
+                                  </td>
+                                  <td className="p-3 text-sm text-right">
+                                    €{event.previousBalance.toLocaleString()}
+                                  </td>
+                                  <td className="p-3 text-sm text-right">
+                                    {hasDeficit ? (
+                                      <span className="text-red-600 font-medium">
+                                        €{event.requiredPayment.toLocaleString()}
+                                      </span>
+                                    ) : (
+                                      <span className="text-gray-400">-</span>
+                                    )}
+                                  </td>
+                                  <td className="p-3 text-sm text-right font-medium">
+                                    €{event.newBalance.toLocaleString()}
+                                  </td>
+                                  <td className="p-3 text-center">
+                                    {hasDeficit ? (
+                                      <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">
+                                        ATTENZIONE
+                                      </span>
+                                    ) : event.isIncome ? (
+                                      <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                                        Versamento
+                                      </span>
+                                    ) : (
+                                      <span className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded">
+                                        OK
+                                      </span>
+                                    )}
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : (
+                      <div className="text-center py-8 text-gray-500">
+                        <div className="text-lg mb-2">📊 Scadenziere non disponibile</div>
+                        <div className="text-sm mb-4">
+                          Per generare l'analisi liquidità completa, assicurati di aver compilato:
+                        </div>
+                        <div className="text-left max-w-md mx-auto space-y-2 text-sm">
+                          <div className="flex items-center">
+                            <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+                            <span>Ricavi annuali previsti</span>
+                          </div>
+                          <div className="flex items-center">
+                            <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                            <span>Spese documentate</span>
+                          </div>
+                          <div className="flex items-center">
+                            <div className="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
+                            <span>Saldo conto corrente attuale</span>
+                          </div>
+                          <div className="flex items-center">
+                            <div className="w-2 h-2 bg-orange-500 rounded-full mr-2"></div>
+                            <span>Regime contributivo</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </CardContent>
