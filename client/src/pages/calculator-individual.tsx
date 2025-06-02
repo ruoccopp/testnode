@@ -542,6 +542,59 @@ export default function CalculatorIndividualPage() {
                       )}
                     />
                   </div>
+
+                  {/* Dati Anno Precedente - integrati nella sezione 2024 */}
+                  {form.watch("startDate") && new Date(form.watch("startDate")).getFullYear() <= 2024 && (
+                    <>
+                      <div className="bg-orange-100 p-3 rounded-lg mt-4 border border-orange-300">
+                        <h4 className="font-semibold text-orange-800 mb-3">📊 Dati Anno Precedente</h4>
+                        <p className="text-sm text-orange-700 mb-4">
+                          <strong>Campi obbligatori:</strong> I dati dell'anno precedente sono necessari per calcolare correttamente gli acconti 2025.
+                        </p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <FormField
+                            control={form.control}
+                            name="previousYearTaxableIncome"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>📈 Reddito Imponibile Anno Precedente (€) *</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    placeholder="es: 50000"
+                                    {...field}
+                                    onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                                    value={field.value || ""}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={form.control}
+                            name="previousYearIrpef"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>💳 IRPEF Anno Precedente (€)</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    placeholder="es: 15000"
+                                    {...field}
+                                    onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                                    value={field.value || ""}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 {/* Dati Economici 2025 - PER PIANIFICAZIONE 2026 */}
@@ -666,59 +719,7 @@ export default function CalculatorIndividualPage() {
                   </div>
                 </div>
 
-                {/* Dati Anno Precedente - mostrati solo se attività iniziata nel 2024 o prima */}
-                {form.watch("startDate") && new Date(form.watch("startDate")).getFullYear() <= 2024 && (
-                  <div className="bg-orange-50 p-4 rounded-lg border-2 border-orange-200">
-                    <h3 className="font-semibold text-orange-900 mb-4 flex items-center">
-                      <Calendar className="h-5 w-5 mr-2" />
-                      📊 Dati Anno Precedente
-                    </h3>
-                    <p className="text-sm text-orange-700 mb-4">
-                      <strong>Campi obbligatori:</strong> I dati dell'anno precedente sono necessari per calcolare correttamente gli acconti 2025.
-                    </p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="previousYearTaxableIncome"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>📈 Reddito Imponibile Anno Precedente (€) *</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                placeholder="es: 55000"
-                                {...field}
-                                onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
-                                value={field.value || ""}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="previousYearIrpef"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>💳 IRPEF Anno Precedente (€)</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                placeholder="es: 15000"
-                                {...field}
-                                onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
-                                value={field.value || ""}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div>
-                )}
+
 
                 {/* Contributi Previdenziali */}
                 <div className="bg-purple-50 p-4 rounded-lg border-2 border-purple-200">
