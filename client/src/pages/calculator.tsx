@@ -1279,6 +1279,97 @@ export default function CalculatorPage() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Pianificazione 2026 */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Calendar className="mr-2 h-5 w-5" />
+                📅 Pianificazione Fiscale 2026
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-center text-blue-800">
+                  <span className="text-sm font-medium">ℹ️ Proiezione basata sui dati 2025</span>
+                </div>
+                <div className="text-sm text-blue-700 mt-1">
+                  Le scadenze 2026 sono calcolate utilizzando i ricavi 2025 inseriti. Gli importi potrebbero variare in base ai risultati effettivi del 2025.
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Scadenze Giugno 2026 */}
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="font-semibold text-red-800">30 Giugno 2026</span>
+                    <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">Saldo + Acconto</span>
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span>• Saldo imposta sostitutiva 2025:</span>
+                      <span className="font-medium">{formatCurrency(results.taxAmount)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>• Primo acconto 2026 (40%):</span>
+                      <span className="font-medium">{formatCurrency(Math.round(results.taxAmount * 0.40))}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>• Contributi INPS (50%):</span>
+                      <span className="font-medium">{formatCurrency(Math.round(results.inpsAmount * 0.5))}</span>
+                    </div>
+                    <hr className="my-2" />
+                    <div className="flex justify-between font-semibold text-red-800">
+                      <span>Totale:</span>
+                      <span>{formatCurrency(Math.round(results.taxAmount * 1.4 + results.inpsAmount * 0.5))}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Scadenze Novembre 2026 */}
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="font-semibold text-green-800">30 Novembre 2026</span>
+                    <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Secondo Acconto</span>
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span>• Secondo acconto 2026 (60%):</span>
+                      <span className="font-medium">{formatCurrency(Math.round(results.taxAmount * 0.60))}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>• Contributi INPS (50%):</span>
+                      <span className="font-medium">{formatCurrency(Math.round(results.inpsAmount * 0.5))}</span>
+                    </div>
+                    <hr className="my-2" />
+                    <div className="flex justify-between font-semibold text-green-800">
+                      <span>Totale:</span>
+                      <span>{formatCurrency(Math.round(results.taxAmount * 0.60 + results.inpsAmount * 0.5))}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Riepilogo annuale 2026 */}
+              <div className="mt-6 bg-purple-50 border border-purple-200 rounded-lg p-4">
+                <h4 className="font-semibold text-purple-800 mb-3">💰 Riepilogo Fiscale 2026</h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                  <div className="text-center">
+                    <div className="text-lg font-bold text-purple-600">{formatCurrency(results.taxAmount * 2)}</div>
+                    <div className="text-purple-700">Totale Imposte</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-lg font-bold text-purple-600">{formatCurrency(results.inpsAmount)}</div>
+                    <div className="text-purple-700">Totale Contributi</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-lg font-bold text-purple-600">{formatCurrency(results.taxAmount * 2 + results.inpsAmount)}</div>
+                    <div className="text-purple-700">Totale Anno</div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       )}
     </div>
