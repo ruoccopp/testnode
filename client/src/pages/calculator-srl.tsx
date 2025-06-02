@@ -12,7 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Building2, Euro, Users, Calculator, Download, Lock, Mail, User, MapPin, Calendar, AlertTriangle, TrendingUp } from "lucide-react";
+import { Building2, Euro, Users, Calculator, Download, Lock, Mail, User, MapPin, Calendar, AlertTriangle, TrendingUp, HelpCircle } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import * as XLSX from 'xlsx';
 import logoPath from "@assets/SmartRate - Colors.png";
@@ -130,7 +131,6 @@ export default function CalculatorSRLPage() {
       hasVatDebt: false,
       vatDebt: undefined,
       currentBalance: undefined,
-      advancedPlanning: false,
       revenue2024: undefined,
       taxableIncome2024: undefined,
       iresAcconto2024: undefined,
@@ -332,6 +332,21 @@ export default function CalculatorSRLPage() {
     return Math.round(amount * 1.1 * 100) / 100; // 10% margine di sicurezza
   };
 
+  // Helper component per FormLabel con tooltip
+  const TooltipFormLabel = ({ children, tooltip }: { children: React.ReactNode; tooltip: string }) => (
+    <div className="flex items-center gap-1">
+      {children}
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <HelpCircle className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+        </TooltipTrigger>
+        <TooltipContent>
+          <p className="max-w-xs text-sm">{tooltip}</p>
+        </TooltipContent>
+      </Tooltip>
+    </div>
+  );
+
   const exportToExcel = () => {
     if (!results || !isUnlocked) return;
 
@@ -476,8 +491,9 @@ export default function CalculatorSRLPage() {
       {/* Calculator Form */}
       <Card className="mb-6 md:mb-8">
         <CardContent className="p-4 md:p-6">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-6">
+          <TooltipProvider>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-6">
               
 
 
@@ -493,7 +509,9 @@ export default function CalculatorSRLPage() {
                       name="revenue2024"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>💼 Fatturato 2024 (€)</FormLabel>
+                          <TooltipFormLabel tooltip="Inserisci il fatturato totale dell'anno 2024. Include tutti i ricavi fatturati, incluse le fatture emesse ma non ancora pagate.">
+                            <FormLabel>💼 Fatturato 2024 (€)</FormLabel>
+                          </TooltipFormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -1347,6 +1365,7 @@ export default function CalculatorSRLPage() {
               </Button>
             </form>
           </Form>
+          </TooltipProvider>
         </CardContent>
       </Card>
 
