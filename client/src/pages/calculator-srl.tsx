@@ -509,9 +509,9 @@ export default function CalculatorSRLPage() {
                       name="revenue2024"
                       render={({ field }) => (
                         <FormItem>
-                          <TooltipFormLabel tooltip="Inserisci il fatturato totale dell'anno 2024. Include tutti i ricavi fatturati, incluse le fatture emesse ma non ancora pagate.">
-                            <FormLabel>💼 Fatturato 2024 (€)</FormLabel>
-                          </TooltipFormLabel>
+                          <FormLabel title="Inserisci il fatturato totale dell'anno 2024. Include tutti i ricavi fatturati, incluse le fatture emesse ma non ancora pagate.">
+                            💼 Fatturato 2024 (€) <HelpCircle className="h-4 w-4 inline ml-1 text-gray-400" />
+                          </FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -1059,7 +1059,9 @@ export default function CalculatorSRLPage() {
                     name="revenue"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-sm md:text-base">💼 Fatturato Annuo 2025 (€)</FormLabel>
+                        <FormLabel className="text-sm md:text-base" title="Inserisci la previsione di fatturato per l'anno 2025. Include tutti i ricavi che prevedi di fatturare durante l'anno.">
+                          💼 Fatturato Annuo 2025 (€) <HelpCircle className="h-4 w-4 inline ml-1 text-gray-400" />
+                        </FormLabel>
                         <FormControl>
                           <Input
                             type="number"
@@ -1081,7 +1083,9 @@ export default function CalculatorSRLPage() {
                     name="costs"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>🏭 Costi Operativi (€)</FormLabel>
+                        <FormLabel title="Inserisci tutti i costi operativi deducibili: materie prime, servizi, consulenze, utenze, affitti, ammortamenti. Non includere stipendi e compensi amministratore.">
+                          🏭 Costi Operativi (€) <HelpCircle className="h-4 w-4 inline ml-1 text-gray-400" />
+                        </FormLabel>
                         <FormControl>
                           <Input
                             type="number"
@@ -1108,7 +1112,9 @@ export default function CalculatorSRLPage() {
                     name="employees"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>👨‍💼 Numero Dipendenti</FormLabel>
+                        <FormLabel title="Inserisci il numero totale di dipendenti con contratto di lavoro subordinato. Include tutti i dipendenti a tempo determinato e indeterminato.">
+                          👨‍💼 Numero Dipendenti <HelpCircle className="h-4 w-4 inline ml-1 text-gray-400" />
+                        </FormLabel>
                         <FormControl>
                           <Input
                             type="number"
