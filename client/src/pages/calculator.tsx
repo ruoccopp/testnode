@@ -80,6 +80,7 @@ export default function CalculatorPage() {
   const [showLeadForm, setShowLeadForm] = useState(false);
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [emailValidated, setEmailValidated] = useState(true);
+  const [useSafetyMargin, setUseSafetyMargin] = useState(false);
   const { toast } = useToast();
 
   const form = useForm<CalculationForm>({
@@ -347,6 +348,72 @@ export default function CalculatorPage() {
     toast({
       title: "Report scaricato",
       description: `Il file ${fileName} è stato scaricato con successo`,
+    });
+  };
+
+  // Funzione per generare il cronoprogramma di liquidità progressiva
+  const generateProgressiveLiquidity = () => {
+    if (!results) return [];
+    
+    const entries = [];
+    const currentBalance = form.watch('currentBalance') || 0;
+    let runningBalance = currentBalance;
+    const monthlyAmount = useSafetyMargin ? Math.round(results.totalDue / 12 * 1.1) : Math.round(results.totalDue / 12);
+    const currentDate = new Date();
+    
+    // Genera versamenti mensili fino alle scadenze principali
+    const deadlines = [
+      { date: '30/06/2025', amount: -Math.round(results.taxAmount), description: 'Saldo Imposta Sostitutiva 2024', color: 'bg-green-500' },
+      { date: '30/06/2025', amount: -Math.round(results.taxAmount * 0.40), description: 'Primo Acconto 2025 (40%)', color: 'bg-green-500' },
+      { date: '16/08/2025', amount: -results.inpsAmount, description: 'Contributi INPS 2024', color: 'bg-orange-500' },
+      { date: '30/11/2025', amount: -Math.round(results.taxAmount * 0.60), description: 'Secondo Acconto 2025 (60%)', color: 'bg-green-500' }
+    ];
+    
+    // Genera 12 mesi di versamenti
+    for (let i = 1; i <= 12; i++) {
+      const monthDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + i, 1);
+      const dateStr = monthDate.toLocaleDateString('it-IT');
+      
+      const balanceBefore = runningBalance;
+      runningBalance += monthlyAmount;
+      
+      entries.push({
+        date: dateStr,
+        description: `Accantonamento mensile ${useSafetyMargin ? 'con margine' : 'consigliato'}`,
+        amount: monthlyAmount,
+        balanceBefore,
+        balanceAfter: runningBalance,
+        color: 'bg-emerald-500',
+        status: 'Versamento'
+      });
+    }
+    
+    // Aggiungi le scadenze fiscali ordinate per data
+    deadlines.forEach(deadline => {
+      const [day, month, year] = deadline.date.split('/');
+      const deadlineDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+      
+      if (deadlineDate > currentDate) {
+        const balanceBefore = runningBalance;
+        runningBalance += deadline.amount;
+        
+        entries.push({
+          date: deadline.date,
+          description: deadline.description,
+          amount: deadline.amount,
+          balanceBefore,
+          balanceAfter: runningBalance,
+          color: deadline.color,
+          status: runningBalance >= 0 ? 'OK' : 'Deficit'
+        });
+      }
+    });
+    
+    // Ordina per data
+    return entries.sort((a, b) => {
+      const dateA = new Date(a.date.split('/').reverse().join('-'));
+      const dateB = new Date(b.date.split('/').reverse().join('-'));
+      return dateA.getTime() - dateB.getTime();
     });
   };
 
@@ -1201,6 +1268,155 @@ export default function CalculatorPage() {
                         {form.watch('contributionRegime') === 'GESTIONE_SEPARATA' ? 'PXX' : 'AF/CF'}
                       </td>
                     </tr>
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Piano di Accantonamento Mensile */}
+          <Card className="mb-6 md:mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <TrendingUp className="mr-2 h-5 w-5 text-blue-600" />
+                Piano di Accantonamento Mensile
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-600 mb-6">
+                Scegli il tipo di accantonamento per ottimizzare la gestione della liquidità aziendale
+              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
+                  <div className="flex items-start justify-between mb-3">
+                    <h4 className="font-semibold text-blue-900">💼 Accantonamento Standard</h4>
+                    <input 
+                      type="radio" 
+                      name="accantonamento" 
+                      className="mt-1"
+                      checked={!useSafetyMargin}
+                      onChange={() => setUseSafetyMargin(false)}
+                    />
+                  </div>
+                  <div className="space-y-2 text-sm text-blue-700">
+                    <div className="flex justify-between">
+                      <span>Importo mensile:</span>
+                      <span className="font-bold">{formatCurrency(Math.round(results.totalDue / 12))}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Accumulo annuale:</span>
+                      <span className="font-semibold">{formatCurrency(results.totalDue)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Copertura imposte:</span>
+                      <span className="font-bold">100%</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4">
+                  <div className="flex items-start justify-between mb-3">
+                    <h4 className="font-semibold text-green-900">🛡️ Con Margine Sicurezza (10%)</h4>
+                    <input 
+                      type="radio" 
+                      name="accantonamento" 
+                      className="mt-1"
+                      checked={useSafetyMargin}
+                      onChange={() => setUseSafetyMargin(true)}
+                    />
+                  </div>
+                  <div className="space-y-2 text-sm text-green-700">
+                    <div className="flex justify-between">
+                      <span>Importo mensile:</span>
+                      <span className="font-bold">{formatCurrency(Math.round(results.totalDue / 12 * 1.1))}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Accumulo annuale:</span>
+                      <span className="font-semibold">{formatCurrency(Math.round(results.totalDue * 1.1))}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Margine extra:</span>
+                      <span className="font-bold text-green-800">+{formatCurrency(Math.round(results.totalDue * 0.1))}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Scadenziere con Liquidità Progressiva */}
+          <Card className="mb-6 md:mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Calendar className="mr-2 h-5 w-5 text-orange-600" />
+                Scadenziere con Liquidità Progressiva
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-600 mb-4">
+                Piano completo dal {new Date().toLocaleDateString('it-IT')} in poi - Solo scadenze future (Saldo Attuale: {formatCurrency(form.watch('currentBalance') || 0)})
+              </p>
+              
+              {/* Legenda */}
+              <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                <h4 className="font-semibold text-gray-900 mb-3">Legenda Movimenti:</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                  <div className="flex items-center">
+                    <span className="inline-block w-3 h-3 rounded-full bg-emerald-500 mr-2"></span>
+                    <span>Versamenti mensili ({useSafetyMargin ? formatCurrency(Math.round(results.totalDue / 12 * 1.1)) : formatCurrency(Math.round(results.totalDue / 12))})</span>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="inline-block w-3 h-3 rounded-full bg-green-500 mr-2"></span>
+                    <span>Acconti/Saldi IRES</span>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="inline-block w-3 h-3 rounded-full bg-orange-500 mr-2"></span>
+                    <span>Contributi INPS</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b bg-gray-50">
+                      <th className="text-left p-3 font-medium">Data</th>
+                      <th className="text-left p-3 font-medium">Scadenza</th>
+                      <th className="text-right p-3 font-medium">Importo</th>
+                      <th className="text-right p-3 font-medium">Saldo Prima</th>
+                      <th className="text-right p-3 font-medium">Versamento</th>
+                      <th className="text-right p-3 font-medium">Saldo Dopo</th>
+                      <th className="text-left p-3 font-medium">Stato</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {generateProgressiveLiquidity().map((entry: any, index: number) => (
+                      <tr key={index} className="border-b hover:bg-gray-50">
+                        <td className="p-3 font-medium">{entry.date}</td>
+                        <td className="p-3">
+                          <div className="flex items-center">
+                            <span className={`inline-block w-3 h-3 rounded-full mr-2 ${entry.color}`}></span>
+                            <span className="text-xs">{entry.description}</span>
+                          </div>
+                        </td>
+                        <td className={`p-3 text-right font-semibold ${entry.amount > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          {entry.amount > 0 ? '+' : ''}{formatCurrency(entry.amount)}
+                        </td>
+                        <td className="p-3 text-right">{formatCurrency(entry.balanceBefore)}</td>
+                        <td className="p-3 text-right">{formatCurrency(Math.abs(entry.amount))}</td>
+                        <td className="p-3 text-right font-semibold">{formatCurrency(entry.balanceAfter)}</td>
+                        <td className="p-3">
+                          <span className={`text-xs px-2 py-1 rounded ${
+                            entry.status === 'OK' ? 'bg-green-100 text-green-800' : 
+                            entry.status === 'Versamento' ? 'bg-blue-100 text-blue-800' : 
+                            'bg-red-100 text-red-800'
+                          }`}>
+                            {entry.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
