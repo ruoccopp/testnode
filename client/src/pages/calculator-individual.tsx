@@ -913,29 +913,39 @@ export default function CalculatorIndividualPage() {
                       )}
                     />
                     
-                    <FormField
-                      control={form.control}
-                      name="currentBalance"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>💳 Saldo Conto Corrente Attuale (€)</FormLabel>
-                          <p className="text-xs text-gray-600 mb-2">
-                            Liquidità disponibile per pianificare i pagamenti fiscali
-                          </p>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              placeholder="es: 15000"
-                              {...field}
-                              onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
-                              value={field.value || ""}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+
                   </div>
+                </div>
+
+                {/* Situazione Finanziaria */}
+                <div className="bg-orange-50 p-4 rounded-lg border-2 border-orange-200">
+                  <h3 className="font-semibold text-orange-900 mb-4 flex items-center">
+                    <PiggyBank className="h-5 w-5 mr-2" />
+                    💰 Situazione Finanziaria
+                  </h3>
+                  <FormField
+                    control={form.control}
+                    name="currentBalance"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>🏦 Saldo Attuale Accantonato (€)</FormLabel>
+                        <p className="text-xs text-orange-700 mb-2">
+                          Liquidità disponibile per pianificare i pagamenti fiscali
+                        </p>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="es: 15000"
+                            className="text-lg"
+                            {...field}
+                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                            value={field.value || ""}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
 
                 {/* Submit Button */}
