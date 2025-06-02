@@ -361,16 +361,25 @@ export default function CalculatorPage() {
     const monthlyAmount = useSafetyMargin ? Math.round(results.totalDue / 12 * 1.1) : Math.round(results.totalDue / 12);
     const currentDate = new Date();
     
-    // Genera versamenti mensili fino alle scadenze principali
+    // Genera versamenti mensili fino alle scadenze principali (2025 e 2026)
+    const tax2025 = (form.watch('revenue2025') || 0) * (TAX_COEFFICIENTS[form.watch('category') as keyof typeof TAX_COEFFICIENTS]?.value || 0.67) * (form.watch('isStartup') ? 0.05 : 0.15);
+    
     const deadlines = [
+      // Scadenze 2025 (basate su dati 2024)
       { date: '30/06/2025', amount: -Math.round(results.taxAmount), description: 'Saldo Imposta Sostitutiva 2024', color: 'bg-green-500' },
       { date: '30/06/2025', amount: -Math.round(results.taxAmount * 0.40), description: 'Primo Acconto 2025 (40%)', color: 'bg-green-500' },
       { date: '16/08/2025', amount: -results.inpsAmount, description: 'Contributi INPS 2024', color: 'bg-orange-500' },
-      { date: '30/11/2025', amount: -Math.round(results.taxAmount * 0.60), description: 'Secondo Acconto 2025 (60%)', color: 'bg-green-500' }
+      { date: '30/11/2025', amount: -Math.round(results.taxAmount * 0.60), description: 'Secondo Acconto 2025 (60%)', color: 'bg-green-500' },
+      
+      // Scadenze 2026 (basate su dati 2025)
+      { date: '30/06/2026', amount: -Math.round(tax2025), description: 'Saldo Imposta Sostitutiva 2025', color: 'bg-green-500' },
+      { date: '30/06/2026', amount: -Math.round(tax2025 * 0.40), description: 'Primo Acconto 2026 (40%)', color: 'bg-green-500' },
+      { date: '16/08/2026', amount: -Math.round(results.inpsAmount), description: 'Contributi INPS 2025', color: 'bg-orange-500' },
+      { date: '30/11/2026', amount: -Math.round(tax2025 * 0.60), description: 'Secondo Acconto 2026 (60%)', color: 'bg-green-500' }
     ];
     
-    // Genera 12 mesi di versamenti
-    for (let i = 1; i <= 12; i++) {
+    // Genera 24 mesi di versamenti per coprire anche le scadenze 2026
+    for (let i = 1; i <= 24; i++) {
       const monthDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + i, 1);
       const dateStr = monthDate.toLocaleDateString('it-IT');
       
