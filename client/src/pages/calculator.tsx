@@ -966,52 +966,7 @@ export default function CalculatorPage() {
       {/* Full Results (Always Unlocked) */}
       {results && (
         <div className="space-y-6">
-          {/* Piano di Accantonamento con Margine di Sicurezza */}
-          <Card>
-            <CardContent className="p-6">
-              <h3 className="text-lg font-semibold mb-4 flex items-center">
-                <Building className="mr-2 h-5 w-5 text-yellow-600" />
-                Piano di Accantonamento con Margine di Sicurezza
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div className="bg-blue-50 p-4 rounded-lg text-center border border-blue-200">
-                  <div className="flex items-center justify-center mb-2">
-                    <Calculator className="h-5 w-5 text-blue-600 mr-1" />
-                    <span className="text-sm font-medium text-blue-900">Accantonamento Standard</span>
-                  </div>
-                  <div className="space-y-1">
-                    <div className="text-sm text-gray-600">Mensile base:</div>
-                    <div className="text-xl font-bold text-blue-600">{formatCurrency(Math.round(results.totalDue / 12))}</div>
-                    <div className="text-xs text-gray-500">% su fatturato: {((results.totalDue / 12 * 12 / (form.watch('revenue') || 1)) * 100).toFixed(1)}%</div>
-                  </div>
-                </div>
 
-                <div className="bg-orange-50 p-4 rounded-lg text-center border border-orange-200">
-                  <div className="flex items-center justify-center mb-2">
-                    <Euro className="h-5 w-5 text-orange-600 mr-1" />
-                    <span className="text-sm font-medium text-orange-900">Con Margine Sicurezza (10%)</span>
-                  </div>
-                  <div className="space-y-1">
-                    <div className="text-sm text-gray-600">Mensile sicuro:</div>
-                    <div className="text-xl font-bold text-orange-600">{formatCurrency(Math.round(results.totalDue / 12 * 1.1))}</div>
-                    <div className="text-xs text-gray-500">Margine extra: +{formatCurrency(Math.round(results.totalDue / 12 * 0.1))}</div>
-                  </div>
-                </div>
-
-                <div className="bg-purple-50 p-4 rounded-lg text-center border border-purple-200">
-                  <div className="flex items-center justify-center mb-2">
-                    <Calendar className="h-5 w-5 text-purple-600 mr-1" />
-                    <span className="text-sm font-medium text-purple-900">Distribuzione Cashflow</span>
-                  </div>
-                  <div className="space-y-1">
-                    <div className="text-sm text-gray-600">Accumulo annuale:</div>
-                    <div className="text-xl font-bold text-purple-600">{formatCurrency(results.totalDue)}</div>
-                    <div className="text-xs text-gray-500">Copertura: 100%</div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
 
           {/* Dettaglio Fiscale Completo Anno 2024 - Riquadro Unificato */}
           <Card>
