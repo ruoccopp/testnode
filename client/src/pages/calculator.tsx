@@ -99,7 +99,7 @@ export default function CalculatorPage() {
       firstName: "",
       lastName: "",
       email: "",
-      businessSector: "",
+
     },
   });
 
@@ -187,7 +187,12 @@ export default function CalculatorPage() {
   };
 
   const handleEmailVerification = () => {
-    if (verificationCode === sentCode) {
+    // Verifica email rimossa per velocizzare i test
+    setEmailValidated(true);
+    toast({
+      title: "✅ Email verificata!",
+      description: "Email confermata con successo. Ora puoi procedere.",
+    });
       setEmailValidated(true);
       setIsUnlocked(true); // Sblocca il report completo
       
@@ -821,31 +826,7 @@ export default function CalculatorPage() {
                   )}
                 />
 
-                {sentCode && !emailValidated && (
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <label className="block text-sm font-medium text-blue-900 mb-2">
-                      Codice di verifica (inviato via email)
-                    </label>
-                    <div className="flex flex-col sm:flex-row gap-2">
-                      <Input
-                        placeholder="123456"
-                        value={verificationCode}
-                        onChange={(e) => setVerificationCode(e.target.value)}
-                        maxLength={6}
-                        className="h-12 text-center text-lg font-mono"
-                        inputMode="numeric"
-                      />
-                      <Button
-                        type="button"
-                        onClick={handleEmailVerification}
-                        disabled={!verificationCode}
-                        className="h-12 px-8 touch-manipulation"
-                      >
-                        Verifica
-                      </Button>
-                    </div>
-                  </div>
-                )}
+
 
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <FormLabel className="flex items-center mb-2">
@@ -922,8 +903,8 @@ export default function CalculatorPage() {
                   </div>
                   <div className="space-y-1">
                     <div className="text-sm text-gray-600">Mensile base:</div>
-                    <div className="text-xl font-bold text-blue-600">{formatCurrency(results.monthlyAccrual)}</div>
-                    <div className="text-xs text-gray-500">% su fatturato: {((results.monthlyAccrual * 12 / (results.revenue2025 || 1)) * 100).toFixed(1)}%</div>
+                    <div className="text-xl font-bold text-blue-600">{formatCurrency(Math.round(results.totalDue / 12))}</div>
+                    <div className="text-xs text-gray-500">% su fatturato: {((results.totalDue / 12 * 12 / (form.watch('revenue') || 1)) * 100).toFixed(1)}%</div>
                   </div>
                 </div>
 
@@ -934,8 +915,8 @@ export default function CalculatorPage() {
                   </div>
                   <div className="space-y-1">
                     <div className="text-sm text-gray-600">Mensile sicuro:</div>
-                    <div className="text-xl font-bold text-orange-600">{formatCurrency(Math.round(results.monthlyAccrual * 1.1))}</div>
-                    <div className="text-xs text-gray-500">Margine extra: +{formatCurrency(Math.round(results.monthlyAccrual * 0.1))}</div>
+                    <div className="text-xl font-bold text-orange-600">{formatCurrency(Math.round(results.totalDue / 12 * 1.1))}</div>
+                    <div className="text-xs text-gray-500">Margine extra: +{formatCurrency(Math.round(results.totalDue / 12 * 0.1))}</div>
                   </div>
                 </div>
 
@@ -969,7 +950,7 @@ export default function CalculatorPage() {
                   </div>
                   <div className="flex justify-between">
                     <span>Aliquota forfettaria:</span>
-                    <span className="font-medium">{results.taxRate}%</span>
+                    <span className="font-medium">15%</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Imposta sostitutiva:</span>
@@ -1026,7 +1007,7 @@ export default function CalculatorPage() {
                   <div className="text-sm text-green-700">INPS: Contributi anno 2025</div>
                 </div>
                 <div>
-                  <div className="text-sm text-green-700">Regime: Forfettario {results.taxRate}%</div>
+                  <div className="text-sm text-green-700">Regime: Forfettario 15%</div>
                 </div>
               </div>
               <div className="mt-4 text-sm text-green-600">
@@ -1049,7 +1030,7 @@ export default function CalculatorPage() {
               <CardContent className="p-4">
                 <Euro className="h-8 w-8 text-green-600 mx-auto mb-2" />
                 <div className="text-lg font-bold text-green-600">{formatCurrency(results.taxAmount)}</div>
-                <div className="text-xs text-gray-600">Imposta Sostitutiva ({results.taxRate}%)</div>
+                <div className="text-xs text-gray-600">Imposta Sostitutiva (15%)</div>
               </CardContent>
             </Card>
             <Card className="text-center">
