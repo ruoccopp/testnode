@@ -57,8 +57,9 @@ const calculationSchema = z.object({
   costoNuoveAssunzioni: z.number().min(0).optional(),
   incrementoCostoPersonale: z.number().min(0).optional(),
   
-  // Dati 2024 (anno chiuso)
+  // Dati 2024 (anno chiuso) - obbligatori se attività iniziata nel 2024 o prima
   revenue2024: z.number().min(0).optional(),
+  costs2024: z.number().min(0).optional(),
   taxableIncome2024: z.number().min(0).optional(),
   iresAcconto2024: z.number().min(0).optional(),
   irapAcconto2024: z.number().min(0).optional(),
@@ -70,6 +71,17 @@ const calculationSchema = z.object({
   irapPaid2025: z.number().min(0).optional(),
   vatPaid2025: z.number().min(0).optional(),
   inpsPaid2025: z.number().min(0).optional(),
+}).refine((data) => {
+  // Se l'attività è iniziata nel 2024 o prima, i dati 2024 sono obbligatori
+  const startYear = new Date(data.startDate).getFullYear();
+  if (startYear <= 2024) {
+    return data.revenue2024 !== undefined && data.revenue2024 >= 0 && 
+           data.utile2024 !== undefined && data.utile2024 >= 0;
+  }
+  return true;
+}, {
+  message: "Per attività iniziate nel 2024 o prima sono obbligatori: Fatturato 2024 e Utile 2024",
+  path: ["revenue2024"]
 });
 
 const leadSchema = z.object({
@@ -568,8 +580,8 @@ export default function CalculatorSRLPage() {
                     📊 Dati 2024
                   </h3>
                   <p className="text-sm text-orange-700 mb-4">
-                    Inserisci i dati fiscali 2024 per calcolare correttamente gli acconti 2025.
-                    Questi possono essere definitivi (se l'anno è chiuso) o stimati (se ancora in corso).
+                    <strong>Campi obbligatori:</strong> I dati fiscali 2024 sono necessari per calcolare correttamente gli acconti 2025.
+                    Inserisci i valori definitivi (se l'anno è chiuso) o stimati (se ancora in corso).
                   </p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
@@ -578,7 +590,7 @@ export default function CalculatorSRLPage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="flex items-center gap-1">
-                            💼 Fatturato 2024 (€)
+                            💼 Fatturato 2024 (€) *
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger asChild>
