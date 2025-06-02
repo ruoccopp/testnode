@@ -487,28 +487,7 @@ export default function CalculatorPage() {
                     )}
                   />
                   
-                  <FormField
-                    control={form.control}
-                    name="currentBalance"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>💰 Saldo Conto Corrente Attuale (€)</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            placeholder="es: 5000"
-                            className="text-lg"
-                            {...field}
-                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
-                            value={field.value || ""}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          Il saldo attuale del tuo conto corrente per pianificare gli accantonamenti
-                        </FormDescription>
-                      </FormItem>
-                    )}
-                  />
+                  
                 </div>
               </div>
 
@@ -643,63 +622,7 @@ export default function CalculatorPage() {
                 </div>
               )}
 
-              {/* Regime Fiscale */}
-              <div className="bg-orange-50 p-4 rounded-lg mb-6">
-                <h3 className="font-medium text-orange-900 mb-4">🎯 Regime Fiscale</h3>
-                <div className="grid grid-cols-1 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="startDate"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>📅 Data di Inizio Attività</FormLabel>
-                        <FormControl>
-                          <Input type="date" {...field} />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="isStartup"
-                    render={({ field }) => {
-                      const startDate = form.watch('startDate');
-                      const isEligibleForStartup = startDate ? 
-                        (new Date().getFullYear() - new Date(startDate).getFullYear()) < 5 : false;
-                      
-                      return (
-                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
-                          <div className="space-y-0.5">
-                            <FormLabel>🚀 Conferma Regime Startup</FormLabel>
-                            <div className="text-sm text-gray-500">
-                              {startDate ? (
-                                isEligibleForStartup ? 
-                                  `✅ Attività entro i 5 anni (tasse al 5%)` : 
-                                  `❌ Attività oltre i 5 anni (tasse al 15%)`
-                              ) : (
-                                'Tasse al 5% per i primi 5 anni'
-                              )}
-                            </div>
-                          </div>
-                          <FormControl>
-                            <Switch
-                              checked={field.value && isEligibleForStartup}
-                              onCheckedChange={(checked) => {
-                                if (isEligibleForStartup) {
-                                  field.onChange(checked);
-                                } else {
-                                  field.onChange(false);
-                                }
-                              }}
-                              disabled={!isEligibleForStartup}
-                            />
-                          </FormControl>
-                        </FormItem>
-                      );
-                    }}
-                  />
-                </div>
-              </div>
+              
 
 
 
