@@ -822,7 +822,7 @@ export default function CalculatorIndividualPage() {
                 <div className="bg-yellow-50 p-4 rounded-lg border-2 border-yellow-200">
                   <h3 className="font-semibold text-yellow-900 mb-4 flex items-center">
                     <FileText className="h-5 w-5 mr-2" />
-                    📄 IVA e Ritenute
+                    📄 IVA e Ritenute 2024
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <FormField
