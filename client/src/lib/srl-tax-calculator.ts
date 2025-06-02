@@ -663,17 +663,6 @@ export function calculateSRLTaxes(input: SRLTaxCalculationInput): SRLTaxCalculat
     irapSecondAcconto = baseIrap * 0.60;
   }
   
-  if (!isNewBusiness2025) {
-    // Acconti basati su imposta 2024 (per attività esistenti)
-    const imposta2024IRES = input.utile2024 ? (input.utile2024 * 0.24) : iresAmount;
-    const imposta2024IRAP = input.utile2024 ? (input.utile2024 * irapRate) : irapAmount;
-    
-    iresFirstAcconto = imposta2024IRES * 0.40;
-    iresSecondAcconto = imposta2024IRES * 0.60;
-    irapFirstAcconto = imposta2024IRAP * 0.40;
-    irapSecondAcconto = imposta2024IRAP * 0.60;
-  }
-  
   // 11. ACCANTONAMENTO MENSILE
   const monthlyAccrual = totalDue / 12;
   const quarterlyPayments = (vatQuarterly + inpsTotalAmount / 4);
@@ -752,6 +741,9 @@ export function calculateSRLTaxes(input: SRLTaxCalculationInput): SRLTaxCalculat
     iresSecondAcconto: Math.round(iresSecondAcconto * 100) / 100,
     irapFirstAcconto: Math.round(irapFirstAcconto * 100) / 100,
     irapSecondAcconto: Math.round(irapSecondAcconto * 100) / 100,
+    
+    // Dettagli acconti
+    accontiDetails: accontiDetails,
     
     // Pianificazione
     monthlyAccrual: Math.round(monthlyAccrual * 100) / 100,
