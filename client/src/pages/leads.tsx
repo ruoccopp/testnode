@@ -18,14 +18,16 @@ interface Lead {
   firstName: string;
   lastName: string;
   email: string;
+  companyName?: string | null;
+  vatNumber?: string | null;
   businessSector: string;
-  revenue: string;
-  category: string;
-  startDate: string;
-  isStartup: boolean;
-  contributionRegime: string;
+  revenue?: string | null;
+  category?: string | null;
+  startDate?: string | null;
+  isStartup?: boolean | null;
+  contributionRegime?: string | null;
   status: string;
-  notes: string;
+  notes?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -289,6 +291,7 @@ export default function Leads() {
                 <thead>
                   <tr className="border-b text-left">
                     <th className="pb-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
+                    <th className="pb-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Azienda</th>
                     <th className="pb-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Settore</th>
                     <th className="pb-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Fatturato</th>
                     <th className="pb-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Stato</th>
@@ -305,6 +308,14 @@ export default function Leads() {
                             {lead.firstName} {lead.lastName}
                           </p>
                           <p className="text-sm text-gray-500">{lead.email}</p>
+                        </div>
+                      </td>
+                      <td className="py-4">
+                        <div>
+                          <p className="font-medium text-gray-900">
+                            {lead.companyName || "Non specificato"}
+                          </p>
+                          <p className="text-sm text-gray-500">{lead.vatNumber || "P.IVA non fornita"}</p>
                         </div>
                       </td>
                       <td className="py-4 text-sm text-gray-900">

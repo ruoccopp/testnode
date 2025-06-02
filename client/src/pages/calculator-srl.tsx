@@ -1674,7 +1674,7 @@ export default function CalculatorSRLPage() {
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {emailValidated && (
                   <FormField
                     control={leadForm.control}
                     name="businessSector"
@@ -1691,8 +1691,7 @@ export default function CalculatorSRLPage() {
                       </FormItem>
                     )}
                   />
-
-                </div>
+                )}
 
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <div className="flex items-start space-x-3">
