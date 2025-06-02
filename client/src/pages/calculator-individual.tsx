@@ -1159,7 +1159,7 @@ export default function CalculatorIndividualPage() {
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <FileText className="mr-2 h-5 w-5 text-purple-600" />
-                    Breakdown Imposte Dettagliato
+                    Dettaglio Imposte e Contributi 2025
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -1368,7 +1368,7 @@ export default function CalculatorIndividualPage() {
             {/* Detailed Breakdown */}
             <Card>
               <CardHeader>
-                <CardTitle>Dettaglio Imposte e Contributi</CardTitle>
+                <CardTitle>Dettaglio Imposte e Contributi 2025</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">

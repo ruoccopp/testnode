@@ -2293,7 +2293,7 @@ export default function CalculatorSRLPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <Card>
               <CardContent className="p-6">
-                <h3 className="text-lg font-bold mb-4 text-gray-900">💰 Breakdown Imposte Dettagliato</h3>
+                <h3 className="text-lg font-bold mb-4 text-gray-900">💰 Dettaglio Imposte e Contributi 2025</h3>
                 <div className="space-y-3">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Reddito Imponibile:</span>
