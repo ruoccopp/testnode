@@ -1139,140 +1139,100 @@ export default function CalculatorPage() {
             </CardContent>
           </Card>
 
-          {/* Report Avanzato Sbloccato */}
-          <Card className="bg-green-50 border-green-200">
-            <CardContent className="p-6">
-              <h3 className="text-lg font-semibold mb-4 flex items-center text-green-800">
-                🎉 Report Forfettario Avanzato Sbloccato!
-              </h3>
-              <div className="text-center mb-4">
-                <div className="text-green-700">Pianificazione fiscale completa con tutti i calcoli avanzati per la tua attività.</div>
-              </div>
-              
-              <div className="flex justify-center gap-4">
-                <Button 
-                  onClick={exportToExcel}
-                  className="bg-green-600 hover:bg-green-700"
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  📥 Scarica Excel Avanzato
-                </Button>
-                
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" className="border-green-600 text-green-600 hover:bg-green-50">
-                      <Mail className="h-4 w-4 mr-2" />
-                      📧 Invia via Email
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>📧 Invia Report via Email</DialogTitle>
-                      <DialogDescription>
-                        Riceverai il report completo con allegato Excel direttamente nella tua casella di posta
-                      </DialogDescription>
-                    </DialogHeader>
-                    
-                    <Form {...emailForm}>
-                      <form onSubmit={emailForm.handleSubmit(onEmailSubmit)} className="space-y-4">
-                        <FormField
-                          control={emailForm.control}
-                          name="email"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Indirizzo Email</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  type="email" 
-                                  placeholder="mario.rossi@email.com" 
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <div className="bg-blue-50 p-4 rounded-lg">
-                          <h4 className="font-semibold text-blue-900 mb-2">📄 Il report includerà:</h4>
-                          <ul className="text-sm text-blue-700 space-y-1">
-                            <li>• Calcoli fiscali completi</li>
-                            <li>• Scadenze 2025 e 2026</li>
-                            <li>• Piano di accantonamento mensile</li>
-                            <li>• File Excel scaricabile</li>
-                          </ul>
-                        </div>
-                        
-                        <Button 
-                          type="submit" 
-                          className="w-full"
-                          disabled={sendEmailMutation.isPending}
-                        >
-                          {sendEmailMutation.isPending ? "Invio in corso..." : "📧 Invia Report"}
-                        </Button>
-                      </form>
-                    </Form>
-                  </DialogContent>
-                </Dialog>
+          {/* SEZIONE 1: Dettaglio Fiscale del 2025 */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Calculator className="mr-2 h-5 w-5" />
+                Dettaglio Fiscale del 2025
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span>Fatturato 2025:</span>
+                    <span className="font-medium">{formatCurrency(form.watch('revenue2025') || 0)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Coefficiente di redditività:</span>
+                    <span className="font-medium">{((TAX_COEFFICIENTS[form.watch('category') as keyof typeof TAX_COEFFICIENTS]?.value || 0) * 100).toFixed(0)}%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Reddito imponibile:</span>
+                    <span className="font-medium">{formatCurrency(results.taxableIncome)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Aliquota forfettaria:</span>
+                    <span className="font-medium">15%</span>
+                  </div>
+                  <div className="flex justify-between font-semibold">
+                    <span>Imposta sostitutiva 2025:</span>
+                    <span>{formatCurrency(results.taxAmount)}</span>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span>Contributi INPS 2025:</span>
+                    <span className="font-medium">{formatCurrency(results.inpsAmount)}</span>
+                  </div>
+                  <div className="flex justify-between font-semibold text-lg">
+                    <span>Totale dovuto 2025:</span>
+                    <span>{formatCurrency(results.totalDue)}</span>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Scadenze Fiscali 2025 */}
+          {/* SEZIONE 2: Scadenze Fiscali 2025 */}
           <Card>
-            <CardContent className="p-6">
-              <h3 className="text-lg font-semibold mb-4 flex items-center">
-                📅 Scadenze Fiscali 2025
-              </h3>
-              <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <div className="flex items-center text-yellow-800">
-                  <span className="text-sm font-medium">⚠️ Nota importante:</span>
-                </div>
-                <div className="text-sm text-yellow-700 mt-1">
-                  Le scadenze forfettario 2025 si basano sull'imposta 2024 (saldi + acconti calcolati su imposta 2024). 
-                  Gli importi mostrati sono una stima basata sulla proiezione 2025.
-                </div>
-              </div>
-
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Calendar className="mr-2 h-5 w-5" />
+                Scadenze Fiscali 2025
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-3">
                     <span className="font-semibold text-red-800">30 Giugno 2025</span>
-                    <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">28 giorni</span>
+                    <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">Saldo + Acconto</span>
                   </div>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span>• Saldo imposta sostitutiva:</span>
-                      <span className="font-medium">{formatCurrency(Math.round(results.taxAmount * 0.6))}</span>
+                      <span>• Saldo imposta sostitutiva 2024:</span>
+                      <span className="font-medium">{formatCurrency(results.taxAmount)}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>• Primo acconto:</span>
+                      <span>• Primo acconto 2025 (40%):</span>
                       <span className="font-medium">{formatCurrency(Math.round(results.taxAmount * 0.4))}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>• Contributi INPS:</span>
+                      <span>• Contributi INPS (50%):</span>
                       <span className="font-medium">{formatCurrency(Math.round(results.inpsAmount * 0.5))}</span>
                     </div>
                     <hr className="my-2" />
                     <div className="flex justify-between font-semibold">
                       <span>Totale:</span>
-                      <span>{formatCurrency(Math.round(results.taxAmount + results.inpsAmount * 0.5))}</span>
+                      <span>{formatCurrency(Math.round(results.taxAmount * 1.4 + results.inpsAmount * 0.5))}</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-3">
-                    <span className="font-semibold text-green-800">30 Novembre 2025</span>
-                    <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">181 giorni</span>
+                    <span className="font-semibold text-blue-800">30 Novembre 2025</span>
+                    <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Secondo Acconto</span>
                   </div>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span>• Secondo acconto:</span>
+                      <span>• Secondo acconto 2025 (60%):</span>
                       <span className="font-medium">{formatCurrency(Math.round(results.taxAmount * 0.6))}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>• Contributi INPS:</span>
+                      <span>• Contributi INPS (50%):</span>
                       <span className="font-medium">{formatCurrency(Math.round(results.inpsAmount * 0.5))}</span>
                     </div>
                     <hr className="my-2" />
@@ -1286,26 +1246,59 @@ export default function CalculatorPage() {
             </CardContent>
           </Card>
 
-          {/* Pianificazione 2026 */}
+          {/* SEZIONE 3: Dettaglio Fiscale del 2026 */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
-                <Calendar className="mr-2 h-5 w-5" />
-                📅 Pianificazione Fiscale 2026
+                <TrendingUp className="mr-2 h-5 w-5" />
+                Dettaglio Fiscale del 2026
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                <div className="flex items-center text-blue-800">
-                  <span className="text-sm font-medium">ℹ️ Proiezione basata sui dati 2025</span>
-                </div>
-                <div className="text-sm text-blue-700 mt-1">
-                  Le scadenze 2026 sono calcolate utilizzando i ricavi 2025 inseriti. Gli importi potrebbero variare in base ai risultati effettivi del 2025.
+                <div className="text-sm text-blue-700">
+                  Proiezione basata sui ricavi 2025. I calcoli definitivi dipenderanno dai risultati effettivi del 2025.
                 </div>
               </div>
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Scadenze Giugno 2026 */}
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span>Fatturato stimato 2026:</span>
+                    <span className="font-medium">{formatCurrency(form.watch('revenue2025') || 0)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Reddito imponibile stimato:</span>
+                    <span className="font-medium">{formatCurrency(results.taxableIncome)}</span>
+                  </div>
+                  <div className="flex justify-between font-semibold">
+                    <span>Imposta sostitutiva 2026:</span>
+                    <span>{formatCurrency(results.taxAmount)}</span>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span>Contributi INPS 2026:</span>
+                    <span className="font-medium">{formatCurrency(results.inpsAmount)}</span>
+                  </div>
+                  <div className="flex justify-between font-semibold text-lg">
+                    <span>Totale dovuto 2026:</span>
+                    <span>{formatCurrency(results.totalDue)}</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* SEZIONE 4: Scadenze Fiscali del 2026 */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Calendar className="mr-2 h-5 w-5" />
+                Scadenze Fiscali del 2026
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-3">
                     <span className="font-semibold text-red-800">30 Giugno 2026</span>
@@ -1332,7 +1325,6 @@ export default function CalculatorPage() {
                   </div>
                 </div>
 
-                {/* Scadenze Novembre 2026 */}
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-3">
                     <span className="font-semibold text-green-800">30 Novembre 2026</span>
@@ -1355,24 +1347,131 @@ export default function CalculatorPage() {
                   </div>
                 </div>
               </div>
+            </CardContent>
+          </Card>
 
-              {/* Riepilogo annuale 2026 */}
-              <div className="mt-6 bg-purple-50 border border-purple-200 rounded-lg p-4">
-                <h4 className="font-semibold text-purple-800 mb-3">💰 Riepilogo Fiscale 2026</h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                  <div className="text-center">
-                    <div className="text-lg font-bold text-purple-600">{formatCurrency(results.taxAmount * 2)}</div>
-                    <div className="text-purple-700">Totale Imposte</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-lg font-bold text-purple-600">{formatCurrency(results.inpsAmount)}</div>
-                    <div className="text-purple-700">Totale Contributi</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-lg font-bold text-purple-600">{formatCurrency(results.taxAmount * 2 + results.inpsAmount)}</div>
-                    <div className="text-purple-700">Totale Anno</div>
+          {/* SEZIONE 5: Pianificatore delle scadenze */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <PiggyBank className="mr-2 h-5 w-5" />
+                Pianificatore delle scadenze
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-yellow-900 mb-3">Pianificazione Finanziaria</h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span>Saldo attuale:</span>
+                      <span className="font-medium">{formatCurrency(form.watch('currentBalance') || 0)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Totale da accantonare:</span>
+                      <span className="font-medium">{formatCurrency(results.totalDue)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Deficit/Surplus:</span>
+                      <span className={(form.watch('currentBalance') || 0) >= results.totalDue ? 'text-green-600 font-medium' : 'text-red-600 font-medium'}>
+                        {formatCurrency((form.watch('currentBalance') || 0) - results.totalDue)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Accantonamento mensile:</span>
+                      <span className="font-medium">{formatCurrency(Math.round(results.totalDue / 12))}</span>
+                    </div>
                   </div>
                 </div>
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-green-900 mb-3">Piano di Risparmio</h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span>Risparmio settimanale:</span>
+                      <span className="font-medium">{formatCurrency(Math.round(results.totalDue / 52))}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Risparmio giornaliero:</span>
+                      <span className="font-medium">{formatCurrency(Math.round(results.totalDue / 365))}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>% su fatturato mensile:</span>
+                      <span className="font-medium">{((results.totalDue / (form.watch('revenue2025') || 1)) * 100).toFixed(1)}%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* SEZIONE 6: Richiesta di esportazione o invio via mail */}
+          <Card className="bg-green-50 border-green-200">
+            <CardHeader>
+              <CardTitle className="flex items-center text-green-800">
+                <Download className="mr-2 h-5 w-5" />
+                Richiesta di esportazione o invio via mail
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center mb-4">
+                <div className="text-green-700">Ottieni il report completo con tutti i calcoli fiscali dettagliati</div>
+              </div>
+              
+              <div className="flex justify-center gap-4">
+                <Button 
+                  onClick={exportToExcel}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Scarica Excel
+                </Button>
+                
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="border-green-600 text-green-600 hover:bg-green-50">
+                      <Mail className="h-4 w-4 mr-2" />
+                      Invia via Email
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Invia Report via Email</DialogTitle>
+                      <DialogDescription>
+                        Riceverai il report completo con allegato Excel direttamente nella tua casella di posta
+                      </DialogDescription>
+                    </DialogHeader>
+                    
+                    <Form {...emailForm}>
+                      <form onSubmit={emailForm.handleSubmit(onEmailSubmit)} className="space-y-4">
+                        <FormField
+                          control={emailForm.control}
+                          name="email"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Indirizzo Email</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  type="email" 
+                                  placeholder="mario.rossi@email.com" 
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <Button 
+                          type="submit" 
+                          className="w-full"
+                          disabled={sendEmailMutation.isPending}
+                        >
+                          {sendEmailMutation.isPending ? "Invio in corso..." : "Invia Report"}
+                        </Button>
+                      </form>
+                    </Form>
+                  </DialogContent>
+                </Dialog>
               </div>
             </CardContent>
           </Card>
