@@ -74,7 +74,7 @@ const leadSchema = z.object({
   lastName: z.string().min(2, "Cognome deve avere almeno 2 caratteri"),
   email: z.string().email("Email non valida"),
   companyName: z.string().min(2, "Ragione sociale deve avere almeno 2 caratteri"),
-  vatNumber: z.string().min(11, "Partita IVA deve avere 11 cifre").max(11, "Partita IVA deve avere 11 cifre"),
+  vatNumber: z.string().min(11, "Partita IVA deve avere 11 cifre").max(11, "Partita IVA deve avere 11 cifre").optional().or(z.literal("")),
   businessSector: z.string().min(2, "Settore aziendale richiesto"),
 });
 
@@ -1692,19 +1692,6 @@ export default function CalculatorSRLPage() {
                     )}
                   />
 
-                  <FormField
-                    control={leadForm.control}
-                    name="vatNumber"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>📋 Partita IVA (opzionale)</FormLabel>
-                        <FormControl>
-                          <Input placeholder="12345678901" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
                 </div>
 
                 <div className="bg-gray-50 p-4 rounded-lg">

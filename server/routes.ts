@@ -515,13 +515,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Lead generation endpoint
   app.post("/api/leads/submit", async (req: any, res) => {
     try {
-      const { firstName, lastName, email, businessSector, calculationData } = req.body;
+      const { firstName, lastName, email, companyName, vatNumber, businessSector, calculationData } = req.body;
       
       // Salva il lead nel database
       const leadData = {
         firstName,
         lastName,
         email,
+        companyName,
+        vatNumber,
         businessSector,
         revenue: calculationData.revenue,
         category: calculationData.category,
