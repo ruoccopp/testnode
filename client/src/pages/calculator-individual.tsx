@@ -819,14 +819,14 @@ export default function CalculatorIndividualPage() {
                   </div>
                 </div>
 
-                {/* IVA e Ritenute */}
+                {/* IVA 2025 */}
                 <div className="bg-yellow-50 p-4 rounded-lg border-2 border-yellow-200">
                   <h3 className="font-semibold text-yellow-900 mb-4 flex items-center">
                     <FileText className="h-5 w-5 mr-2" />
-                    📄 IVA 2025 e Ritenute 2024
+                    📄 Gestione IVA 2025
                   </h3>
                   <p className="text-sm text-yellow-700 mb-4">
-                    <strong>IVA 2025:</strong> Dati previsionali per liquidazioni trimestrali 2025 | <strong>Ritenute 2024:</strong> Ritenute subite nell'anno di imposta
+                    Dati IVA per i versamenti trimestrali del 2025. Le ritenute sono già incluse nei dati economici 2024.
                   </p>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <FormField
@@ -894,27 +894,6 @@ export default function CalculatorIndividualPage() {
                       )}
                     />
                     
-                    <FormField
-                      control={form.control}
-                      name="taxWithholdings"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>🏦 Ritenute Subite (€)</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              placeholder="es: 8000"
-                              {...field}
-                              onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
-                              value={field.value || ""}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-
                   </div>
                 </div>
 
