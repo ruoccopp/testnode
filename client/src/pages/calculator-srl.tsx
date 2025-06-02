@@ -2012,7 +2012,7 @@ export default function CalculatorSRLPage() {
           {/* Scadenze Fiscali con Indicatori di Urgenza */}
           <Card className="mb-8">
             <CardContent className="p-6">
-              <h3 className="text-xl font-bold mb-6 text-gray-900">📅 Scadenze Fiscali 2025 con Indicatori di Urgenza</h3>
+              <h3 className="text-xl font-bold mb-6 text-gray-900">📅 Scadenze Fiscali 2025</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className={`p-4 rounded-lg border-2 ${getUrgencyLevel('30/06/2025').class}`}>
                   <div className="flex items-center justify-between mb-2">
@@ -2074,7 +2074,7 @@ export default function CalculatorSRLPage() {
           {/* Scadenze IVA con Urgenza */}
           <Card className="mb-8">
             <CardContent className="p-6">
-              <h3 className="text-xl font-bold mb-6 text-gray-900">📅 Scadenze IVA {new Date().getFullYear() + 1} con Urgenza</h3>
+              <h3 className="text-xl font-bold mb-6 text-gray-900">📅 Scadenze IVA 2026</h3>
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {results.vatDeadlines.map((deadline, index) => {
                   const urgency = getUrgencyLevel(deadline.date);
