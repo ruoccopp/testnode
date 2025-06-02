@@ -1157,48 +1157,7 @@ export default function CalculatorPage() {
 
 
 
-          {/* SEZIONE 3: Dettaglio Fiscale del 2026 */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <TrendingUp className="mr-2 h-5 w-5" />
-                Dettaglio Fiscale del 2026
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                <div className="text-sm text-blue-700">
-                  Proiezione basata sui ricavi 2025. I calcoli definitivi dipenderanno dai risultati effettivi del 2025.
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span>Fatturato stimato 2026:</span>
-                    <span className="font-medium">{formatCurrency(form.watch('revenue2025') || 0)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Reddito imponibile stimato:</span>
-                    <span className="font-medium">{formatCurrency(results.taxableIncome)}</span>
-                  </div>
-                  <div className="flex justify-between font-semibold">
-                    <span>Imposta sostitutiva 2026:</span>
-                    <span>{formatCurrency(results.taxAmount)}</span>
-                  </div>
-                </div>
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span>Contributi INPS 2026:</span>
-                    <span className="font-medium">{formatCurrency(results.inpsAmount)}</span>
-                  </div>
-                  <div className="flex justify-between font-semibold text-lg">
-                    <span>Totale dovuto 2026:</span>
-                    <span>{formatCurrency(results.totalDue)}</span>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+
 
           {/* SEZIONE 4: Scadenze Fiscali del 2026 */}
           <Card>
