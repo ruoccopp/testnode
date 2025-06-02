@@ -822,8 +822,11 @@ export default function CalculatorIndividualPage() {
                 <div className="bg-yellow-50 p-4 rounded-lg border-2 border-yellow-200">
                   <h3 className="font-semibold text-yellow-900 mb-4 flex items-center">
                     <FileText className="h-5 w-5 mr-2" />
-                    📄 IVA e Ritenute 2024
+                    📄 IVA 2025 e Ritenute 2024
                   </h3>
+                  <p className="text-sm text-yellow-700 mb-4">
+                    <strong>IVA 2025:</strong> Dati previsionali per liquidazioni trimestrali 2025 | <strong>Ritenute 2024:</strong> Ritenute subite nell'anno di imposta
+                  </p>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <FormField
                       control={form.control}
@@ -855,7 +858,7 @@ export default function CalculatorIndividualPage() {
                       name="vatOnSales"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>💸 IVA sui Ricavi (€)</FormLabel>
+                          <FormLabel>💸 IVA sui Ricavi 2025 (€)</FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -875,7 +878,7 @@ export default function CalculatorIndividualPage() {
                       name="vatOnPurchases"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>💰 IVA sugli Acquisti (€)</FormLabel>
+                          <FormLabel>💰 IVA sugli Acquisti 2025 (€)</FormLabel>
                           <FormControl>
                             <Input
                               type="number"
