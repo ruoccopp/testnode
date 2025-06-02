@@ -1071,26 +1071,7 @@ export default function CalculatorPage() {
                 </table>
               </div>
               
-              <div className="mt-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-                <h4 className="font-semibold text-yellow-900 mb-2">Pianificazione Finanziaria</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <strong>Saldo attuale:</strong> {formatCurrency(form.watch('currentBalance') || 0)}
-                  </div>
-                  <div>
-                    <strong>Totale da accantonare:</strong> {formatCurrency(results.totalDue)}
-                  </div>
-                  <div>
-                    <strong>Deficit:</strong> 
-                    <span className={(form.watch('currentBalance') || 0) >= results.totalDue ? 'text-green-600' : 'text-red-600'}>
-                      {formatCurrency((form.watch('currentBalance') || 0) - results.totalDue)}
-                    </span>
-                  </div>
-                  <div>
-                    <strong>Accantonamento mensile:</strong> {formatCurrency(Math.round(results.totalDue / 12))}
-                  </div>
-                </div>
-              </div>
+
             </CardContent>
           </Card>
 
