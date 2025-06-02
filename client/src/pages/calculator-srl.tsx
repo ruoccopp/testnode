@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Building2, Euro, Users, Calculator, Download, Lock, Mail, User, MapPin, Calendar, AlertTriangle, TrendingUp, HelpCircle } from "lucide-react";
+import { Building2, Euro, Users, Calculator, Download, Lock, Mail, User, MapPin, Calendar, AlertTriangle, TrendingUp, HelpCircle, Hash, Briefcase } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import * as XLSX from 'xlsx';
@@ -74,7 +74,8 @@ const leadSchema = z.object({
   lastName: z.string().min(2, "Cognome deve avere almeno 2 caratteri"),
   email: z.string().email("Email non valida"),
   companyName: z.string().min(2, "Ragione sociale deve avere almeno 2 caratteri"),
-  vatNumber: z.string().optional(),
+  vatNumber: z.string().min(11, "Partita IVA deve avere 11 cifre").max(11, "Partita IVA deve avere 11 cifre"),
+  businessSector: z.string().min(2, "Settore aziendale richiesto"),
 });
 
 const emailSchema = z.object({
@@ -152,6 +153,7 @@ export default function CalculatorSRLPage() {
       email: "",
       companyName: "",
       vatNumber: "",
+      businessSector: "",
     },
   });
 
@@ -1571,6 +1573,42 @@ export default function CalculatorSRLPage() {
                   />
                 </div>
 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={leadForm.control}
+                    name="companyName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center">
+                          <Building2 className="h-4 w-4 mr-2" />
+                          Ragione Sociale *
+                        </FormLabel>
+                        <FormControl>
+                          <Input placeholder="ABC Srl" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={leadForm.control}
+                    name="vatNumber"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center">
+                          <Hash className="h-4 w-4 mr-2" />
+                          Partita IVA *
+                        </FormLabel>
+                        <FormControl>
+                          <Input placeholder="01234567890" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
                 <FormField
                   control={leadForm.control}
                   name="email"
@@ -1639,15 +1677,15 @@ export default function CalculatorSRLPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={leadForm.control}
-                    name="companyName"
+                    name="businessSector"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="flex items-center">
-                          <Building2 className="h-4 w-4 mr-2" />
-                          Ragione Sociale *
+                          <Briefcase className="h-4 w-4 mr-2" />
+                          Settore Aziendale *
                         </FormLabel>
                         <FormControl>
-                          <Input placeholder="ABC Srl" {...field} />
+                          <Input placeholder="Consulenza IT" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
