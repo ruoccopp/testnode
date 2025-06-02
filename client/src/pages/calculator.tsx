@@ -52,7 +52,7 @@ interface CalculationResult {
 }
 
 // Importiamo le categorie dal file constants
-import { TAX_COEFFICIENTS, SECTORS } from "@/lib/constants";
+import { TAX_COEFFICIENTS, SECTORS, CONTRIBUTION_REGIMES } from "@/lib/constants";
 
 const BUSINESS_SECTORS = {
   RETAIL: "Commercio al dettaglio",
@@ -76,9 +76,7 @@ export default function CalculatorPage() {
   const [results, setResults] = useState<CalculationResult | null>(null);
   const [showLeadForm, setShowLeadForm] = useState(false);
   const [isUnlocked, setIsUnlocked] = useState(false);
-  const [emailValidated, setEmailValidated] = useState(false);
-  const [verificationCode, setVerificationCode] = useState("");
-  const [sentCode, setSentCode] = useState("");
+  const [emailValidated, setEmailValidated] = useState(true);
   const { toast } = useToast();
 
   const form = useForm<CalculationForm>({
@@ -144,30 +142,7 @@ export default function CalculatorPage() {
     },
   });
 
-  const sendVerificationMutation = useMutation({
-    mutationFn: async (email: string) => {
-      const response = await apiRequest('POST', '/api/send-verification', {
-        email: email
-      });
-      return response.json();
-    },
-    onSuccess: (data: any) => {
-      console.log('Codice ricevuto dal server:', data.code);
-      setSentCode(data.code);
-      toast({
-        title: "📧 Codice inviato!",
-        description: "Controlla la tua email e inserisci il codice di verifica ricevuto",
-        duration: 10000,
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        variant: "destructive",
-        title: "Errore invio verifica",
-        description: error.message || "Problemi con l'invio del codice di verifica",
-      });
-    },
-  });
+
 
   const sendEmailMutation = useMutation({
     mutationFn: async (data: EmailForm & { calculationData: CalculationResult }) => {
@@ -834,31 +809,13 @@ export default function CalculatorPage() {
                         <Mail className="h-4 w-4 mr-2" />
                         Email * (per ricevere il report)
                       </FormLabel>
-                      <div className="flex gap-2">
-                        <FormControl>
-                          <Input 
-                            type="email" 
-                            placeholder="mario.rossi@email.com" 
-                            {...field}
-                            disabled={emailValidated}
-                          />
-                        </FormControl>
-                        {!emailValidated && (
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => sendVerificationMutation.mutate(field.value)}
-                            disabled={!field.value || sendVerificationMutation.isPending}
-                          >
-                            {sendVerificationMutation.isPending ? "Invio..." : "Verifica"}
-                          </Button>
-                        )}
-                        {emailValidated && (
-                          <div className="flex items-center text-green-600">
-                            <span className="text-sm">✅ Verificata</span>
-                          </div>
-                        )}
-                      </div>
+                      <FormControl>
+                        <Input 
+                          type="email" 
+                          placeholder="mario.rossi@email.com" 
+                          {...field}
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -1041,7 +998,7 @@ export default function CalculatorPage() {
                   </div>
                   <div className="flex justify-between">
                     <span>Regime contributivo:</span>
-                    <span className="text-sm">{CONTRIBUTION_REGIMES[results.contributionRegime as keyof typeof CONTRIBUTION_REGIMES]?.label || 'N/A'}</span>
+                    <span className="text-sm">Gestione separata</span>
                   </div>
                   <div className="border-t pt-2">
                     <div className="flex justify-between font-semibold text-lg">
