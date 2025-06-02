@@ -505,18 +505,26 @@ export default function CalculatorSRLPage() {
             </div>
           </div>
           <div className="flex-shrink-0 mt-4 md:mt-0 md:ml-6 flex flex-col items-center md:items-end gap-2">
-            <div className="flex gap-2">
+            <div className="flex gap-2 mb-2">
               <Link href="/calculator">
                 <Button variant="outline" size="sm" className="text-xs">
-                  💰 Calcolatore Forfettari
+                  Forfettario
                 </Button>
               </Link>
-              <Link href="/leads">
+              <Link href="/calculator-individual">
                 <Button variant="outline" size="sm" className="text-xs">
-                  🎯 Dashboard Lead
+                  Ordinario
                 </Button>
               </Link>
+              <Button variant="default" size="sm" className="text-xs bg-purple-600">
+                SRL
+              </Button>
             </div>
+            <Link href="/leads">
+              <Button variant="outline" size="sm" className="text-xs">
+                Dashboard Lead
+              </Button>
+            </Link>
             <img 
               src={logoPath} 
               alt="SmartRate" 

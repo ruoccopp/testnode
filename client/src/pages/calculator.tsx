@@ -361,9 +361,24 @@ export default function CalculatorPage() {
             </div>
           </div>
           <div className="flex-shrink-0 mt-4 md:mt-0 md:ml-6 flex flex-col items-center md:items-end gap-2">
+            <div className="flex gap-2 mb-2">
+              <Button variant="default" size="sm" className="text-xs bg-blue-600">
+                Forfettario
+              </Button>
+              <Link href="/calculator-individual">
+                <Button variant="outline" size="sm" className="text-xs">
+                  Ordinario
+                </Button>
+              </Link>
+              <Link href="/calculator-srl">
+                <Button variant="outline" size="sm" className="text-xs">
+                  SRL
+                </Button>
+              </Link>
+            </div>
             <Link href="/leads">
               <Button variant="outline" size="sm" className="text-xs">
-                🎯 Dashboard Lead
+                Dashboard Lead
               </Button>
             </Link>
             <img 
