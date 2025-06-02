@@ -1155,66 +1155,7 @@ export default function CalculatorPage() {
             </CardContent>
           </Card>
 
-          {/* SEZIONE 2: Scadenze Fiscali 2025 */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Calendar className="mr-2 h-5 w-5" />
-                Scadenze Fiscali 2025
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="font-semibold text-red-800">30 Giugno 2025</span>
-                    <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">Saldo + Acconto</span>
-                  </div>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span>• Saldo imposta sostitutiva 2024:</span>
-                      <span className="font-medium">{formatCurrency(results.taxAmount)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>• Primo acconto 2025 (40%):</span>
-                      <span className="font-medium">{formatCurrency(Math.round(results.taxAmount * 0.4))}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>• Contributi INPS (50%):</span>
-                      <span className="font-medium">{formatCurrency(Math.round(results.inpsAmount * 0.5))}</span>
-                    </div>
-                    <hr className="my-2" />
-                    <div className="flex justify-between font-semibold">
-                      <span>Totale:</span>
-                      <span>{formatCurrency(Math.round(results.taxAmount * 1.4 + results.inpsAmount * 0.5))}</span>
-                    </div>
-                  </div>
-                </div>
 
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="font-semibold text-blue-800">30 Novembre 2025</span>
-                    <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Secondo Acconto</span>
-                  </div>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span>• Secondo acconto 2025 (60%):</span>
-                      <span className="font-medium">{formatCurrency(Math.round(results.taxAmount * 0.6))}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>• Contributi INPS (50%):</span>
-                      <span className="font-medium">{formatCurrency(Math.round(results.inpsAmount * 0.5))}</span>
-                    </div>
-                    <hr className="my-2" />
-                    <div className="flex justify-between font-semibold">
-                      <span>Totale:</span>
-                      <span>{formatCurrency(Math.round(results.taxAmount * 0.6 + results.inpsAmount * 0.5))}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
 
           {/* SEZIONE 3: Dettaglio Fiscale del 2026 */}
           <Card>
