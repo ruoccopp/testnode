@@ -1159,63 +1159,69 @@ export default function CalculatorPage() {
 
 
 
-          {/* SEZIONE 4: Scadenze Fiscali del 2026 */}
+          {/* SEZIONE 4: Pianificatore Scadenze Fiscali 2026 */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
-                <Calendar className="mr-2 h-5 w-5" />
-                Scadenze Fiscali del 2026
+                <Calendar className="mr-2 h-5 w-5 text-purple-600" />
+                Pianificatore Scadenze Fiscali 2026
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="font-semibold text-red-800">30 Giugno 2026</span>
-                    <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">Saldo + Acconto</span>
-                  </div>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span>• Saldo imposta sostitutiva 2025:</span>
-                      <span className="font-medium">{formatCurrency(results.taxAmount)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>• Primo acconto 2026 (40%):</span>
-                      <span className="font-medium">{formatCurrency(Math.round(results.taxAmount * 0.40))}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>• Contributi INPS (50%):</span>
-                      <span className="font-medium">{formatCurrency(Math.round(results.inpsAmount * 0.5))}</span>
-                    </div>
-                    <hr className="my-2" />
-                    <div className="flex justify-between font-semibold text-red-800">
-                      <span>Totale:</span>
-                      <span>{formatCurrency(Math.round(results.taxAmount * 1.4 + results.inpsAmount * 0.5))}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="font-semibold text-green-800">30 Novembre 2026</span>
-                    <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Secondo Acconto</span>
-                  </div>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span>• Secondo acconto 2026 (60%):</span>
-                      <span className="font-medium">{formatCurrency(Math.round(results.taxAmount * 0.60))}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>• Contributi INPS (50%):</span>
-                      <span className="font-medium">{formatCurrency(Math.round(results.inpsAmount * 0.5))}</span>
-                    </div>
-                    <hr className="my-2" />
-                    <div className="flex justify-between font-semibold text-green-800">
-                      <span>Totale:</span>
-                      <span>{formatCurrency(Math.round(results.taxAmount * 0.60 + results.inpsAmount * 0.5))}</span>
-                    </div>
-                  </div>
-                </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b bg-gray-50">
+                      <th className="text-left p-3 font-medium">Data Scadenza</th>
+                      <th className="text-right p-3 font-medium">Importo</th>
+                      <th className="text-left p-3 font-medium">Tipo Versamento</th>
+                      <th className="text-left p-3 font-medium">Codice Tributo</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {/* Saldo 2025 */}
+                    <tr className="border-b bg-green-50">
+                      <td className="p-3 font-medium">30 Giugno 2026</td>
+                      <td className="p-3 text-right font-bold text-green-600">
+                        {formatCurrency((form.watch('revenue2025') || 0) * (TAX_COEFFICIENTS[form.watch('category') as keyof typeof TAX_COEFFICIENTS]?.value || 0.67) * (form.watch('isStartup') ? 0.05 : 0.15))}
+                      </td>
+                      <td className="p-3">Saldo Imposta Sostitutiva 2025</td>
+                      <td className="p-3 font-mono text-xs">1792</td>
+                    </tr>
+                    
+                    {/* Primo Acconto 2026 */}
+                    <tr className="border-b bg-blue-50">
+                      <td className="p-3 font-medium">30 Giugno 2026</td>
+                      <td className="p-3 text-right font-bold text-blue-600">
+                        {formatCurrency(Math.round(((form.watch('revenue2025') || 0) * (TAX_COEFFICIENTS[form.watch('category') as keyof typeof TAX_COEFFICIENTS]?.value || 0.67) * (form.watch('isStartup') ? 0.05 : 0.15)) * 0.40))}
+                      </td>
+                      <td className="p-3">Primo Acconto 2026 (40%)</td>
+                      <td className="p-3 font-mono text-xs">1790</td>
+                    </tr>
+                    
+                    {/* Secondo Acconto 2026 */}
+                    <tr className="border-b bg-purple-50">
+                      <td className="p-3 font-medium">30 Novembre 2026</td>
+                      <td className="p-3 text-right font-bold text-purple-600">
+                        {formatCurrency(Math.round(((form.watch('revenue2025') || 0) * (TAX_COEFFICIENTS[form.watch('category') as keyof typeof TAX_COEFFICIENTS]?.value || 0.67) * (form.watch('isStartup') ? 0.05 : 0.15)) * 0.60))}
+                      </td>
+                      <td className="p-3">Secondo Acconto 2026 (60%)</td>
+                      <td className="p-3 font-mono text-xs">1791</td>
+                    </tr>
+                    
+                    {/* Contributi INPS */}
+                    <tr className="border-b bg-orange-50">
+                      <td className="p-3 font-medium">16 Agosto 2026</td>
+                      <td className="p-3 text-right font-bold text-orange-600">
+                        {formatCurrency(results.inpsAmount)}
+                      </td>
+                      <td className="p-3">Contributi INPS 2025</td>
+                      <td className="p-3 font-mono text-xs">
+                        {form.watch('contributionRegime') === 'GESTIONE_SEPARATA' ? 'PXX' : 'AF/CF'}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </CardContent>
           </Card>
