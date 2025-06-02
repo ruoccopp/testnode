@@ -395,6 +395,54 @@ export default function CalculatorPage() {
         <CardContent className="p-4 md:p-6">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-6">
+              {/* Regime Fiscale - PRIMO BLOCCO */}
+              <div className="bg-blue-50 p-3 md:p-4 rounded-lg mb-4 md:mb-6 border-2 border-blue-200">
+                <h3 className="font-medium text-blue-900 mb-3 md:mb-4 text-sm md:text-base">🎯 Regime Fiscale</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="startDate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm md:text-base">📅 Data di Inizio Attività</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="date"
+                            placeholder="gg/mm/aaaa"
+                            className="text-base md:text-lg h-12 md:h-auto"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription className="text-xs">
+                          Inserisci la data di apertura della tua Partita IVA
+                        </FormDescription>
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="isStartup"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-sm md:text-base">🚀 Conferma Regime Startup</FormLabel>
+                          <FormDescription className="text-xs">
+                            Tasse al 5% per i primi 5 anni
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
               {/* Fatturato */}
               <div className="bg-blue-50 p-3 md:p-4 rounded-lg mb-4 md:mb-6">
                 <h3 className="font-medium text-blue-900 mb-3 md:mb-4 text-sm md:text-base">📊 Fatturato</h3>
