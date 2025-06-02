@@ -171,6 +171,7 @@ export default function CalculatorSRLPage() {
   const calculateMutation = useMutation({
     mutationFn: async (data: CalculationForm) => {
       // Calcolo diretto senza API per semplicità
+      const startYear = new Date(data.startDate).getFullYear();
       const result = calculateSRLTaxes({
         revenue: data.revenue,
         costs: data.costs,
@@ -185,6 +186,25 @@ export default function CalculatorSRLPage() {
         vatOnPurchases: data.vatOnPurchases,
         currentBalance: data.currentBalance || 0,
         fiscalYear: 2025,
+        startDate: data.startDate,
+        startYear: startYear,
+        // Dati 2024 solo se l'attività è iniziata nel 2024 o prima
+        utile2024: startYear <= 2024 ? data.utile2024 : undefined,
+        utile2023: startYear <= 2024 ? data.utile2023 : undefined,
+        investimentiPrevisti: data.investimentiPrevisti,
+        mediaULA2022_2024: startYear <= 2024 ? data.mediaULA2022_2024 : undefined,
+        dipendentiTempo2024: startYear <= 2024 ? data.dipendentiTempo2024 : undefined,
+        nuoveAssunzioni2025: data.nuoveAssunzioni2025,
+        hasUsedCIG: startYear <= 2024 ? data.hasUsedCIG : false,
+        interessiAttivi: data.interessiAttivi,
+        interessiPassivi: data.interessiPassivi,
+        rolFiscale: data.rolFiscale,
+        perditePregresseOrdinarie: data.perditePregresseOrdinarie,
+        perditePrimi3Esercizi: data.perditePrimi3Esercizi,
+        costoNuoveAssunzioni: data.costoNuoveAssunzioni,
+        incrementoCostoPersonale: data.incrementoCostoPersonale,
+        revenue2024: startYear <= 2024 ? data.revenue2024 : undefined,
+        costs2024: startYear <= 2024 ? data.costs2024 : undefined,
       });
       return result;
     },
@@ -520,8 +540,8 @@ export default function CalculatorSRLPage() {
                             </TooltipTrigger>
                             <TooltipContent>
                               <p className="max-w-xs text-sm">
-                                Data di costituzione della SRL. Se l'attività è iniziata nel 2024, 
-                                saranno richiesti i dati fiscali 2024 per calcoli precisi.
+                                Data di costituzione della SRL. Se l'attività è iniziata nel 2024 o prima, 
+                                saranno richiesti i dati fiscali 2024 per calcoli precisi degli acconti 2025.
                               </p>
                             </TooltipContent>
                           </Tooltip>
@@ -540,8 +560,8 @@ export default function CalculatorSRLPage() {
                 />
               </div>
 
-              {/* Sezione Dati 2024 - mostrata solo se attività iniziata nel 2024 */}
-              {form.watch("startDate") && new Date(form.watch("startDate")).getFullYear() >= 2024 && (
+              {/* Sezione Dati 2024 - mostrata solo se attività iniziata nel 2024 o prima */}
+              {form.watch("startDate") && new Date(form.watch("startDate")).getFullYear() <= 2024 && (
                 <div className="bg-orange-50 p-4 rounded-lg border-2 border-orange-200">
                   <h3 className="font-semibold text-orange-900 mb-4 flex items-center">
                     <Calendar className="h-5 w-5 mr-2" />

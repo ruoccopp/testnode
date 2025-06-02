@@ -11,12 +11,20 @@ export interface SRLTaxCalculationInput {
   vatDebt: number;
   currentBalance: number;
   
+  // Data di inizio attività
+  startDate?: string;
+  startYear?: number;
+  
   // IVA dettagliata
   vatOnSales?: number;    
   vatOnPurchases?: number; 
   
   // Anno fiscale di riferimento
   fiscalYear?: number;    
+  
+  // Dati 2024 (solo se attività iniziata nel 2024 o prima)
+  revenue2024?: number;
+  costs2024?: number;
   
   // Dati per IRES Premiale 2025
   utile2024?: number;
@@ -105,11 +113,18 @@ export interface SRLTaxCalculationResult {
   totalTaxes: number;
   totalDue: number;
   
-  // Rate e acconti
+  // Rate e acconti (basati su anno di inizio attività)
   iresFirstAcconto: number;
   iresSecondAcconto: number;
   irapFirstAcconto: number;
   irapSecondAcconto: number;
+  
+  // Dettagli acconti
+  accontiDetails: {
+    isNewBusiness: boolean; // Se iniziata nel 2025
+    accontiBasedOn2024: boolean; // Se acconti calcolati su dati 2024
+    accontiRate: number; // 40% per primo acconto, 60% per secondo
+  };
   
   // Scadenze mensili
   monthlyAccrual: number;
@@ -353,7 +368,16 @@ function getMonthName(month: number): string {
   return months[month] || '';
 }
 
-function createFiscalCalendar2025(iresAmount: number, irapAmount: number, vatDeadlines: any[], inpsTotalAmount: number, fiscalYear: number) {
+function createFiscalCalendar2025(
+  iresFirstAcconto: number, 
+  iresSecondAcconto: number, 
+  irapFirstAcconto: number, 
+  irapSecondAcconto: number, 
+  vatDeadlines: any[], 
+  inpsTotalAmount: number, 
+  fiscalYear: number,
+  isNewBusiness2025: boolean = false
+) {
   const calendar = [];
   
   // Scadenze IVA per l'anno corrente
@@ -363,50 +387,50 @@ function createFiscalCalendar2025(iresAmount: number, irapAmount: number, vatDea
     description: deadline.type
   })));
   
-  // IMPORTANTE: Per il 2025, le scadenze IRES/IRAP si riferiscono all'anno d'imposta 2024
-  // Gli acconti 2025 sono calcolati sull'imposta 2024 (che non abbiamo, quindi usiamo stima)
-  // Stima conservativa: 70% dell'imposta proiettata 2025 come base per acconti
-  const iresBase2024Stimata = iresAmount * 0.70; // Stima prudenziale
-  const irapBase2024Stimata = irapAmount * 0.70;
-  
-  const primoAccontoIRES = iresBase2024Stimata * 0.40;
-  const secondoAccontoIRES = iresBase2024Stimata * 0.60;
-  const primoAccontoIRAP = irapBase2024Stimata * 0.40;
-  const secondoAccontoIRAP = irapBase2024Stimata * 0.60;
-  
-  // 30 Giugno 2025: Saldo 2024 + Primo acconto 2025
-  calendar.push({
-    date: `30/06/2025`,
-    amount: primoAccontoIRES,
-    type: `IRES I Acconto 2025`,
-    category: 'IRES' as const,
-    description: `Primo acconto IRES 2025 (40% imposta 2024)`
-  });
-  
-  calendar.push({
-    date: `30/06/2025`,
-    amount: primoAccontoIRAP,
-    type: `IRAP I Acconto 2025`,
-    category: 'IRAP' as const,
-    description: `Primo acconto IRAP 2025 (40% imposta 2024)`
-  });
-  
-  // 30 Novembre 2025: Secondo acconto 2025
-  calendar.push({
-    date: `30/11/2025`,
-    amount: secondoAccontoIRES,
-    type: `IRES II Acconto 2025`,
-    category: 'IRES' as const,
-    description: `Secondo acconto IRES 2025 (60% imposta 2024)`
-  });
-  
-  calendar.push({
-    date: `30/11/2025`,
-    amount: secondoAccontoIRAP,
-    type: `IRAP II Acconto 2025`,
-    category: 'IRAP' as const,
-    description: `Secondo acconto IRAP 2025 (60% imposta 2024)`
-  });
+  // Scadenze IRES e IRAP solo per attività esistenti (non nuove del 2025)
+  if (!isNewBusiness2025) {
+    // 30 Giugno 2025: Primo acconto 2025
+    if (iresFirstAcconto > 0) {
+      calendar.push({
+        date: `30/06/2025`,
+        amount: iresFirstAcconto,
+        type: `IRES I Acconto 2025`,
+        category: 'IRES' as const,
+        description: `Primo acconto IRES 2025 (40% imposta 2024)`
+      });
+    }
+    
+    if (irapFirstAcconto > 0) {
+      calendar.push({
+        date: `30/06/2025`,
+        amount: irapFirstAcconto,
+        type: `IRAP I Acconto 2025`,
+        category: 'IRAP' as const,
+        description: `Primo acconto IRAP 2025 (40% imposta 2024)`
+      });
+    }
+    
+    // 30 Novembre 2025: Secondo acconto 2025
+    if (iresSecondAcconto > 0) {
+      calendar.push({
+        date: `30/11/2025`,
+        amount: iresSecondAcconto,
+        type: `IRES II Acconto 2025`,
+        category: 'IRES' as const,
+        description: `Secondo acconto IRES 2025 (60% imposta 2024)`
+      });
+    }
+    
+    if (irapSecondAcconto > 0) {
+      calendar.push({
+        date: `30/11/2025`,
+        amount: irapSecondAcconto,
+        type: `IRAP II Acconto 2025`,
+        category: 'IRAP' as const,
+        description: `Secondo acconto IRAP 2025 (60% imposta 2024)`
+      });
+    }
+  }
   
   // CONTRIBUTI INPS
   const inpsQuarterly = inpsTotalAmount / 4;
@@ -543,6 +567,10 @@ function createPaymentSchedule(calendar: any[], currentBalance: number, monthlyA
 
 export function calculateSRLTaxes(input: SRLTaxCalculationInput): SRLTaxCalculationResult {
   const fiscalYear = input.fiscalYear || 2025;
+  const startYear = input.startYear || (input.startDate ? new Date(input.startDate).getFullYear() : 2025);
+  
+  // Determina se utilizzare dati 2024 per calcoli precisi degli acconti
+  const usePreviousYearData = startYear <= 2024;
   
   // 1. CALCOLO REDDITO IMPONIBILE BASE
   const grossProfit = input.revenue - input.costs - input.employeeCosts;
@@ -606,17 +634,61 @@ export function calculateSRLTaxes(input: SRLTaxCalculationInput): SRLTaxCalculat
   const totalDue = totalTaxes + inpsTotalAmount + vatAmount;
   
   // 10. CALCOLO ACCONTI
-  const iresFirstAcconto = iresAmount * 0.40;
-  const iresSecondAcconto = iresAmount * 0.60;
-  const irapFirstAcconto = irapAmount * 0.40;
-  const irapSecondAcconto = irapAmount * 0.60;
+  // Se l'attività è iniziata nel 2025, non ci sono acconti basati su imposte 2024
+  const isNewBusiness2025 = startYear >= 2025;
+  
+  let iresFirstAcconto = 0;
+  let iresSecondAcconto = 0;
+  let irapFirstAcconto = 0;
+  let irapSecondAcconto = 0;
+  
+  // Dettagli acconti
+  const accontiDetails = {
+    isNewBusiness: isNewBusiness2025,
+    accontiBasedOn2024: usePreviousYearData && !isNewBusiness2025,
+    accontiRate: 0.40 // 40% primo acconto, 60% secondo acconto
+  };
+  
+  // Calcolo acconti solo per attività non nuove del 2025
+  if (!isNewBusiness2025 && usePreviousYearData) {
+    // Usa dati 2024 se disponibili, altrimenti stima basata su previsioni 2025
+    const baseIres = input.utile2024 ? (input.utile2024 * 0.24) : (iresAmount * 0.8);
+    const baseIrap = input.revenue2024 ? 
+      ((input.revenue2024 - (input.costs2024 || 0)) * irapRate) : 
+      (irapAmount * 0.8);
+    
+    iresFirstAcconto = baseIres * 0.40; // 40% entro 16 giugno
+    iresSecondAcconto = baseIres * 0.60; // 60% entro 30 novembre
+    irapFirstAcconto = baseIrap * 0.40;
+    irapSecondAcconto = baseIrap * 0.60;
+  }
+  
+  if (!isNewBusiness2025) {
+    // Acconti basati su imposta 2024 (per attività esistenti)
+    const imposta2024IRES = input.utile2024 ? (input.utile2024 * 0.24) : iresAmount;
+    const imposta2024IRAP = input.utile2024 ? (input.utile2024 * irapRate) : irapAmount;
+    
+    iresFirstAcconto = imposta2024IRES * 0.40;
+    iresSecondAcconto = imposta2024IRES * 0.60;
+    irapFirstAcconto = imposta2024IRAP * 0.40;
+    irapSecondAcconto = imposta2024IRAP * 0.60;
+  }
   
   // 11. ACCANTONAMENTO MENSILE
   const monthlyAccrual = totalDue / 12;
   const quarterlyPayments = (vatQuarterly + inpsTotalAmount / 4);
   
   // 12. CALENDARIO E SCADENZIERE
-  const calendar2025 = createFiscalCalendar2025(iresAmount, irapAmount, vatDeadlines, inpsTotalAmount, fiscalYear);
+  const calendar2025 = createFiscalCalendar2025(
+    iresFirstAcconto, 
+    iresSecondAcconto, 
+    irapFirstAcconto, 
+    irapSecondAcconto, 
+    vatDeadlines, 
+    inpsTotalAmount, 
+    fiscalYear,
+    isNewBusiness2025
+  );
   const paymentSchedule = createPaymentSchedule(calendar2025, input.currentBalance, monthlyAccrual, fiscalYear);
 
   return {
