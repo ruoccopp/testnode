@@ -438,12 +438,105 @@ export default function CalculatorIndividualPage() {
                   </div>
                 </div>
 
-                {/* Dati Economici 2025 */}
+                {/* Dati Economici 2024 - FONDAMENTALI PER CALCOLO IMPOSTE 2025 */}
+                <div className="bg-blue-50 p-4 rounded-lg border-2 border-blue-200">
+                  <h3 className="font-semibold text-blue-900 mb-4 flex items-center">
+                    <Calendar className="h-5 w-5 mr-2" />
+                    📊 Dati Economici 2024 (Anno di Imposta)
+                  </h3>
+                  <p className="text-sm text-blue-700 mb-4">
+                    <strong>Obbligatori:</strong> Questi dati del 2024 servono per calcolare le imposte da pagare nel 2025 (saldo + acconti).
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="revenue"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>💰 Ricavi/Compensi 2024 (€) *</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              placeholder="es: 80000"
+                              {...field}
+                              onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="documentedExpenses"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>📋 Spese Documentate 2024 (€) *</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              placeholder="es: 25000"
+                              {...field}
+                              onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="otherIncome"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>💼 Altri Redditi 2024 (€)</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              placeholder="es: 5000"
+                              {...field}
+                              onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="taxWithholdings"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>💳 Ritenute Subite 2024 (€)</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              placeholder="es: 8000"
+                              {...field}
+                              onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+
+                {/* Dati Economici 2025 - PER PIANIFICAZIONE 2026 */}
                 <div className="bg-green-50 p-4 rounded-lg border-2 border-green-200">
                   <h3 className="font-semibold text-green-900 mb-4 flex items-center">
                     <Euro className="h-5 w-5 mr-2" />
-                    💼 Dati Economici 2025
+                    💼 Dati Economici 2025 (Per Pianificazione 2026)
                   </h3>
+                  <p className="text-sm text-green-700 mb-4">
+                    <strong>Opzionali:</strong> Questi dati 2025 servono per calcolare gli acconti da versare nel 2026 e pianificare il futuro.
+                  </p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
