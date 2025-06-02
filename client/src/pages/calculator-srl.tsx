@@ -33,7 +33,25 @@ const calculationSchema = z.object({
   vatOnPurchases: z.number().min(0, "L'IVA sugli acquisti deve essere positiva").optional(),
   currentBalance: z.number().min(0, "Il saldo deve essere positivo").optional(),
   
-
+  // IRES Premiale 2025
+  utile2024: z.number().min(0).optional(),
+  utile2023: z.number().min(0).optional(),
+  investimentiPrevisti: z.number().min(0).optional(),
+  mediaULA2022_2024: z.number().min(0).optional(),
+  dipendentiTempo2024: z.number().min(0).optional(),
+  nuoveAssunzioni2025: z.number().min(0).optional(),
+  hasUsedCIG: z.boolean().default(false),
+  
+  // ROL e Interessi
+  interessiAttivi: z.number().min(0).optional(),
+  interessiPassivi: z.number().min(0).optional(),
+  rolFiscale: z.number().min(0).optional(),
+  perditePregresseOrdinarie: z.number().min(0).optional(),
+  perditePrimi3Esercizi: z.number().min(0).optional(),
+  
+  // Super deduzione nuove assunzioni
+  costoNuoveAssunzioni: z.number().min(0).optional(),
+  incrementoCostoPersonale: z.number().min(0).optional(),
   
   // Dati 2024 (anno chiuso)
   revenue2024: z.number().min(0).optional(),
@@ -551,6 +569,341 @@ export default function CalculatorSRLPage() {
                     />
                   </div>
                 </div>
+
+              {/* Sezione IRES Premiale 2025 */}
+              <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg border-2 border-purple-300">
+                <h3 className="font-semibold text-purple-900 mb-4 flex items-center">
+                  <TrendingUp className="h-5 w-5 mr-2" />
+                  🏆 IRES Premiale 2025 (Aliquota 20% invece di 24%)
+                </h3>
+                <p className="text-sm text-purple-700 mb-4">
+                  Compila questi campi per verificare l'accesso all'IRES ridotta al 20% per l'anno 2025
+                </p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="utile2024"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>💰 Utile Civilistico 2024 (€)</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="es: 800000"
+                            {...field}
+                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                            value={field.value || ""}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="utile2023"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>📊 Utile Civilistico 2023 (€)</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="es: 1000000"
+                            {...field}
+                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                            value={field.value || ""}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="investimentiPrevisti"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>🔧 Investimenti Industria 4.0/5.0 (€)</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="es: 250000"
+                            {...field}
+                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                            value={field.value || ""}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="mediaULA2022_2024"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>👥 Media ULA 2022-2024</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="es: 18"
+                            {...field}
+                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                            value={field.value || ""}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="dipendentiTempo2024"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>🔄 Dipendenti T.I. Media 2024</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="es: 20"
+                            {...field}
+                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                            value={field.value || ""}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="nuoveAssunzioni2025"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>➕ Nuove Assunzioni T.I. 2025</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="es: 1"
+                            {...field}
+                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                            value={field.value || ""}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                
+                <div className="mt-4">
+                  <FormField
+                    control={form.control}
+                    name="hasUsedCIG"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-base">🚫 Hai usato CIG nel 2024/2025?</FormLabel>
+                          <div className="text-sm text-muted-foreground">
+                            L'uso di Cassa Integrazione esclude dall'IRES Premiale
+                          </div>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              {/* Sezione ROL e Interessi Passivi */}
+              <div className="bg-indigo-50 p-4 rounded-lg border-2 border-indigo-200">
+                <h3 className="font-semibold text-indigo-900 mb-4 flex items-center">
+                  <Calculator className="h-5 w-5 mr-2" />
+                  📊 ROL e Gestione Interessi Passivi (Art. 96 TUIR)
+                </h3>
+                <p className="text-sm text-indigo-700 mb-4">
+                  Per un calcolo preciso della deducibilità degli interessi passivi
+                </p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="interessiAttivi"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>💹 Interessi Attivi 2025 (€)</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="es: 5000"
+                            {...field}
+                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                            value={field.value || ""}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="interessiPassivi"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>📉 Interessi Passivi 2025 (€)</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="es: 70000"
+                            {...field}
+                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                            value={field.value || ""}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="rolFiscale"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>🎯 ROL Fiscale 2025 (€)</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="es: 150000"
+                            {...field}
+                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                            value={field.value || ""}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              {/* Sezione Perdite Fiscali Pregresse */}
+              <div className="bg-red-50 p-4 rounded-lg border-2 border-red-200">
+                <h3 className="font-semibold text-red-900 mb-4 flex items-center">
+                  <AlertTriangle className="h-5 w-5 mr-2" />
+                  📊 Perdite Fiscali Pregresse (Art. 84 TUIR)
+                </h3>
+                <p className="text-sm text-red-700 mb-4">
+                  Perdite utilizzabili per ridurre il reddito imponibile 2025
+                </p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="perditePregresseOrdinarie"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>📉 Perdite Ordinarie (limite 80%)</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="es: 180000"
+                            {...field}
+                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                            value={field.value || ""}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="perditePrimi3Esercizi"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>🆕 Perdite Primi 3 Esercizi (100%)</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="es: 50000"
+                            {...field}
+                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                            value={field.value || ""}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              {/* Sezione Super Deduzione */}
+              <div className="bg-emerald-50 p-4 rounded-lg border-2 border-emerald-200">
+                <h3 className="font-semibold text-emerald-900 mb-4 flex items-center">
+                  <Users className="h-5 w-5 mr-2" />
+                  🚀 Super Deduzione Nuove Assunzioni (120%)
+                </h3>
+                <p className="text-sm text-emerald-700 mb-4">
+                  Maggiorazione 20% del costo per nuove assunzioni a tempo indeterminato
+                </p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="costoNuoveAssunzioni"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>💰 Costo Nuovi Assunti 2025 (€)</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="es: 60000"
+                            {...field}
+                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                            value={field.value || ""}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="incrementoCostoPersonale"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>📈 Incremento Totale Costo Personale (€)</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="es: 80000"
+                            {...field}
+                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                            value={field.value || ""}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
 
               {/* Sezione Situazione 2025 */}
                 <div className="bg-green-50 p-4 rounded-lg border-2 border-green-200">
@@ -1299,6 +1652,140 @@ export default function CalculatorSRLPage() {
       {/* Full Results (Unlocked) */}
       {results && isUnlocked && (
         <>
+          {/* Sezione IRES Premiale se applicabile */}
+          {results.isIresPremialeApplicable && (
+            <Card className="mb-6 bg-gradient-to-r from-purple-50 to-blue-50 border-2 border-purple-300">
+              <CardContent className="p-6">
+                <h3 className="text-xl font-bold text-purple-900 mb-4 flex items-center">
+                  🏆 IRES Premiale Applicabile - Aliquota 20%
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h4 className="font-semibold text-purple-800 mb-3">Condizioni Verificate:</h4>
+                    <div className="space-y-2 text-sm">
+                      <div className={`flex items-center ${results.iresPremialeDetails?.condition1_utiliAccantonati ? 'text-green-700' : 'text-red-700'}`}>
+                        {results.iresPremialeDetails?.condition1_utiliAccantonati ? '✅' : '❌'} Accantonamento 80% utili 2024
+                      </div>
+                      <div className={`flex items-center ${results.iresPremialeDetails?.condition2_investimenti ? 'text-green-700' : 'text-red-700'}`}>
+                        {results.iresPremialeDetails?.condition2_investimenti ? '✅' : '❌'} Investimenti qualificati sufficienti
+                      </div>
+                      <div className={`flex items-center ${results.iresPremialeDetails?.condition3_livelloOccupazionale ? 'text-green-700' : 'text-red-700'}`}>
+                        {results.iresPremialeDetails?.condition3_livelloOccupazionale ? '✅' : '❌'} Mantenimento livelli ULA
+                      </div>
+                      <div className={`flex items-center ${results.iresPremialeDetails?.condition4_nuoveAssunzioni ? 'text-green-700' : 'text-red-700'}`}>
+                        {results.iresPremialeDetails?.condition4_nuoveAssunzioni ? '✅' : '❌'} Nuove assunzioni sufficienti
+                      </div>
+                      <div className={`flex items-center ${results.iresPremialeDetails?.condition5_noCIG ? 'text-green-700' : 'text-red-700'}`}>
+                        {results.iresPremialeDetails?.condition5_noCIG ? '✅' : '❌'} Nessun uso CIG
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-purple-800 mb-3">Risparmio Fiscale:</h4>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span>IRES al 24% (ordinaria):</span>
+                        <span className="font-semibold text-red-600">{formatCurrency(results.taxableIncomeAfterLosses * 0.24)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>IRES al 20% (premiale):</span>
+                        <span className="font-semibold text-green-600">{formatCurrency(results.iresAmount)}</span>
+                      </div>
+                      <div className="flex justify-between pt-2 border-t border-purple-300">
+                        <span className="font-bold">Risparmio:</span>
+                        <span className="font-bold text-green-700">{formatCurrency((results.taxableIncomeAfterLosses * 0.24) - results.iresAmount)}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* ROL e Interessi Passivi */}
+          {results.rolDetails && (
+            <Card className="mb-6 bg-indigo-50 border-2 border-indigo-200">
+              <CardContent className="p-6">
+                <h3 className="text-lg font-bold text-indigo-900 mb-4">📊 Gestione ROL e Interessi Passivi (Art. 96 TUIR)</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h4 className="font-semibold text-indigo-800 mb-3">Calcoli ROL:</h4>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span>ROL Fiscale:</span>
+                        <span className="font-semibold">{formatCurrency(results.rolDetails.rolFiscale)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Limite ROL (30%):</span>
+                        <span className="font-semibold">{formatCurrency(results.rolDetails.limitROL)}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-indigo-800 mb-3">Deducibilità Interessi:</h4>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span>Interessi Attivi:</span>
+                        <span className="font-semibold text-green-600">{formatCurrency(results.rolDetails.interessiAttiviTotali)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Interessi Passivi Deducibili:</span>
+                        <span className="font-semibold text-green-600">{formatCurrency(results.rolDetails.interessiPassiviDeducibili)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Interessi Passivi Indeducibili:</span>
+                        <span className="font-semibold text-red-600">{formatCurrency(results.rolDetails.interessiPassiviIndeducibili)}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Perdite Fiscali e Super Deduzione */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            {results.lossesUsed > 0 && (
+              <Card className="bg-red-50 border-2 border-red-200">
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-bold text-red-900 mb-4">📉 Gestione Perdite Fiscali</h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span>Perdite Utilizzate 2025:</span>
+                      <span className="font-semibold text-red-600">{formatCurrency(results.lossesUsed)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Perdite Residue Riportabili:</span>
+                      <span className="font-semibold">{formatCurrency(results.remainingLosses)}</span>
+                    </div>
+                    <div className="flex justify-between pt-2 border-t border-red-300">
+                      <span>Reddito dopo Perdite:</span>
+                      <span className="font-bold text-green-700">{formatCurrency(results.taxableIncomeAfterLosses)}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {results.superDeductionAmount > 0 && (
+              <Card className="bg-emerald-50 border-2 border-emerald-200">
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-bold text-emerald-900 mb-4">🚀 Super Deduzione Nuove Assunzioni</h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span>Maggiorazione 20%:</span>
+                      <span className="font-semibold text-emerald-600">{formatCurrency(results.superDeductionAmount)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Risparmio IRES:</span>
+                      <span className="font-bold text-green-700">{formatCurrency(results.superDeductionAmount * results.iresRate)}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+
           {/* Sezione Anno Fiscale di Riferimento - Report Completo */}
           <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4 mb-6">
             <h4 className="font-semibold text-green-900 mb-3 flex items-center">
@@ -1342,12 +1829,15 @@ export default function CalculatorSRLPage() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className={results.isIresPremialeApplicable ? "border-2 border-purple-400 bg-purple-50" : ""}>
               <CardContent className="p-6">
                 <div className="flex items-center">
                   <Euro className="h-8 w-8 text-green-500" />
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-500">IRES (24%)</p>
+                    <p className="text-sm font-medium text-gray-500">
+                      IRES ({(results.iresRate * 100).toFixed(0)}%)
+                      {results.isIresPremialeApplicable && <span className="text-purple-600 font-bold"> PREMIALE!</span>}
+                    </p>
                     <p className="text-xl font-bold text-gray-900">{formatCurrency(results.iresAmount)}</p>
                   </div>
                 </div>
