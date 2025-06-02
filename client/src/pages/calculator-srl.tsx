@@ -21,6 +21,9 @@ import { Link } from "wouter";
 import { calculateSRLTaxes, IRAP_RATES, VAT_REGIMES, SRLTaxCalculationResult } from "@/lib/srl-tax-calculator";
 
 const calculationSchema = z.object({
+  // Data inizio attività
+  startDate: z.string().min(1, "Seleziona la data di inizio attività"),
+  
   revenue: z.number().min(0, "Il fatturato deve essere positivo"),
   costs: z.number().min(0, "I costi devono essere positivi"),
   employees: z.number().min(0, "Il numero dipendenti deve essere positivo").int(),
@@ -122,6 +125,7 @@ export default function CalculatorSRLPage() {
   const form = useForm<CalculationForm>({
     resolver: zodResolver(calculationSchema),
     defaultValues: {
+      startDate: "",
       revenue: undefined,
       costs: undefined,
       employees: 0,
@@ -496,14 +500,57 @@ export default function CalculatorSRLPage() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-6">
               
+              {/* Data Inizio Attività */}
+              <div className="bg-blue-50 p-4 rounded-lg border-2 border-blue-200">
+                <h3 className="font-semibold text-blue-900 mb-4 flex items-center">
+                  <Calendar className="h-5 w-5 mr-2" />
+                  📅 Informazioni Societarie
+                </h3>
+                <FormField
+                  control={form.control}
+                  name="startDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-1">
+                        🏢 Data Inizio Attività *
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <HelpCircle className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="max-w-xs text-sm">
+                                Data di costituzione della SRL. Se l'attività è iniziata nel 2024, 
+                                saranno richiesti i dati fiscali 2024 per calcoli precisi.
+                              </p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          type="date"
+                          {...field}
+                          max={new Date().toISOString().split('T')[0]}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
-
-              {/* Sezione Dati 2024 */}
+              {/* Sezione Dati 2024 - mostrata solo se attività iniziata nel 2024 */}
+              {form.watch("startDate") && new Date(form.watch("startDate")).getFullYear() >= 2024 && (
                 <div className="bg-orange-50 p-4 rounded-lg border-2 border-orange-200">
                   <h3 className="font-semibold text-orange-900 mb-4 flex items-center">
                     <Calendar className="h-5 w-5 mr-2" />
-                    📊 Dati Definitivi 2024 (Anno Chiuso)
+                    📊 Dati 2024
                   </h3>
+                  <p className="text-sm text-orange-700 mb-4">
+                    Inserisci i dati fiscali 2024 per calcolare correttamente gli acconti 2025.
+                    Questi possono essere definitivi (se l'anno è chiuso) o stimati (se ancora in corso).
+                  </p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
@@ -598,6 +645,7 @@ export default function CalculatorSRLPage() {
                     />
                   </div>
                 </div>
+              )}
 
               {/* Sezione IRES Premiale 2025 */}
               <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg border-2 border-purple-300">
