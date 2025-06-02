@@ -929,7 +929,7 @@ export default function CalculatorPage() {
               <CardContent className="p-6">
                 <h3 className="text-lg font-semibold mb-4 flex items-center">
                   <Euro className="mr-2 h-5 w-5 text-blue-600" />
-                  Breakdown Imposte Dettagliato
+  Dettaglio Fiscale Completo
                 </h3>
                 <div className="space-y-3">
                   <div className="flex justify-between">

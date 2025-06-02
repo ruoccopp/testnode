@@ -1,0 +1,762 @@
+Manuale Tecnico-Operativo per il Calcolo Tasse e la Pianificazione delle Scadenze per Partite IVA Individuali Italiane (Normativa 2025)
+Premessa
+Scopo del Manuale: Il presente manuale è concepito come la principale risorsa tecnico-operativa per lo sviluppo di uno strumento software dedicato al calcolo delle imposte e alla pianificazione delle scadenze fiscali per i titolari di Partita IVA individuale in Italia. Il manuale analizza in dettaglio il Regime Forfettario e il Regime Ordinario, conformemente alla legislazione fiscale vigente per l'anno 2025.
+Ambito e Destinatari: Il documento fornisce una spiegazione approfondita delle normative fiscali, delle metodologie di calcolo, degli adempimenti obbligatori e dei dati di input/output necessari per l'implementazione del software. È rivolto a sviluppatori software, product manager e analisti fiscali coinvolti nella creazione dello strumento.
+Avvertenze: Si sottolinea la necessità di utilizzare questo manuale unitamente alla consultazione diretta delle fonti normative primarie e alla consulenza professionale per casi specifici e complessi. Le informazioni qui contenute si basano sulle normative e sulle interpretazioni disponibili alla data di ultimo aggiornamento dei materiali di riferimento per il 2025. L'applicazione delle normative fiscali è soggetta a interpretazioni e modifiche; pertanto, è fondamentale mantenersi aggiornati sulle eventuali evoluzioni legislative e prassi amministrative.
+Parte 1: Elementi Fondamentali per il Calcolo delle Imposte delle Partite IVA (Normativa 2025)
+1.1. Identificazione del Contribuente: Partita IVA Individuale
+Definizione: Il focus del presente manuale è sulla "persona fisica" che esercita un'attività d'impresa, arte o professione in forma individuale.1 Sono quindi escluse le società di persone, le società di capitali e le associazioni professionali.2
+Apertura della Partita IVA: L'avvio di un'attività autonoma individuale richiede l'apertura di una Partita IVA attraverso la presentazione del Modello AA9/12 all'Agenzia delle Entrate.3 La registrazione iniziale della Partita IVA presso l'Agenzia delle Entrate è gratuita.3
+La scelta del codice ATECO al momento dell'apertura della Partita IVA (mediante il Modello AA9/12) rappresenta una decisione fondamentale con impatti diretti e significativi sia sul calcolo delle imposte (in particolare per la determinazione del coefficiente di redditività nel regime forfettario) sia sugli obblighi previdenziali. Un codice ATECO errato può condurre a un calcolo non corretto di imposte e contributi.4 Il codice ATECO determina il coefficiente di redditività nel regime forfettario 7, che è la base per il calcolo del reddito imponibile. Anche per il regime ordinario, pur non utilizzando direttamente i coefficienti per la determinazione del reddito, il codice ATECO definisce la natura dell'attività, influenzando le deduzioni applicabili e gli Indici Sintetici di Affidabilità (ISA). Gli obblighi previdenziali (iscrizione alla corretta gestione INPS o Cassa professionale) sono anch'essi frequentemente collegati al codice ATECO. Pertanto, la selezione iniziale del codice ATECO nel Modello AA9/12 costituisce un punto di snodo critico per l'intera logica di calcolo fiscale e contributivo. Lo strumento software dovrà porre enfasi sulla corretta selezione del codice ATECO.
+1.2. Dati di Input Chiave per il Calcolo Fiscale
+Ricavi/Compensi Annui: Entrate lorde derivanti dall'esercizio dell'attività (ricavi per le imprese, compensi per i professionisti) percepite durante l'anno fiscale. Questo dato è la base primaria per il calcolo del reddito in entrambi i regimi (User Query).
+Spese Documentate (Regime Ordinario): Costi analiticamente documentati e inerenti all'attività svolta. Fondamentali per il Regime Ordinario, sono invece largamente irrilevanti ai fini del calcolo del reddito nel Regime Forfettario.7
+Categoria Professionale/Codice ATECO: Essenziale per determinare i coefficienti di redditività (Regime Forfettario), la gestione previdenziale applicabile (entrambi i regimi) e gli ISA (Regime Ordinario).7 La nuova classificazione ATECO 2025 è entrata in vigore il 1° gennaio 2025. Tuttavia, per la dichiarazione dei redditi 2025 (riferita all'anno d'imposta 2024), si utilizzeranno la vecchia classificazione ATECO e i relativi coefficienti di redditività per il regime forfettario.9 Per gli ISA relativi al periodo d'imposta 2024 (da dichiarare nel 2025), si applicherà invece la nuova classificazione ATECO 2025.11
+Altri Redditi (per IRPEF complessiva): Eventuali ulteriori fonti di reddito (es. da lavoro dipendente, da locazione) sono rilevanti per il calcolo dell'IRPEF complessiva nel Regime Ordinario e per la verifica dei limiti di accesso/permanenza nel Regime Forfettario.2
+Ritenute Subite (Regime Ordinario): Ritenute d'acconto già versate sui compensi percepiti, da scomputare dall'IRPEF dovuta.40
+Contributi Previdenziali Versati: I contributi previdenziali obbligatori versati nell'anno precedente sono deducibili dal reddito imponibile in entrambi i regimi.7
+Il "principio di cassa" per la rilevazione dei ricavi/compensi (nel regime forfettario e per i professionisti in ordinario) e la deducibilità dei contributi previdenziali versati nell'anno precedente rappresentano fattori di semplificazione comuni per le persone fisiche. Tuttavia, la loro interazione richiede un'attenta tracciabilità dei dati per calcoli accurati anno su anno. I ricavi nel regime forfettario seguono il principio di cassa.15 I contributi previdenziali sono deducibili nell'anno in cui vengono effettivamente pagati.7 Ciò implica che lo strumento software debba tracciare non solo i redditi dell'anno corrente, ma anche la data di effettivo pagamento dei contributi relativi all'anno precedente per calcolare correttamente la base imponibile dell'anno corrente. Questo crea un disallineamento temporale e una dipendenza tra periodi d'imposta che deve essere gestita.
+La transizione alla classificazione ATECO 2025 9 implica una duplice esigenza di tracciamento per lo strumento nella fase iniziale: mappare i vecchi codici ATECO (utilizzati per la dichiarazione dei redditi 2024 nel 2025) ai nuovi codici ATECO 2025 per la coerenza futura e per l'applicazione degli ISA relativi al periodo d'imposta 2024 (dichiarati nel 2025). Le Istruzioni Parte Generale ISA 11 chiariscono che per gli ISA del periodo d'imposta 2024 si useranno i codici ATECO 2025. Per il calcolo del reddito forfettario basato sui coefficienti per il P.I. 2024 (dichiarato nel 2025), 9 suggerisce l'uso dei vecchi coefficienti. Lo strumento dovrà gestire questa dualità, utilizzando i vecchi codici/coefficienti ATECO per il reddito forfettario P.I. 2024 e i nuovi codici ATECO 2025 per gli ISA P.I. 2024. Sarà necessaria una tabella di raccordo.
+1.3. Panoramica dei Contributi Previdenziali per Persone Fisiche
+INPS Gestione Separata: Destinata ai professionisti privi di una Cassa previdenziale di categoria o per coloro che non soddisfano specifici requisiti della Cassa (ad esempio, alcuni ingegneri che svolgono contemporaneamente attività di lavoro dipendente 16). Le aliquote variano a seconda che il soggetto possieda o meno altre coperture pensionistiche o sia titolare di pensione.16
+Aliquote 2025: 26,07% per i soggetti privi di altra copertura previdenziale (comprensiva dello 0,72% per maternità, malattia, ANF, congedo parentale e dello 0,35% per ISCRO); 24% per i pensionati o per i soggetti con altra forma di previdenza obbligatoria.16
+Massimale annuo di reddito imponibile per il 2025: €120.607,00.18
+Casse Professionali: Obbligatorie per specifiche categorie professionali (es. avvocati - Cassa Forense 21; ingegneri e architetti - INARCASSA 12). Ogni Cassa stabilisce autonomamente le regole per i contributi soggettivi, integrativi e di maternità, inclusi minimali e massimali.
+Cassa Forense 2025: Contributo soggettivo 16% sul reddito fino a €130.000,00, più il 3% sulla parte eccedente; contributo integrativo 4%.21 Contributo minimo soggettivo €2.750,00, contributo minimo integrativo €350,00 per il 2025.22
+INARCASSA 2025: Contributo soggettivo 14,5% sul reddito fino a €142.650,00 12; contributo integrativo 4% sul volume d'affari (minimo €815,00); contributo maternità/paternità €72,00.12
+INPS Gestione Artigiani e Commercianti: Per artigiani e commercianti. Prevede il versamento di contributi fissi (minimali) e contributi percentuali sul reddito eccedente il minimale.7
+Reddito minimale 2025: €18.555,00.7
+Contributi fissi 2025: Artigiani €4.460,64; Commercianti €4.549,70.7
+Contributi percentuali sul reddito eccedente il minimale (fino a €55.448,00 per il 2025): Artigiani 24%; Commercianti 24,48%. Oltre €55.448,00: Artigiani 25%; Commercianti 25,48%.25
+Massimali di reddito 2025: €92.413,00 (per iscritti ante 1996) o €120.607,00 (per iscritti post 1996).25
+La complessità dei contributi previdenziali, con differenti schemi (Gestione Separata, Casse Professionali, Gestione Artigiani/Commercianti), aliquote variabili, minimali, massimali e riduzioni specifiche (es. per regime forfettario, nuovi iscritti), rappresenta una sfida significativa per lo strumento software. Esso deve identificare accuratamente lo schema corretto e applicare i relativi parametri. La vasta gamma di gestioni previdenziali 7 ognuna con regole di calcolo uniche, aliquote che possono variare annualmente (sebbene molte siano confermate per il 2025), pagamenti minimi indipendenti dal reddito e massimali imponibili, richiede un robusto albero decisionale basato su codice ATECO, iscrizione ad albi professionali e potenzialmente altri fattori (come un impiego concomitante 16) per guidare l'utente al corretto modulo di calcolo dei contributi.
+L'opzione per una "rivalsa" del 4% per i professionisti iscritti alla Gestione Separata INPS 7 e il contributo integrativo del 4% per le Casse Professionali 12 sono concetti distinti che lo strumento deve gestire differentemente nella fatturazione e nel calcolo della base imponibile. La rivalsa INPS è un importo facoltativo che, se addebitato, concorre a formare i compensi del professionista. Al contrario, il contributo integrativo per le Casse Professionali è un addebito obbligatorio sul volume d'affari, riscosso per conto della Cassa, e tipicamente non costituisce reddito imponibile ai fini IRPEF/Imposta Sostitutiva per il professionista, ma rientra nella base imponibile IVA. La logica di fatturazione e di calcolo del reddito dello strumento deve distinguere queste due voci.
+Parte 2: Regime Forfettario - Normativa 2025
+2.1. Introduzione e Quadro Normativo
+Base Giuridica: Legge 23 dicembre 2014, n. 190, commi 54-89, e successive modificazioni ed integrazioni.30
+Natura del Regime: Regime fiscale agevolato e opzionale, destinato a persone fisiche esercenti attività d'impresa, arti o professioni che rispettino specifici requisiti.32 È considerato il regime "naturale" per i soggetti che ne possiedono i requisiti.41
+Principali Vantaggi: Contabilità semplificata, tassazione forfettaria tramite imposta sostitutiva, esenzione da IVA e IRAP.7
+2.2. Requisiti e Limiti di Accesso (Ricavi €85.000, altri requisiti)
+Persona Fisica: Il regime è riservato alle persone fisiche che esercitano attività d'impresa, arti o professioni.1
+Limite Ricavi/Compensi: Non aver superato nell'anno precedente ricavi o compensi per un ammontare di €85.000.1 Tale limite è stato confermato dalla Legge di Bilancio 2023 e per il 2025.1
+In caso di esercizio contemporaneo di più attività con differenti codici ATECO, si considera la somma dei ricavi e dei compensi relativi alle diverse attività.1
+Per le nuove attività, il limite deve essere ragguagliato all'anno in base ai giorni di effettiva attività.1
+Spese per Personale Dipendente/Lavoro Accessorio: Non aver sostenuto spese per un importo complessivo superiore a €20.000 lordi annui per lavoro accessorio, lavoro dipendente e compensi a collaboratori.1 Questo limite include anche gli utili da partecipazione erogati agli associati in partecipazione con apporto di solo lavoro.1
+Redditi da Lavoro Dipendente/Pensione: Non aver percepito, nell'anno precedente, redditi di lavoro dipendente o assimilati (inclusi redditi da pensione) per un importo superiore a €35.000.1 Questo limite è stato elevato da €30.000 a €35.000 per il 2025.1 La verifica di tale soglia è irrilevante se il rapporto di lavoro è cessato nell'anno precedente.1
+Beni Strumentali: Non è previsto alcun limite massimo per il costo complessivo dei beni strumentali dal 2019.1 Il riferimento in 36 a beni strumentali il cui costo unitario non supera €516,45 che non influenzano il limite di €20.000 sembra riferirsi al limite di spesa per il personale, non a un limite autonomo sui beni strumentali.
+Prosecuzione Attività Svolta da Altro Soggetto: Nel caso si prosegua un'attività precedentemente svolta da un altro soggetto, è necessario che l'ammontare dei relativi ricavi e compensi, realizzati nel periodo d'imposta precedente, non sia superiore al limite di €85.000.7
+2.3. Cause di Esclusione
+Superamento Limiti Ricavi/Compensi:
+Ricavi/Compensi superiori a €85.000 ma non a €100.000: si fuoriesce dal regime forfettario a partire dall'anno successivo.1
+Ricavi/Compensi superiori a €100.000: si fuoriesce immediatamente dal regime forfettario nell'anno in corso. L'IVA deve essere applicata a partire dalle operazioni che comportano il superamento di tale limite.1 Questa è la cosiddetta "tagliola anti-evasione".2
+Utilizzo di Regimi Speciali IVA o Regimi Forfettari di Determinazione del Reddito: Non è possibile avvalersi del regime forfettario se si utilizzano regimi speciali ai fini IVA (es. agricoltura, editoria, agenzie di viaggio) o altri regimi forfettari di determinazione del reddito.1
+Soggetti Non Residenti: Sono esclusi i soggetti non residenti in Italia, ad eccezione di coloro che risiedono in uno Stato membro dell'Unione Europea o in uno Stato aderente all'Accordo sullo Spazio Economico Europeo che assicuri un adeguato scambio di informazioni E producono nel territorio italiano redditi che costituiscono almeno il 75% del reddito complessivamente prodotto.1
+Cessione Prevalente di Fabbricati, Terreni Edificabili o Mezzi di Trasporto Nuovi: Sono esclusi i soggetti che effettuano, in via esclusiva o prevalente, cessioni di fabbricati o porzioni di fabbricato, di terreni edificabili o di mezzi di trasporto nuovi.1
+Partecipazioni Societarie:
+Contemporanea partecipazione a società di persone, associazioni professionali (art. 5 del TUIR) o imprese familiari.1
+Controllo diretto o indiretto di società a responsabilità limitata (SRL) o associazioni in partecipazione che esercitano attività economiche direttamente o indirettamente riconducibili a quelle svolte individualmente.1
+Attività Esercitata Prevalentemente nei Confronti di Ex Datori di Lavoro: Persone fisiche la cui attività sia esercitata prevalentemente nei confronti di datori di lavoro con i quali sono in corso rapporti di lavoro o erano intercorsi rapporti di lavoro nei due precedenti periodi d'imposta, ovvero nei confronti di soggetti direttamente o indirettamente riconducibili a tali datori di lavoro.1 È prevista un'eccezione per i "contratti misti" a partire dal 2025, a determinate condizioni.32
+Redditi da Lavoro Dipendente/Pensione Superiori a €35.000: Come dettagliato al punto 2.2.1
+La soglia di €100.000 per la fuoriuscita immediata introduce un rischio operativo significativo. Lo strumento software deve implementare un meccanismo di monitoraggio in tempo reale (o quasi) dei ricavi per allertare gli utenti che si avvicinano a tale limite, poiché le conseguenze (applicazione immediata dell'IVA, potenziale necessità di rettifica dell'IVA dell'anno precedente 32) sono severe. Mentre il superamento del limite di €85.000 comporta la fuoriuscita dal regime nell'anno successivo, permettendo una transizione pianificata, il superamento dei €100.000 1 impone un passaggio immediato al regime ordinario durante l'anno. Ciò significa che il contribuente deve iniziare ad applicare l'IVA sulle fatture successive, eventualmente iscriversi al VIES per operazioni intracomunitarie e gestire la detraibilità IVA pro-rata per il resto dell'anno. 50 menziona la necessità di istituire i registri IVA. 32 e 118 indicano una potenziale rettifica dell'IVA. Il valore aggiunto dello strumento è elevato se può prevedere e avvisare riguardo a questa soglia.
+Le regole sulla partecipazione in SRL (controllo diretto/indiretto E attività economicamente riconducibile) sono complesse e richiedono un'attenta valutazione da parte dell'utente. Lo strumento dovrebbe evidenziare questo aspetto come un punto critico di autovalutazione, possibilmente con link a guide dettagliate o un questionario, poiché non si tratta di una semplice verifica numerica. L'esclusione 1 non riguarda la mera detenzione di quote in una qualsiasi SRL, ma il controllo (diretto o indiretto) E il fatto che l'attività della SRL sia economicamente riconducibile a quella svolta dall'individuo in regime forfettario. I concetti di "controllo" e "economicamente riconducibile" sono di natura giuridico-economica e richiedono un'interpretazione che va oltre il semplice inserimento di dati. Lo strumento non può determinare ciò in modo definitivo, ma deve segnalarlo con forza per la verifica da parte dell'utente.
+2.4. Tassazione: Imposta Sostitutiva
+2.4.1. Aliquota Standard (15%) e Aliquota Startup (5%)
+Aliquota standard: 15%.1
+Aliquota startup: 5% per i primi 5 anni di attività, a condizione che siano soddisfatti specifici requisiti.1
+Condizioni per l'aliquota al 5%:
+Il contribuente non deve aver esercitato, nei tre anni precedenti l'inizio dell'attività, attività artistica, professionale ovvero d'impresa, anche in forma associata o familiare.7
+L'attività da esercitare non deve costituire mera prosecuzione di altra attività precedentemente svolta sotto forma di lavoro dipendente o autonomo (escluso il caso in cui l'attività precedentemente svolta consista nel periodo di pratica obbligatoria ai fini dell'esercizio di arti o professioni).7
+Qualora venga proseguita un'attività d'impresa precedentemente svolta da altro soggetto, l'ammontare dei relativi ricavi e compensi realizzati nel periodo d'imposta precedente quello di riconoscimento del beneficio non deve essere superiore a €85.000.7
+2.4.2. Calcolo del Reddito Imponibile: Ricavi e Coefficienti di Redditività
+I ricavi/compensi sono determinati secondo il principio di cassa.15
+Reddito imponibile = (Somma dei Ricavi/Compensi Incassati) * (Coefficiente di Redditività ATECO) - Contributi Previdenziali Obbligatori Versati nell'anno.7
+Tabella 2.4.2.1: Codici ATECO e Corrispondenti Coefficienti di Redditività (2025 - basati sulla classificazione pre-ATECO 2025 per l'anno d'imposta 2024)
+Valore: Questa tabella è fondamentale per i calcoli del Regime Forfettario. Traduce direttamente il codice ATECO in un parametro chiave per la determinazione del reddito imponibile. Senza di essa, il calcolo delle imposte è impossibile.
+Contenuto: Due colonne: "Codice ATECO (2007 per anno d'imposta 2024)" e "Coefficiente di Redditività (%)". Raggruppati per settore come da fonti.7
+
+Gruppo di Settori ATECO 2007
+Codici ATECO Rappresentativi
+Coefficiente di Redditività (%)
+Fonti principali
+Industrie alimentari e delle bevande
+(10), (11)
+40%
+8
+Commercio all'ingrosso e al dettaglio
+45, (da 46.2 a 46.9), (da 47.1 a 47.7), 47.9
+40%
+8
+Commercio ambulante di prodotti alimentari e bevande
+47.81
+40%
+8
+Commercio ambulante di altri prodotti
+47.82, 47.89
+54%
+8
+Costruzioni e attività immobiliari
+(41), (42), (43), (68)
+86%
+8
+Intermediari del commercio
+46.1
+62%
+8
+Attività dei servizi di alloggio e di ristorazione
+(55), (56)
+40%
+8
+Attività professionali, scientifiche, tecniche, sanitarie, di istruzione, servizi finanziari ed assicurativi
+(64-66), (69-75), (85-88)
+78%
+7
+Altre attività economiche
+Vari 8
+67%
+8
+
+
+
+
+*   **2.4.3. Formula Matematica per l'Imposta Sostitutiva**
+    *   <span class="math-inline">Reddito\\ Imponibile\\ Lordo\\ \(RIL\) \= Ricavi/Compensi \\times Coefficiente\\ di\\ Redditività</span>
+    *   <span class="math-inline">Reddito\\ Imponibile\\ Netto\\ \(RIN\) \= RIL \- Contributi\\ Previdenziali\\ Obbligatori\\ Pagati</span>
+    *   <span class="math-inline">Imposta\\ Sostitutiva \= RIN \\times Aliquota\\ \(15\\%\\ o\\ 5\\%\)</span>
+    *   Esempio basato su [42] (corretto): Ricavi €55.000 (ristorazione, coeff. 40%). <span class="math-inline">RIL \= 55\.000 \\times 0,40 \= €22\.000</span>. Contributi pagati €5.800. <span class="math-inline">RIN \= 22\.000 \- 5\.800 \= €16\.200</span>. <span class="math-inline">Imposta\\ Sostitutiva \= 16\.200 \\times 0,15 \= €2\.430</span>.
+    *   Esempio da [7]: Professionista (coeff. 78%), Ricavi €40.000. <span class="math-inline">RIL \= 40\.000 \\times 0,78 \= €31\.200</span>. (Ipotizzando assenza di contributi versati per semplicità in questo esempio). <span class="math-inline">Imposta \= €31\.200 \\times Aliquota \(5\\%\\ o\\ 15\\%\)</span>.
+    *   La deducibilità dei contributi previdenziali *versati nell'anno* implica che lo strumento debba tracciare accuratamente tali pagamenti, indipendentemente dall'anno a cui si riferiscono, per il calcolo dell'imposta sostitutiva dell'anno corrente. Questa è una differenza fondamentale rispetto al principio di competenza spesso utilizzato nelle imposte societarie.[7, 13, 32, 36, 40, 41, 42] La formula sottrae esplicitamente i "Contributi Previdenziali Obbligatori Versati nell'anno", il che implica un criterio di cassa per questa deduzione. Lo strumento deve sommare tutti i contributi previdenziali obbligatori effettivamente pagati dal contribuente durante l'anno fiscale per il quale si calcola l'imposta sostitutiva.
+
+
+2.5. Contributi Previdenziali
+2.5.1. Gestione Separata INPS
+Per i professionisti senza una Cassa dedicata o che non soddisfano i requisiti della Cassa.
+I contribuenti forfettari sono generalmente soggetti alle stesse aliquote dei professionisti in regime ordinario per la Gestione Separata 16, ma la base imponibile è il reddito determinato con il metodo forfettario (Ricavi * Coefficiente di Redditività).
+Le "aliquote ridotte" menzionate nella richiesta utente per il Regime Forfettario si riferiscono principalmente alla riduzione del 35% per Artigiani/Commercianti 7 o alla nuova riduzione del 50% per i neo-iscritti A/C nel 2025.24
+Per la Gestione Separata, non esiste un'"aliquota ridotta" specifica perché si è in Regime Forfettario, ma il metodo di calcolo del reddito imponibile (metodo forfettario) è diverso.
+Calcolo: (Ricavi×Coefficiente di Redditivitaˋ)×Aliquota Gestione Separata (es. 26,07% se senza altra copertura 16). Per questo specifico calcolo dei contributi dell'anno corrente, non si deducono i contributi dell'anno precedente.
+2.5.2. Casse Professionali
+I contributi sono dovuti secondo i regolamenti della specifica Cassa. Alcune Casse potrebbero offrire riduzioni per i forfettari o per i nuovi iscritti, ma ciò dipende dalla Cassa e non è una regola generale del Regime Forfettario. La richiesta utente menziona "aliquote ridotte", il che necessita un'attenta interpretazione. La principale riduzione riscontrata riguarda l'INPS Artigiani/Commercianti.
+Cassa Forense: Nessuna riduzione specifica menzionata per i forfettari in 21 oltre alle disposizioni generali per nuovi iscritti/bassi redditi. La base di calcolo sarebbe il reddito forfettario.
+INARCASSA: Nessuna riduzione specifica menzionata per i forfettari in.12 La base di calcolo è il reddito forfettario.
+2.5.3. INPS Artigiani e Commercianti (IVS)
+Opzione per una riduzione del 35% sia sui contributi fissi (minimali) sia su quelli variabili (percentuali).7 Questo rappresenta un vantaggio significativo.32
+La riduzione deve essere richiesta telematicamente all'INPS.58 La scadenza per la richiesta è il 28 febbraio 2025.14
+Novità 2025: Riduzione del 50% per i nuovi iscritti alla Gestione Artigiani o Commercianti per i primi 36 mesi, in alternativa alla riduzione del 35% per i forfettari.24
+Calcolo con riduzione del 35%:
+Contributi fissi: (€4.460,64 Artigiani o €4.549,70 Commercianti) ×0,65..77
+Contributi percentuali (sul reddito > €18.555): (Reddito Imponibile Forfettario−€18.555)×(Aliquota IVS×0,65).
+La scelta tra la riduzione del 35% del regime forfettario e la nuova riduzione del 50% per i neo-iscritti Artigiani/Commercianti necessita un'attenta valutazione. Sebbene il 50% sia uno sconto maggiore, la riduzione del 35% potrebbe essere preferibile se lo status di neo-iscritto comporta limitazioni specifiche o se la riduzione del 35% può essere mantenuta più a lungo in determinate condizioni. Lo strumento dovrebbe presentare entrambe le opzioni se l'utente si qualifica per entrambe, possibilmente con un confronto sull'impatto sull'accumulo pensionistico (poiché i contributi ridotti potrebbero influire su di esso 58). 58 e 59 affermano chiaramente che la riduzione del 50% per i nuovi iscritti A/C nel 2025 è alternativa alla riduzione del 35% del forfettario. La riduzione del 50% dura 36 mesi.58 La riduzione del 35% dura fintanto che si è forfettari e artigiani/commercianti. Per un nuovo artigiano/commerciante forfettario nel 2025, il 50% è migliore per i primi 3 anni. Lo strumento deve verificare l'idoneità per entrambe e consentire la selezione, evidenziando l'impatto sulla pensione menzionato in.58
+2.6. Esenzione IVA e IRAP: Implicazioni
+IVA: I contribuenti forfettari non addebitano l'IVA sulle proprie fatture e non detraggono l'IVA sugli acquisti.7
+Le fatture devono riportare la dicitura: "Operazione effettuata ai sensi dell'articolo 1, commi da 54 a 89, della Legge n. 190/2014 – Regime Forfettario" o dicitura analoga.35
+È dovuta l'imposta di bollo da €2 sulle fatture di importo superiore a €77,47.7
+IRAP: I contribuenti forfettari sono esonerati dall'IRAP.7
+L'esenzione IVA comporta che i costi dei beni e servizi acquistati da un forfettario includano effettivamente l'IVA non detraibile, rendendo tali costi più elevati rispetto a un contribuente in regime ordinario che può detrarre l'IVA. Questo è un fattore chiave nei calcoli di convenienza tra i regimi. Se un forfettario acquista un computer per €1000 + 22% IVA (€220), il suo costo effettivo è €1220. Un contribuente in regime ordinario che acquista lo stesso computer per uso aziendale avrebbe un costo effettivo di €1000 (poiché i €220 di IVA sono detraibili). Questo aumento "nascosto" dei costi nel regime forfettario deve essere considerato in qualsiasi confronto di convenienza.
+2.7. Ritenute d'Acconto: Non Applicazione e Gestione delle Certificazioni
+I contribuenti forfettari non applicano la ritenuta d'acconto sui ricavi/compensi percepiti.7
+Devono indicare nelle loro fatture di non essere soggetti a ritenuta d'acconto, citando la norma (es. "Si richiede la non applicazione della ritenuta d'acconto come previsto dall'art. 1, comma 67, Legge n. 190/2014" 35).
+I forfettari non sono tenuti ad operare come sostituti d'imposta per i pagamenti che effettuano (es. ad altri professionisti), ma devono indicare il codice fiscale dei percipienti nella loro dichiarazione dei redditi (Modello Redditi, quadro RS).35
+Certificazione Unica (CU): A partire dal 2025 (per l'anno d'imposta 2024), la CU è abolita per i compensi erogati ai forfettari.39 I forfettari non riceveranno più le CU dai loro committenti. I dati saranno presi dalle fatture elettroniche per la predisposizione delle dichiarazioni dei redditi precompilate.62
+L'abolizione della CU per i forfettari 39 semplifica l'amministrazione sia per il forfettario sia per i suoi clienti (che sono sostituti d'imposta). Tuttavia, aumenta la dipendenza dall'accuratezza e completezza dei dati della fatturazione elettronica affinché l'Agenzia delle Entrate possa precompilare le dichiarazioni dei redditi. Lo strumento dovrebbe enfatizzare la corretta emissione delle fatture elettroniche per i forfettari. In precedenza, la CU fungeva da controllo incrociato per i redditi percepiti dal forfettario. Con la sua rimozione, la fattura elettronica, obbligatoria per tutti i forfettari dal 1° gennaio 2024 42, diventa la principale fonte di dati per le autorità fiscali. Eventuali errori od omissioni nella fatturazione elettronica da parte del forfettario potrebbero portare a discrepanze nella sua dichiarazione dei redditi precompilata.
+2.8. Calcoli Specifici:
+2.8.1. Acconto Imposta Sostitutiva (Metodo Storico e Previsionale)
+L'acconto è pari al 100% dell'imposta dell'anno precedente (se superiore a €51,65).63
+Si versa in una o due rate:
+Unica soluzione entro il 30 novembre se l'imposta dell'anno precedente è compresa tra €51,65 e €258,23.63
+Due rate se l'imposta dell'anno precedente è superiore a €258,23:
+1° acconto (50% del 100% = 50%) entro il 30 giugno..6314
+2° acconto (restante 50%) entro il 30 novembre.63
+Metodo Storico: Acconto basato sul 100% dell'imposta sostitutiva dell'anno precedente.63
+Formula: Acconto Totale=Imposta Sostitutiva Anno Precedente.
+1a Rata Acconto=Acconto Totale×50%
+2a Rata Acconto=Acconto Totale×50%
+Metodo Previsionale: Acconto basato sull'imposta sostitutiva stimata per l'anno in corso. Se la stima è inferiore a quanto dovuto con il metodo storico e l'imposta finale è superiore all'importo versato in via previsionale, possono essere applicate sanzioni.63
+Formula: Acconto Totale=(Ricavi Presunti×Coeff. Redditivitaˋ−Contributi Presunti)×Aliquota (15% o 5%)
+Le rate si calcolano come sopra su questo Acconto Totale.
+2.8.2. Contributi Previdenziali Minimi e Massimali (ove applicabili)
+Gestione Separata INPS: Nessun contributo minimo per i professionisti, ma è necessario un reddito minimo di €18.555,00 per l'accredito dell'intero anno contributivo ai fini pensionistici.20 Massimale €120.607,00.18
+INPS Artigiani e Commercianti: Si applicano i contributi minimi fissi (€4.460,64 Artigiani, €4.549,70 Commercianti per il 2025 7), anche con la riduzione del 35% o 50%. Si applica il massimale (€92.413,00 o €120.607,00 25).
+Casse Professionali: Ogni Cassa ha i propri minimali e massimali (es. Cassa Forense minimo soggettivo €2.750,00 per il 2025 22; INARCASSA minimo soggettivo €2.695/€2.750, massimale €142.650 12).
+2.9. Obblighi e Adempimenti (Conservazione Documenti, Fatturazione con diciture specifiche)
+Fatturazione Elettronica: Obbligatoria per tutti i forfettari dal 1° gennaio 2024.32
+Fattura Semplificata: Dal 1° gennaio 2025, i forfettari possono emettere fattura elettronica semplificata anche per operazioni di importo superiore a €400.32
+Numerazione e conservazione delle fatture di acquisto e delle bollette doganali.32
+Certificazione dei corrispettivi.32
+Nessun obbligo di tenuta dei registri IVA.42
+Dichiarazione dei redditi (Modello Redditi PF, Quadro LM 42).
+Esclusione dagli ISA (Indici Sintetici di Affidabilità Fiscale).7
+Esclusione dall'Esterometro (dettagli non specificati, ma la semplificazione generale lo implica).
+Rimborsi spese: Dal 2025, alcuni rimborsi spese sono esclusi dal calcolo del reddito.32 È necessaria una definizione precisa di quali tipologie di rimborsi siano interessate.
+2.10. Checklist per la Permanenza nel Regime Forfettario
+Controllo annuale dei ricavi/compensi (limite €85.000).1
+Controllo annuale delle spese per personale/collaboratori (limite €20.000).1
+Controllo annuale del reddito da lavoro dipendente/pensione dell'anno precedente (limite €35.000).1
+Verifica dell'assenza di partecipazioni in società di persone/associazioni professionali.1
+Verifica dell'assenza di controllo di SRL con "attività similare".1
+Verifica dell'assenza di attività prevalente nei confronti di ex datori di lavoro.1
+Verifica della non applicabilità di regimi speciali IVA.1
+Verifica dei requisiti di residenza.1
+2.11. Sistema di Allerta per Superamento Limiti (Concettuale)
+Lo strumento software dovrebbe tracciare i ricavi/compensi cumulati in tempo reale o quasi.
+Dovrebbero essere attivati degli alert all'avvicinarsi delle soglie:
+Soglia di €85.000 (avviso per il regime dell'anno successivo).
+Soglia di €100.000 (alert critico per fuoriuscita immediata).
+Tracciare le spese cumulate per il personale verso il limite di €20.000.
+Prevedere campi di input per il reddito da lavoro dipendente dell'anno precedente per verificare il limite di €35.000 all'inizio dell'anno.
+Software come Fatture in Cloud offrono questa funzionalità.1
+Parte 3: Regime Ordinario - Normativa 2025
+3.1. Introduzione e Quadro Normativo (TUIR)
+Disciplinato principalmente dal D.P.R. 22 dicembre 1986, n. 917 (Testo Unico delle Imposte sui Redditi - TUIR) e successive modificazioni.27
+È il regime fiscale di default per i titolari di Partita IVA che non optano o non possiedono i requisiti per il Regime Forfettario. Comporta una gestione contabile e fiscale più complessa.3
+3.2. IRPEF (Imposta sul Reddito delle Persone Fisiche)
+3.2.1. Calcolo del Reddito Imponibile (Ricavi - Spese Documentate, Altri Redditi)
+Reddito da Lavoro Autonomo (Artt. 53-54 TUIR 6): Determinato come differenza tra i compensi percepiti (principio di cassa per i professionisti) e le spese specificamente inerenti all'attività, sostenute e pagate nel periodo d'imposta.72
+Reddito d'Impresa (per imprenditori individuali, Art. 55 e ss. TUIR 90): Determinato secondo il principio di competenza, con regole specifiche per le varie componenti di reddito.51 Per le "imprese minori" (in contabilità semplificata ai sensi dell'art. 66 TUIR 74), potrebbe applicarsi un criterio di cassa. La richiesta utente si concentra su "Partite IVA individuali", che possono essere sia professionisti sia imprenditori individuali. Lo strumento dovrà distinguere queste due figure.
+Altri Redditi: Eventuali altri redditi (es. da locazione, di capitale) si sommano per determinare il Reddito Complessivo.54
+3.2.2. Scaglioni e Aliquote IRPEF (2025)
+Il sistema a 3 scaglioni introdotto nel 2024 è confermato per il 2025.27
+Tabella 3.2.2.1: Scaglioni e Aliquote IRPEF 2025
+Valore: Essenziale per il calcolo dell'IRPEF lorda. Componente fondamentale del sistema fiscale.
+Contenuto: Tre colonne: "Scaglione di Reddito (€)", "Aliquota (%)", "Imposta Dovuta sullo Scaglione (€)".
+
+Scaglione di Reddito (€)
+Aliquota (%)
+Imposta Lorda Dovuta
+Fonti
+Fino a 28.000
+23%
+23% del reddito
+45
+Oltre 28.000 e fino a 50.000
+35%
+€6.440 + 35% sulla parte eccedente €28.000
+45
+Oltre 50.000
+43%
+€14.140 + 43% sulla parte eccedente €50.000
+45
+
+
+
+
+*   **3.2.3. Detrazioni per Lavoro Autonomo**
+    *   L'art. 13 del TUIR prevede detrazioni in base alla tipologia di reddito. Per i redditi da lavoro autonomo (e alcuni redditi d'impresa minori), si applica una detrazione specifica se il reddito complessivo non supera determinate soglie.
+    *   [69] menziona una detrazione di €1.265 per redditi da lavoro autonomo fino a €5.500 (riferendosi all'art. 13 TUIR). Questa informazione deve essere verificata con la versione più aggiornata del TUIR per il 2025, poiché altre fonti [68, 70, 91] si concentrano prevalentemente sulle detrazioni per lavoro *dipendente*. La richiesta utente specifica "detrazioni lavoro autonomo". La Circolare n. 4/E del 16.05.2025 [68, 91] dettaglia principalmente le detrazioni per lavoro dipendente. Lo strumento deve applicare correttamente le specifiche detrazioni per lavoro autonomo.
+    *   Le detrazioni per lavoro autonomo sono tipicamente meno generose di quelle per lavoro dipendente. Lo strumento deve distinguere chiaramente queste categorie e non applicare erroneamente le detrazioni per lavoro dipendente ai lavoratori autonomi. La maggior parte delle informazioni dettagliate sulle detrazioni nelle fonti [54, 68, 70, 87, 91, 93, 94] si riferisce al "lavoro dipendente". [69] è l'unica fonte che menziona specificamente una "detrazione lavoro autonomo" di €1.265 per redditi fino a €5.500. Questa è una distinzione cruciale. Il TUIR (Art. 13) deve essere la fonte definitiva per le cifre esatte del 2025 e per il metodo di calcolo delle detrazioni per redditi da lavoro autonomo.
+*   **3.2.4. Oneri Deducibili Specifici**
+    *   Si tratta di spese che possono essere dedotte dal reddito complessivo prima del calcolo dell'IRPEF lorda.
+    *   Esempi chiave per professionisti/imprenditori:
+        *   Contributi previdenziali obbligatori (INPS, Casse Professionali) versati durante l'anno.[54, 71, 72]
+        *   Alcune erogazioni liberali a specifici enti.
+        *   Spese mediche (parzialmente, oltre una franchigia), interessi passivi su mutui per l'abitazione principale (questi si applicano all'IRPEF complessiva dell'individuo, non solo al reddito d'impresa/lavoro autonomo).
+    *   Per le spese inerenti all'attività, deducibili dal reddito d'impresa/lavoro autonomo (riducendo la base imponibile di quella specifica categoria di reddito), si fa riferimento all'Art. 54 TUIR per i professionisti [6, 40, 72, 80] e all'Art. 66 TUIR o alle regole della contabilità ordinaria per gli imprenditori.
+        *   Esempi da [40, 72, 80, 96]:
+            *   Spese per alberghi e ristoranti: deducibili al 75%, con un limite del 2% dei compensi per i professionisti.[40, 72, 96]
+            *   Costi auto (ammortamento acquisto, leasing, carburante, manutenzione): deducibili al 20% (80% per agenti e rappresentanti), IVA detraibile al 40% (100% per agenti e rappresentanti).[40, 72, 96]
+            *   Spese telefoniche: deducibili all'80%.[72, 96]
+            *   Spese per convegni/corsi di aggiornamento (professionisti): deducibili al 100% fino a €10.000/anno.[40, 72, 96]
+            *   Immobili ad uso promiscuo (studio in abitazione): deducibile il 50% della rendita catastale o del canone di locazione/leasing e delle spese relative.[40, 72, 80, 96]
+            *   Spese di rappresentanza: deducibili nel limite dell'1% dei compensi per i professionisti.[40, 72, 80, 96]
+    *   La distinzione tra "oneri deducibili dal reddito complessivo" (dedotti dal reddito totale, es. contributi INPS) e "costi deducibili dal reddito di categoria" (dedotti dalla specifica tipologia di reddito, es. affitto ufficio dal reddito professionale) è critica per il flusso di calcolo. Lo strumento deve gestire correttamente questa sequenza. In primo luogo, si calcolano i redditi delle specifiche categorie (es. reddito professionale = compensi - costi professionali specifici [40, 72, 80, 96]). Successivamente, si sommano tutti i redditi di categoria per ottenere il "reddito complessivo". Da questo, si deducono gli "oneri deducibili dal reddito complessivo" (come i contributi INPS [54, 71]) per arrivare al "reddito imponibile IRPEF". Infine, si applicano le aliquote IRPEF e si sottraggono le "detrazioni d'imposta".
+*   **3.2.5. Formula Matematica per IRPEF Lorda e Netta**
+    *   <span class="math-inline">Reddito\\ Categoria\\ \(Lavoro\\ Autonomo/Impresa\) \= Ricavi/Compensi – Costi\\ Deducibili\\ di\\ Categoria</span>
+    *   <span class="math-inline">Reddito\\ Complessivo \= \\sum Redditi\\ Categoria \+ Altri\\ Redditi</span>
+    *   <span class="math-inline">Reddito\\ Imponibile\\ IRPEF \= Reddito\\ Complessivo – Oneri\\ Deducibili\\ dal\\ Reddito\\ Complessivo</span>
+    *   <span class="math-inline">Imposta\\ Lorda\\ IRPEF \= \\text\{Calcolata usando Scaglioni su Reddito Imponibile IRPEF \(vedi Tabella 3\.2\.2\.1\)\}</span>
+    *   <span class="math-inline">Imposta\\ Netta\\ IRPEF \= Imposta\\ Lorda\\ IRPEF – Detrazioni\\ d’Imposta\\ \(per\\ tipo\\ di\\ reddito,\\ per\\ carichi\\ di\\ famiglia,\\ per\\ altre\\ spese\\ \[54, 68, 69, 71, 87, 93, 95, 97, 98\]\)</span>
+    *   Esempio da [54] (per €35.000 di reddito, ipotizzato già al netto degli oneri deducibili):
+        *   <span class="math-inline">€28\.000 \\times 0,23 \= €6\.440</span>
+        *   <span class="math-inline">\(€35\.000 \- €28\.000\) \\times 0,35 \= €7\.000 \\times 0,35 \= €2\.450</span>
+        *   <span class="math-inline">Imposta\\ Lorda \= €6\.440 \+ €2\.450 \= €8\.890</span>. Successivamente si sottraggono le detrazioni.
+    *   Esempio da [87] (per €41.000 di reddito imponibile):
+        *   <span class="math-inline">€28\.000 \\times 0,23 \= €6\.440</span>
+        *   <span class="math-inline">\(€41\.000 \- €28\.000\) \\times 0,35 \= €13\.000 \\times 0,35 \= €4\.550</span>
+        *   <span class="math-inline">Imposta\\ Lorda \= €6\.440 \+ €4\.550 \= €10\.990</span>. Successivamente si sottraggono le detrazioni.
+
+
+3.3. IVA (Imposta sul Valore Aggiunto)
+3.3.1. Applicazione e Principi Generali (D.P.R. 633/1972)
+L'IVA si applica sulle cessioni di beni e prestazioni di servizi.6 L'aliquota ordinaria è del 22%, con aliquote ridotte per specifici beni e servizi.40
+3.3.2. Liquidazioni Periodiche (Mensili/Trimestrali)
+Mensili: Versamento entro il giorno 16 del mese successivo a quello di riferimento.24
+Trimestrali: Versamento entro il giorno 16 del secondo mese successivo al trimestre (es. I trim. entro il 16 maggio), con applicazione di una maggiorazione dell'1% a titolo di interessi.24
+Calcolo: IVA a Debito (sulle vendite) - IVA a Credito (sugli acquisti).51
+LIPE (Comunicazione Liquidazioni Periodiche IVA): Da presentare trimestralmente per comunicare i dati delle liquidazioni.24
+3.3.3. Registri IVA Obbligatori (D.P.R. 633/1972, Artt. 23, 24, 25)
+Registro delle Fatture Emesse (Art. 23): Per annotare tutte le fatture emesse.38
+Registro dei Corrispettivi (Art. 24): Obbligatorio per i commercianti al minuto e soggetti assimilati, meno rilevante per i professionisti individuali a meno di specifiche attività.38
+Registro degli Acquisti (Art. 25): Per annotare tutte le fatture di acquisto e le bollette doganali.38
+Questi registri sono fondamentali per la corretta gestione e liquidazione dell'IVA.99
+3.3.4. Detrazioni IVA Ammesse e Limiti
+L'IVA assolta sugli acquisti di beni e servizi inerenti all'esercizio dell'impresa, arte o professione è generalmente detraibile (Art. 19 D.P.R. 633/72).64
+Il diritto alla detrazione sorge nel momento in cui l'imposta diviene esigibile e il contribuente è in possesso di una regolare fattura d'acquisto, che deve essere annotata nel registro degli acquisti.64
+Termine per la detrazione: al più tardi con la dichiarazione IVA relativa all'anno in cui il diritto alla detrazione è sorto e la fattura è stata ricevuta (entro termini specifici per fatture a cavallo d'anno).106 Per le fatture datate 2024 e ricevute nel 2024, l'IVA è detratta nelle liquidazioni 2024 o nella dichiarazione annuale IVA 2025 (relativa al 2024). Per le fatture 2024 ricevute nel 2025 (entro il termine di presentazione della dichiarazione IVA relativa al 2024), l'IVA può essere detratta nel 2025.64
+Limitazioni specifiche alla detrazione IVA:
+Autoveicoli: IVA detraibile al 40% (salvo casi specifici di uso esclusivo strumentale).40 La detrazione del 40% è stata prorogata fino al 2025.107
+Telefoni: IVA detraibile al 50% per la telefonia mobile, 100% per la fissa se ad uso esclusivo aziendale.72
+Spese alberghiere e di ristorazione: IVA generalmente detraibile al 100% se inerenti, ma la deducibilità del costo ai fini IRPEF è spesso limitata.72
+Spese di rappresentanza: IVA generalmente indetraibile oggettivamente.72
+Beni e servizi ad uso promiscuo: detrazione pro-rata in base all'utilizzo effettivo per l'attività.
+La tempistica della detrazione IVA, specialmente per le fatture di fine anno 64, richiede un'attenta tracciabilità delle date di ricezione delle fatture (tramite Sistema di Interscambio - SdI) e della loro registrazione. Lo strumento deve gestire queste informazioni per ottimizzare i crediti IVA e garantire la conformità. L'art. 19 del DPR 633/72 collega la detraibilità al ricevimento e alla registrazione della fattura. Se una fattura del 2024 viene ricevuta e registrata a gennaio 2025, l'IVA è detraibile nel 2025. Lo strumento deve acquisire sia la data della fattura sia la data di ricezione SdI per assegnare correttamente il credito IVA al periodo appropriato.
+3.4. IRAP (Imposta Regionale sulle Attività Produttive)
+3.4.1. Condizioni di Applicazione
+Il presupposto dell'IRAP è "l'esercizio abituale di attività autonomamente organizzate dirette alla produzione o allo scambio di beni ovvero alla prestazione di servizi".92
+L'IRAP è stata abolita per le persone fisiche esercenti attività commerciali, arti e professioni a partire dal periodo d'imposta 2022 (Legge n. 234/2021, art. 1, comma 8).90 Questo è un punto fondamentale.
+Di conseguenza, per le Partite IVA individuali (professionisti e ditte individuali) nel 2025, l'IRAP generalmente NON è dovuta.
+La richiesta utente menziona "solo se con dipendenti/collaboratori". Questa condizione era un indicatore chiave di "autonoma organizzazione", presupposto per l'applicabilità dell'IRAP ai professionisti prima della sua abolizione per le persone fisiche.
+È cruciale confermare se normative del 2025 abbiano reintrodotto l'IRAP per le persone fisiche in specifiche condizioni. Le istruzioni per la dichiarazione IRAP 2025 (anno d'imposta 2024) 109 si applicherebbero comunque ai soggetti ancora obbligati (es. società). 90 afferma chiaramente l'abolizione per le persone fisiche dal 2022. Anche 61 conferma che l'IRAP si applica dal 1° gennaio 2022 solo alle società.
+Conclusione per il 2025 basata sulle fonti attuali: L'IRAP NON è dovuta dalle Partite IVA individuali (professionisti/ditte individuali). Lo strumento software dovrebbe riflettere questa non applicabilità.
+3.4.2. Aliquota (3,9%) e Base Imponibile (Se fosse applicabile)
+Aliquota ordinaria: 3,9%.45 Le Regioni possono variare tale aliquota.
+Base imponibile: Valore della Produzione Netta.
+3.4.3. Formula Matematica per l'IRAP (Se fosse applicabile)
+Valore Produzione Netta=Calcolo specifico basato su TUIR/Decreto IRAP
+IRAP=Valore Produzione Netta×Aliquota
+Data l'abolizione dell'IRAP per le persone fisiche 61, lo strumento, per impostazione predefinita, non dovrebbe calcolare l'IRAP per le Partite IVA individuali. Tuttavia, potrebbe essere prudente includere una nota o una verifica condizionale nel caso in cui future normative la reintroducessero in circostanze specifiche per gli individui, o se l'utente fosse un tipo di entità ancora soggetta (sebbene la richiesta si concentri su "individuali"). L'approccio più robusto è dichiarare la sua non applicabilità sulla base delle informazioni attuali per il 2025 per gli individui. La richiesta utente include l'IRAP con la condizione "(solo se con dipendenti/collaboratori)". Questa condizione era storicamente rilevante per i professionisti per determinare l'"autonoma organizzazione". Tuttavia, 90 (Circ. Ag. Entrate 4/E 2022) afferma esplicitamente che la L. 234/2021 ha abolito l'IRAP per le "persone fisiche esercenti attività commerciali ed esercenti arti e professioni" dal 01/01/2022. 61 lo conferma. A meno che una recentissima legge del 2025 non abbia invertito questa disposizione (non presente nelle fonti), l'IRAP non è dovuta dagli utenti target. Lo strumento dovrebbe riflettere questa generale non applicabilità per gli individui.
+3.5. Ritenute d'Acconto
+3.5.1. Applicazione (20% per i Professionisti)
+I professionisti in regime ordinario sono soggetti a una ritenuta d'acconto del 20% sui compensi ricevuti da "sostituti d'imposta" (altre imprese, enti).40
+Questa costituisce un acconto sull'IRPEF dovuta.40
+3.5.2. Gestione dei Crediti da Ritenute Subite
+Le ritenute subite costituiscono crediti che riducono l'IRPEF finale dovuta.113
+Devono essere tracciate e riportate nel Modello Redditi.
+3.6. Contributi Previdenziali
+3.6.1. Gestione Separata INPS (Aliquote Piene)
+Calcolati sul reddito professionale (Compensi - Spese Deducibili ai fini IRPEF).
+Aliquote per il 2025: 26,07% (se senza altra pensione) o 24% (se pensionato o con altra pensione).16
+Massimale €120.607,00.18
+3.6.2. Casse Professionali (Aliquote Piene)
+Calcolati sul reddito professionale secondo i regolamenti della Cassa. Non si applicano riduzioni generali per il solo fatto di essere in regime ordinario.
+Cassa Forense 2025: Soggettivo 16% fino a €130.000, poi 3%; Integrativo 4%.21
+INARCASSA 2025: Soggettivo 14,5% fino a €142.650; Integrativo 4%.12
+3.6.3. INPS Artigiani e Commercianti (IVS)
+Calcolati sul reddito d'impresa. Contributi fissi sul minimale (€18.555 per il 2025) e percentuali sull'eccedenza.7 Si applicano le aliquote piene.
+3.7. ISA (Indici Sintetici di Affidabilità Fiscale)
+3.7.1. Metodologia di Calcolo (Panoramica)
+I modelli ISA sono parte integrante del Modello REDDITI 2025 (per l'anno d'imposta 2024).11
+Valutano l'affidabilità fiscale attraverso un punteggio da 1 a 10 basato sui dati dichiarati confrontati con dei benchmark.114
+Per gli ISA relativi all'anno d'imposta 2024 si applica la nuova classificazione ATECO 2025.11
+Sono esclusi dall'applicazione degli ISA: i contribuenti che hanno iniziato/cessato l'attività nel corso del periodo d'imposta, i contribuenti in regime forfettario.7
+3.7.2. Regime Premiale (Benefici per punteggi ISA elevati)
+Punteggi elevati (es. 8, 8.5, 9) comportano benefici 11:
+Esonero dal visto di conformità per la compensazione di crediti IVA/imposte dirette (fino a €70.000 IVA, €50.000 imposte dirette per punteggio ≥9; €50.000 IVA, €20.000 imposte dirette per punteggio 8-9).114
+Esonero dal visto di conformità per i rimborsi IVA (soglie simili).114
+Esclusione dalla disciplina delle società non operative (punteggio ≥9).114
+Esclusione dagli accertamenti basati su presunzioni semplici (punteggio ≥8.5).114
+Riduzione dei termini di accertamento di un anno (punteggio ≥8).114
+Parte 4: Confronto tra Regimi e Calcoli Specifici
+4.1. Calcolo degli Acconti IRPEF/Imposta Sostitutiva (Metodo Storico e Previsionale)
+Regime Forfettario (Imposta Sostitutiva):
+Come dettagliato al punto 2.8.1. L'acconto è pari al 100% dell'imposta sostitutiva dell'anno precedente (metodo storico) o dell'imposta prevista per l'anno in corso (metodo previsionale).63 Le scadenze sono generalmente 30 giugno (1° acconto, 50%) e 30 novembre (2° acconto, 50%).
+Regime Ordinario (IRPEF):
+L'acconto IRPEF è generalmente pari al 100% dell'IRPEF dell'anno precedente (metodo storico) o dell'IRPEF prevista per l'anno in corso (metodo previsionale).
+Il versamento avviene in una o due rate:
+Unica soluzione entro il 30 novembre se l'importo di riferimento (IRPEF anno precedente al netto di detrazioni, crediti d'imposta e ritenute) non supera €257,52.
+Due rate se l'importo di riferimento supera €257,52:
+Prima rata: 40% dell'acconto totale, entro il 30 giugno (o 30 luglio con maggiorazione).
+Seconda rata: restante 60% dell'acconto totale, entro il 30 novembre.
+Per i soggetti ISA e forfettari, la Legge di Bilancio 2024 (valida anche per acconti 2025 relativi al 2024) ha previsto il differimento del secondo acconto al 16 gennaio dell'anno successivo o la rateizzazione in 5 rate mensili da gennaio.101 Questa agevolazione va verificata per la sua applicabilità agli acconti 2025 per l'anno d'imposta 2025. Le istruzioni del Modello Redditi PF 2025 116 (rigo RN61) conterranno le specifiche per il calcolo dell'acconto IRPEF 2025.
+Il rigo RN61 del Modello REDDITI PF 2025 è funzionale al calcolo dell'acconto IRPEF 2025.116
+4.2. Calcolo dei Contributi Previdenziali Minimi e Massimali
+Regime Forfettario:
+Gestione Separata INPS: Nessun minimale, massimale €120.607,00.18
+IVS Artigiani/Commercianti: Minimi fissi (riducibili del 35% o 50% per nuovi iscritti) e massimale di reddito.7
+Casse Professionali: Specifici minimali e massimali (es. Cassa Forense 22, INARCASSA 12).
+Regime Ordinario:
+Gestione Separata INPS: Nessun minimale, massimale €120.607,00.18
+IVS Artigiani/Commercianti: Minimi fissi e massimale di reddito.7
+Casse Professionali: Specifici minimali e massimali.
+4.3. Gestione delle Perdite Fiscali (Solo Regime Ordinario)
+Reddito d'Impresa (Imprenditori Individuali):
+Le perdite derivanti dall'esercizio di imprese commerciali (sia in contabilità ordinaria che semplificata, a seguito delle modifiche della Legge di Bilancio 2019) possono essere compensate con altri redditi d'impresa dello stesso periodo d'imposta.74
+L'eccedenza è riportabile ai periodi d'imposta successivi, senza limiti temporali (abrogato il limite quinquennale), ma non oltre l'80% del reddito imponibile di ciascuno di tali periodi e per l'intero importo che trova capienza in essi (Art. 8, c. 3 TUIR e Art. 84 TUIR per rinvio).73
+Le perdite realizzate nei primi tre periodi d'imposta dalla data di costituzione (per nuove attività produttive) sono riportabili illimitatamente e compensabili per l'intero importo che trova capienza nei redditi dei periodi successivi.73
+Le perdite vanno indicate nel quadro RS del Modello Redditi.73
+Reddito da Lavoro Autonomo (Professionisti):
+Le perdite derivanti dall'esercizio di arti e professioni sono compensate con gli altri redditi complessivi dello stesso periodo d'imposta (compensazione "orizzontale") (Art. 8, c. 1 TUIR).79
+L'eventuale eccedenza di perdita non è riportabile ai periodi d'imposta successivi.79 Questa è una differenza fondamentale rispetto alle perdite d'impresa.
+Il quadro RS, rigo RS10, del Modello Redditi è utilizzato per indicare le perdite di lavoro autonomo non compensate nell'anno, ma il riporto ai sensi dell'art. 8, c. 3 TUIR (che riguarda le imprese) non si applica direttamente alle perdite da lavoro autonomo in quanto tali.81 La Circolare n. 8/E del 2019 74 ha chiarito le novità della Legge di Bilancio 2019, confermando che la compensazione con altri redditi e l'impossibilità di riporto dell'eccedenza continuano ad applicarsi solo per le perdite da lavoro autonomo.
+La gestione delle perdite fiscali presenta una distinzione cruciale tra reddito d'impresa e reddito da lavoro autonomo per le persone fisiche in regime ordinario. Mentre le perdite d'impresa godono di un meccanismo di riporto agli esercizi successivi (illimitato nel tempo ma con un cap quantitativo dell'80% del reddito imponibile, o totale per i primi tre anni), le perdite da lavoro autonomo possono essere compensate solo orizzontalmente con altri redditi dello stesso anno e l'eventuale eccedenza è persa.79 Lo strumento deve implementare logiche di calcolo e riporto delle perdite nettamente separate per le due categorie di reddito, assicurandosi che le perdite da lavoro autonomo non vengano erroneamente riportate in avanti.
+4.4. Deduzioni/Detrazioni Specifiche per Regime
+Regime Forfettario: L'unica deduzione ammessa dal reddito forfettario lordo è quella relativa ai contributi previdenziali obbligatori versati nell'anno.7 Non sono ammesse altre deduzioni di costi analitici né detrazioni IRPEF (es. spese mediche, familiari a carico sul reddito forfettario).7 Tuttavia, se il contribuente forfettario possiede anche altri redditi (es. da lavoro dipendente), può fruire delle detrazioni IRPEF su questi ultimi.7
+Regime Ordinario: Ampia gamma di oneri deducibili dal reddito complessivo (es. contributi previdenziali, alcune spese mediche) e detrazioni d'imposta (es. spese sanitarie, interessi mutuo prima casa, ristrutturazioni, familiari a carico) applicabili sull'IRPEF lorda.40 I costi inerenti all'attività sono deducibili analiticamente dal reddito di categoria.
+4.5. Passaggio tra Regimi: Implicazioni Fiscali
+Dal Forfettario all'Ordinario (per obbligo o opzione):
+Cessa l'applicazione dell'imposta sostitutiva e si passa all'IRPEF progressiva.37
+Obbligo di applicare l'IVA sulle fatture emesse e diritto alla detrazione dell'IVA sugli acquisti.37
+Possibilità di rettifica "a favore" dell'IVA non detratta su beni strumentali durante il periodo forfettario, da esporre nel quadro VF della dichiarazione IVA dell'anno di passaggio.118
+Se la fuoriuscita avviene in corso d'anno (superamento €100.000 ricavi), si applica l'IVA dalle operazioni successive e si devono istituire i registri IVA.2 La dichiarazione IVA dell'anno includerà le operazioni in entrambi i regimi.
+L'opzione per il regime ordinario è vincolante per almeno un triennio.32
+Dall'Ordinario al Forfettario (se si rientra nei requisiti):
+Cessa l'applicazione dell'IRPEF e dell'IVA (sulle operazioni attive) e si passa all'imposta sostitutiva.
+Obbligo di rettifica della detrazione IVA (a sfavore) per beni e servizi non ancora ceduti o utilizzati e per beni ammortizzabili per i quali non sia trascorso il periodo di "tutela fiscale" (Art. 19-bis2 D.P.R. 633/72).32 La rettifica va indicata nel rigo VF70 della dichiarazione IVA dell'ultimo anno in regime ordinario.118
+Si presenta l'ultima dichiarazione IVA per l'anno precedente l'ingresso nel forfettario, barrando la casella 1 del rigo VA14.118
+Il passaggio al regime forfettario è "naturale" se si possiedono i requisiti, non richiede comunicazione preventiva con Modello AA9/12, ma si manifesta con comportamento concludente.41
+La transizione tra regimi, specialmente per quanto riguarda l'IVA, è un'area complessa che richiede calcoli di rettifica precisi. Il passaggio da forfettario a ordinario può generare un credito IVA da acquisti pregressi su beni strumentali, mentre il passaggio inverso impone il versamento dell'IVA precedentemente detratta su beni non ancora completamente ammortizzati o utilizzati. Lo strumento deve guidare l'utente in questi calcoli di rettifica (prospetto D dell'Appendice alle istruzioni IVA per le rettifiche ex art. 19-bis2 50), che sono cruciali per la compliance e per evitare contestazioni.
+4.6. Calcolo di Convenienza tra Regimi (Break-Even Point Analysis - Concettuale)
+Il calcolo di convenienza deve considerare:
+Aliquota fiscale effettiva (imposta sostitutiva vs. IRPEF progressiva al netto di deduzioni/detrazioni).
+Impatto dei coefficienti di redditività (costi forfettari) vs. costi analitici deducibili.
+Possibilità di detrarre l'IVA sugli acquisti (Ordinario) vs. costo dell'IVA non detraibile (Forfettario).
+Incidenza dei contributi previdenziali (con eventuali riduzioni nel Forfettario).
+Oneri amministrativi e contabili (maggiori nell'Ordinario).
+Non esiste un break-even point universale; dipende dalla struttura dei costi, dal livello dei ricavi, dalla tipologia di clientela (soggetti IVA o consumatori finali) e dalla situazione personale del contribuente (altri redditi, oneri detraibili/deducibili).
+Lo strumento dovrebbe permettere una simulazione comparativa basata sugli input dell'utente.
+Fattori chiave per la convenienza del Forfettario: bassi costi effettivi rispetto a quelli forfettizzati, clientela prevalentemente privata (non interessata alla detrazione IVA), aliquota del 5% per startup.44
+Fattori chiave per la convenienza dell'Ordinario: alti costi deducibili, possibilità di detrarre IVA su investimenti significativi, necessità di superare il limite di €85.000, accesso a detrazioni IRPEF personali.6
+Parte 5: Adempimenti Dichiarativi e Versamenti
+5.1. Modello Redditi Persone Fisiche (PF)
+Quadro LM: Per i contribuenti in Regime Forfettario.42 Accoglie anche le novità per il Concordato Preventivo Biennale (CPB) dei forfettari (sezioni LM32-LM33).65
+Quadro RE: Per i redditi da lavoro autonomo in Regime Ordinario.66
+Quadro RF/RG: Per i redditi d'impresa in Regime Ordinario (contabilità ordinaria/semplificata).66
+Quadro RN: Determinazione dell'IRPEF.66
+Quadro RS: Gestione perdite, dati per ISA, ecc..66
+Quadro RX: Risultato della dichiarazione, crediti e debiti.66
+Quadro RR: Contributi previdenziali.66
+Istruzioni dettagliate per la compilazione sono fornite annualmente dall'Agenzia delle Entrate.66
+5.2. Dichiarazione IVA Annuale (Regime Ordinario)
+Modello IVA Annuale da presentare tra il 1° febbraio e il 30 aprile 2025 per l'anno d'imposta 2024.38
+Obbligatoria per tutti i titolari di Partita IVA in regime ordinario.38
+I forfettari sono esonerati, salvo casi di passaggio di regime in corso d'anno o nell'anno precedente.38
+5.3. Dichiarazione IRAP (ove ancora applicabile per soggetti diversi da persone fisiche)
+Modello IRAP 2025 per l'anno d'imposta 2024.109 Come discusso, non dovrebbe applicarsi a Partite IVA individuali.
+5.4. Calendario Unificato delle Scadenze Fiscali (Acconti, Saldi, Rate)
+Tabella 5.4.1: Principali Scadenze Fiscali 2025 per Partite IVA Individuali
+Valore: Fornisce una visione d'insieme delle scadenze cruciali, essenziale per la pianificazione.
+Contenuto: Colonne: "Scadenza", "Adempimento", "Regime Interessato", "Note/Riferimenti".
+16 Gennaio: Versamento 2° acconto IRPEF/Imposta Sostitutiva (per chi ha differito da Nov 2024 e per specifici soggetti con ricavi fino a €170.000).101 Versamento IVA mensile Dicembre 2024.100
+28 Febbraio: Termine richiesta riduzione contributi INPS 35% per forfettari Art/Comm.14 Versamento bolli fatture elettroniche IV trim. 2024.101 Termine LIPE IV trim. 2024 (se non inclusa in Dich. IVA).100
+16 Marzo (slitta al 17 Marzo): Saldo IVA annuale 2024 (o prima rata).100 Invio Certificazione Unica 2025 (per sostituti d'imposta, non più per compensi a forfettari).39
+30 Aprile: Termine presentazione Dichiarazione IVA Annuale 2025 (anno 2024).38
+16 Maggio: Versamento IVA mensile Aprile; Versamento IVA I trim. 2025 (trimestrali).24 Prima rata contributi fissi INPS Art/Comm.24
+31 Maggio (slitta al 3 Giugno): Invio LIPE I trim. 2025.24 Versamento bollo fatture elettroniche I trim. 2025 (se > €5.000).24
+30 Giugno: Saldo IRPEF/Imposta Sostitutiva 2024 e 1° acconto 2025 (50% o 40%).14 Saldo Contributi INPS/Casse 2024 e 1° acconto 2025.14
+30 Luglio: Termine ultimo versamento Saldo IRPEF/Imposta Sostitutiva 2024 e 1° acconto 2025 con maggiorazione 0,40%.100
+20 Agosto (o 22 Agosto): Versamento IVA mensile Luglio.100 Seconda rata contributi fissi INPS Art/Comm.14
+30 Settembre: Invio LIPE II trim. 2025.100 Versamento bollo fatture elettroniche II trim. 2025 (o I+II se < €5.000).101
+31 Ottobre: Termine presentazione Modello Redditi PF 2025 (anno 2024).14
+16 Novembre (slitta al 17 o 18 Novembre): Versamento IVA mensile Ottobre; Versamento IVA III trim. 2025 (trimestrali).100 Terza rata contributi fissi INPS Art/Comm.14
+30 Novembre (slitta al 1 o 2 Dicembre): Versamento 2° acconto IRPEF/Imposta Sostitutiva 2025 (50% o 60%).14 Versamento 2° acconto Contributi INPS/Casse 2025.14 Invio LIPE III trim. 2025.100 Versamento bollo fatture elettroniche III trim. 2025 (o I+II+III se < €5.000).101
+27 Dicembre (o 29 Dicembre): Acconto IVA annuale.100
+Le scadenze possono subire variazioni o proroghe; è fondamentale fare riferimento al calendario ufficiale dell'Agenzia delle Entrate.121 I versamenti possono essere rateizzati secondo specifiche disposizioni.101
+5.5. Codici Tributo Specifici per Regime (Modello F24)
+Tabella 5.5.1: Principali Codici Tributo per Partite IVA Individuali 2025
+Valore: Indispensabile per la corretta compilazione del Modello F24 e il versamento delle imposte.
+Contenuto: Colonne: "Imposta/Contributo", "Codice Tributo", "Descrizione", "Regime".
+Imposta Sostitutiva Regime Forfettario:
+Acconto prima rata: 1790 63
+Acconto seconda rata o unica soluzione: 1791 63
+Saldo: 1792 63
+IRPEF:
+Saldo: 4001 122
+Acconto prima rata: 4033 122
+Acconto seconda rata o unica soluzione: 4034 122
+IVA (Regime Ordinario):
+Versamento mensile (es. Gennaio -> 6001,..., Aprile -> 6004,..., Dicembre -> 6012) 24
+Versamento trimestrale (I trim. -> 6031, II trim. -> 6032, III trim. -> 6033, IV trim. -> 6034) 24
+Acconto IVA: 6035 122
+Saldo IVA annuale: 6099 122
+Ritenute d'Acconto (versate dal sostituto, rilevanti per il professionista come credito):
+Compensi lavoro autonomo: 1040 24
+Contributi INPS Gestione Separata Professionisti:
+PXX (non titolari di pensione/altra previdenza) 122
+P10 (titolari di pensione/altra previdenza) 122
+Contributi INPS Artigiani:
+Contributi fissi (sul minimale): AF 122
+Contributi variabili (oltre minimale): AP 122 (o APR/APP per rateizzati/pregressi)
+Accertamento fiscale: APMF 132
+Contributi INPS Commercianti:
+Contributi fissi (sul minimale): CF 122
+Contributi variabili (oltre minimale): CP 122 (o CPR/CPP per rateizzati/pregressi)
+Accertamento fiscale: CPMF 132
+IRAP (se applicabile a soggetti diversi da persone fisiche):
+Saldo: 3800 122
+Acconto prima rata: 3812 122
+Acconto seconda rata o unica soluzione: 3813 122
+Nota: Per le Casse Professionali, i codici tributo sono specifici per ogni Cassa e non sono elencati in modo generalizzato nelle fonti fornite (es. INARCASSA usa E085-E090, E111-E120 12; Cassa Geometri GE01, GE51 122).
+Parte 6: Struttura degli Output e Algoritmi di Calcolo
+6.1. Algoritmi Separati per Regime Forfettario e Ordinario (Logica di Calcolo)
+6.1.1. Algoritmo Regime Forfettario:
+Input: Ricavi/Compensi annui (cash basis), Codice ATECO, Contributi previdenziali versati nell'anno precedente, Status startup (Sì/No).
+Recupero Coefficiente di Redditività da Tabella 2.4.2.1 basato su ATECO.
+Calcolo RIL: Ricavi×Coefficiente.
+Calcolo RIN: RIL−Contributi Previdenziali Pagati.
+Determinazione Aliquota Imposta Sostitutiva: 5% se startup e condizioni soddisfatte, altrimenti 15%.
+Calcolo Imposta Sostitutiva: RIN×Aliquota.
+Calcolo Contributi Previdenziali Anno Corrente:
+Se Gestione Separata: RIL×Aliquota GS INPS.
+Se Cassa Professionale: Applicare regole specifiche Cassa su RIL (o volume d'affari per integrativo).
+Se IVS Art/Comm: Calcolare contributi fissi (eventualmente ridotti) + contributi percentuali su (RIL−Minimale) (eventualmente ridotti).
+Output: Imposta Sostitutiva dovuta, Contributi Previdenziali dovuti.
+6.1.2. Algoritmo Regime Ordinario:
+Input: Ricavi/Compensi annui, Spese documentate e deducibili per categoria di reddito, Altri redditi, Oneri deducibili dal reddito complessivo (inclusi contributi previdenziali versati anno precedente), Detrazioni d'imposta spettanti, Ritenute d'acconto subite.
+Calcolo Reddito di Lavoro Autonomo/Impresa: Ricavi/Compensi−Spese Deducibili di Categoria.
+Calcolo Reddito Complessivo: ∑Redditi di Categoria+Altri Redditi.
+Calcolo Reddito Imponibile IRPEF: Reddito Complessivo−Oneri Deducibili dal Reddito Complessivo.
+Calcolo Imposta Lorda IRPEF: Applicare scaglioni e aliquote (Tabella 3.2.2.1) a Reddito Imponibile IRPEF.
+Calcolo Imposta Netta IRPEF: Imposta Lorda IRPEF−Detrazioni d′Imposta−Ritenute Subite.
+Calcolo Contributi Previdenziali Anno Corrente:
+Se Gestione Separata: (Ricavi/Compensi−Spese Deducibili di Categoria)×Aliquota GS INPS.
+Se Cassa Professionale: Applicare regole specifiche Cassa su Reddito Professionale (o volume d'affari per integrativo).
+Se IVS Art/Comm: Calcolare contributi fissi + contributi percentuali su (Reddito d′Impresa−Minimale).
+Calcolo IVA Periodica e Annuale: (IVA su Vendite)−(IVA su Acquisti Detraibile).
+Output: IRPEF Netta dovuta/a credito, Contributi Previdenziali dovuti, IVA dovuta/a credito.
+6.2. Simulatore di Confronto tra Regimi
+Input: Stessi dati necessari per entrambi gli algoritmi, più una stima dei costi analitici e dell'IVA su acquisti (per valutare la convenienza dell'Ordinario).
+Logica: Eseguire entrambi gli algoritmi (6.1.1 e 6.1.2) con i dati forniti.
+Output: Confronto del carico fiscale totale (Imposte + Contributi) e del reddito netto disponibile. Evidenziare il "costo" dell'IVA non detraibile nel Forfettario.
+Dovrebbe includere un avviso sui limiti e requisiti del Forfettario.
+6.3. Timeline dei Pagamenti per Regime
+Generare un calendario personalizzato basato sul regime scelto e sulle date chiave (30 Giugno, 30 Novembre per imposte/contributi; scadenze mensili/trimestrali IVA per Ordinario; scadenze rate contributi fissi IVS).
+Includere opzioni di rateizzazione.
+6.4. Flowchart Decisionale per Scelta Regime (Allegato)
+Un diagramma di flusso che guidi l'utente attraverso i requisiti di accesso al Forfettario, i limiti, le cause di esclusione, e i fattori di convenienza (costi, IVA, detrazioni) per aiutarlo a scegliere il regime più adatto all'inizio dell'attività o in fase di valutazione annuale.44
+Il flowchart dovrebbe partire dalla verifica dei requisiti soggettivi (persona fisica), poi i limiti di ricavi (€85.000), spese per personale (€20.000), reddito da lavoro dipendente (€35.000). Successivamente, le cause di esclusione (partecipazioni, attività prevalente verso ex datori, regimi speciali IVA). Se idoneo al forfettario, valutare la convenienza: alti costi vs. coefficiente di redditività, impatto IVA indetraibile, diritto a detrazioni IRPEF personali. Se non idoneo o non conveniente, si passa al regime ordinario (o semplificato, se i limiti di fatturato lo consentono e si opta per esso). L'opzione per l'ordinario vincola per 3 anni.48
+6.5. Modello AA9/12: Istruzioni per la Compilazione per Inizio Attività e Scelta Regime
+Il Modello AA9/12 è utilizzato per dichiarare l'inizio attività, la variazione dati o la cessazione attività per le persone fisiche titolari di Partita IVA.3
+Quadro A (Tipo di dichiarazione): Barrare "Inizio attività" e indicare la data di inizio.4
+Quadro B (Soggetto d'imposta): Dati anagrafici, codice fiscale, residenza. Sezione "Regimi fiscali agevolati": per aderire al Regime Forfettario, barrare la casella corrispondente.414 Se non si barra alcuna casella o si opta esplicitamente per il regime ordinario, si applicherà quest'ultimo.
+Quadro G (Informazioni relative all'attività/alle attività esercitate): Indicare il codice ATECO dell'attività prevalente e delle eventuali attività secondarie, la descrizione dell'attività, l'indirizzo della sede.5
+Altri quadri (C, D, E, F, H, I) vanno compilati se pertinenti (es. rappresentante fiscale, operazioni straordinarie, altre sedi).4
+La scelta del regime fiscale all'inizio dell'attività è cruciale e va indicata correttamente nel Modello AA9/12. Se si possiedono i requisiti per il Forfettario e si intende aderirvi, è necessario segnalarlo. Altrimenti, si presume l'applicazione del regime ordinario.
+Parte 7: Esempi Pratici Comparativi (Anno d'Imposta 2025)
+7.1. Esempio 1: Consulente Informatico (ATECO 70.22.09 - Altre attività di consulenza imprenditoriale e altra consulenza amministrativo-gestionale e pianificazione aziendale, coefficiente 78%)
+Dati di Input:
+Ricavi annui: €60.000
+Spese documentate (per Ordinario): €15.000 (di cui €2.000 IVA indetraibile per acquisti promiscui, quindi €13.000 costo deducibile IRPEF + €2.000 IVA su acquisti totalmente deducibile)
+Contributi INPS Gestione Separata versati nell'anno precedente: €4.000
+Nessun altro reddito, nessuna detrazione IRPEF particolare oltre quella da lavoro autonomo.
+Non è una startup (aliquota Forfettario 15%).
+IVA su acquisti (per Ordinario): Ipotizziamo €2.500 di IVA detraibile sugli acquisti di €15.000 (es. €11.363 imponibile + €2.500 IVA al 22% = €13.863; restanti €1.137 spese non soggette o con IVA indetraibile).
+Calcolo Regime Forfettario:
+Reddito Imponibile Lordo (RIL): €60.000×78%=€46.800 13
+Contributi Previdenziali Deducibili: €4.000 13
+Reddito Imponibile Netto (RIN): €46.800−€4.000=€42.800
+Imposta Sostitutiva (15%): €42.800×15%=€6.420 53
+Contributi INPS Gestione Separata Anno Corrente (su RIL): €46.800×26,07%=€12.199,56 16 (aliquota 2025 per non pensionati/non altra tutela)
+Totale Uscite (Imposta + Contributi Correnti): €6.420+€12.199,56=€18.619,56
+Reddito Netto Disponibile (Ricavi - Imposta - Contributi Correnti): €60.000−€18.619,56=€41.380,44
+Calcolo Regime Ordinario:
+Reddito da Lavoro Autonomo: €60.000(compensi)−€15.000(spesedocumentate)=€45.000
+Reddito Complessivo: €45.000
+Oneri Deducibili (Contributi INPS anno prec.): €4.000
+Reddito Imponibile IRPEF: €45.000−€4.000=€41.000 27
+Calcolo IRPEF Lorda (vedi Tabella 3.2.2.1):
+Su €28.000: 28.000×23%=€6.440
+Su eccedenza (€41.000 - €28.000 = €13.000): 13.000×35%=€4.550
+IRPEF Lorda Totale: €6.440+€4.550=€10.990 87
+Detrazione per Lavoro Autonomo.69
+Imposta Netta IRPEF (ipotizzando detrazioni = 0): €10.990
+Contributi INPS Gestione Separata Anno Corrente (su Reddito Lavoro Autonomo): €45.000×26,07%=€11.731,50 27
+IVA da Versare:
+IVA su compensi: €60.000×22%=€13.200
+IVA su acquisti detraibile: €2.500 (ipotizzata)
+IVA a Saldo: €13.200−€2.500=€10.700
+Totale Uscite (IRPEF + Contributi Correnti + IVA): €10.990+€11.731,50+€10.700=€33.421,50
+Reddito Netto Disponibile (Ricavi - Spese - IRPEF - Contributi Correnti): €60.000−€15.000−€10.990−€11.731,50=€22.278,50
+Confronto:
+Forfettario: Imposta €6.420, Contributi €12.199,56. Totale €18.619,56. Netto €41.380,44.
+Ordinario: IRPEF €10.990, Contributi €11.731,50, IVA €10.700. Totale €33.421,50. Netto €22.278,50.
+Conclusione Esempio 1: In questo scenario, il Regime Forfettario risulta significativamente più conveniente.
+7.2. Esempio 2: Artigiano (es. Estetista, ATECO 96.02.02 - Servizi degli istituti di bellezza, coefficiente 67%)
+Dati di Input:
+Ricavi annui: €70.000
+Spese documentate (per Ordinario): €20.000
+Contributi INPS IVS Artigiani versati nell'anno precedente: €5.000
+Aderisce alla riduzione del 35% INPS nel Forfettario.
+Non è una startup (aliquota Forfettario 15%).
+IVA su acquisti (per Ordinario): Ipotizziamo €3.000 di IVA detraibile.
+Calcolo Regime Forfettario:
+Reddito Imponibile Lordo (RIL): €70.000×67%=€46.900 52
+Contributi Previdenziali Deducibili: €5.000
+Reddito Imponibile Netto (RIN): €46.900−€5.000=€41.900
+Imposta Sostitutiva (15%): €41.900×15%=€6.285
+Contributi INPS IVS Artigiani Anno Corrente (con riduzione 35%):
+Reddito minimale 2025: €18.555 25
+Contributi fissi ridotti: €4.460,64×65%=€2.899,42 (include €7,44 maternità * 0,65 = €4,84) 25
+Reddito eccedente il minimale (base per contributi variabili): RIL−€18.555=€46.900−€18.555=€28.345
+Aliquota variabile ridotta (su reddito fino a €55.448): 24%×65%=15,6%
+Contributi variabili: €28.345×15,6%=€4.421,82
+Totale Contributi INPS: €2.899,42+€4.421,82=€7.321,24
+Totale Uscite (Imposta + Contributi Correnti): €6.285+€7.321,24=€13.606,24
+Reddito Netto Disponibile (Ricavi - Imposta - Contributi Correnti): €70.000−€13.606,24=€56.393,76
+Calcolo Regime Ordinario:
+Reddito d'Impresa: €70.000(ricavi)−€20.000(spesedocumentate)=€50.000
+Reddito Complessivo: €50.000
+Oneri Deducibili (Contributi INPS anno prec.): €5.000
+Reddito Imponibile IRPEF: €50.000−€5.000=€45.000
+Calcolo IRPEF Lorda (vedi Tabella 3.2.2.1):
+Su €28.000: 28.000×23%=€6.440
+Su eccedenza (€45.000 - €28.000 = €17.000): 17.000×35%=€5.950
+IRPEF Lorda Totale: €6.440+€5.950=€12.390
+Detrazioni (ipotizziamo €0 per semplificare, ma andrebbero verificate).
+Imposta Netta IRPEF: €12.390
+Contributi INPS IVS Artigiani Anno Corrente (aliquote piene):
+Contributi fissi: €4.460,64 (include €7,44 maternità) 25
+Reddito eccedente il minimale (base per contributi variabili): Reddito d′Impresa−€18.555=€50.000−€18.555=€31.445
+Aliquota variabile (su reddito fino a €55.448): 24%
+Contributi variabili: €31.445×24%=€7.546,80
+Totale Contributi INPS: €4.460,64+€7.546,80=€12.007,44
+IVA da Versare:
+IVA su ricavi: €70.000×22%=€15.400 (ipotizzando aliquota standard)
+IVA su acquisti detraibile: €3.000 (ipotizzata)
+IVA a Saldo: €15.400−€3.000=€12.400
+Totale Uscite (IRPEF + Contributi Correnti + IVA): €12.390+€12.007,44+€12.400=€36.797,44
+Reddito Netto Disponibile (Ricavi - Spese - IRPEF - Contributi Correnti): €70.000−€20.000−€12.390−€12.007,44=€25.602,56
+Confronto:
+Forfettario: Imposta €6.285, Contributi €7.321,24. Totale €13.606,24. Netto €56.393,76.
+Ordinario: IRPEF €12.390, Contributi €12.007,44, IVA €12.400. Totale €36.797,44. Netto €25.602,56.
+Conclusione Esempio 2: Anche in questo scenario, con spese più elevate e ricavi maggiori, il Regime Forfettario con la riduzione contributiva del 35% risulta nettamente più conveniente per l'artigiano.
+Conclusioni
+Il presente manuale tecnico-operativo fornisce una base di conoscenza dettagliata per lo sviluppo di un tool di calcolo tasse e pianificazione scadenze per le Partite IVA individuali italiane, operanti sia in regime forfettario che ordinario, secondo la normativa prevista per il 2025.
+L'analisi ha evidenziato la complessità intrinseca di entrambi i regimi, ciascuno con specifici requisiti di accesso, metodologie di calcolo delle imposte e dei contributi, adempimenti e implicazioni fiscali.
+Per il Regime Forfettario, i punti salienti includono:
+La semplicità della tassazione tramite imposta sostitutiva (15% o 5% per startup) calcolata su un reddito determinato forfettariamente tramite coefficienti di redditività.
+L'importanza cruciale dei limiti di ricavi (€85.000 per la permanenza, €100.000 per la fuoriuscita immediata) e delle altre cause di esclusione.
+L'esenzione da IVA e IRAP, e la non applicazione delle ritenute d'acconto.
+Le significative agevolazioni contributive per artigiani e commercianti (riduzione del 35% o del 50% per i nuovi iscritti).
+La semplificazione degli adempimenti, inclusa l'abolizione della Certificazione Unica per i compensi erogati a forfettari a partire dal 2025 (anno d'imposta 2024).
+Per il Regime Ordinario, gli aspetti fondamentali comprendono:
+La determinazione del reddito imponibile IRPEF tramite la differenza analitica tra ricavi/compensi e costi documentati e inerenti.
+L'applicazione delle aliquote IRPEF progressive a scaglioni.
+La gestione dell'IVA, con liquidazioni periodiche, tenuta dei registri obbligatori e diritto alla detrazione dell'IVA sugli acquisti (con specifiche limitazioni).
+L'assoggettamento a ritenuta d'acconto sui compensi professionali.
+L'applicazione degli Indici Sintetici di Affidabilità (ISA) e i relativi benefici premiali.
+La differente gestione delle perdite fiscali a seconda che derivino da attività d'impresa (riportabili) o da lavoro autonomo (non riportabili oltre l'anno).
+Lo sviluppo di uno strumento software efficace richiederà un'accurata implementazione degli algoritmi di calcolo distinti per ciascun regime, la gestione puntuale dei dati di input (in particolare il codice ATECO e la corretta qualificazione previdenziale), un sistema di alert per il superamento dei limiti del regime forfettario e un simulatore di confronto per aiutare gli utenti nella scelta del regime più conveniente.
+La transizione tra i regimi, specialmente per le implicazioni IVA, e la corretta applicazione delle normative sui contributi previdenziali (con le relative aliquote, minimali, massimali e riduzioni) rappresentano aree di particolare complessità che lo strumento dovrà indirizzare con precisione.
+Si raccomanda di mantenere lo strumento costantemente aggiornato rispetto a eventuali modifiche normative e prassi dell'Agenzia delle Entrate e degli enti previdenziali, data la dinamicità della legislazione fiscale italiana.
+Bibliografia
+Requisiti e limiti di accesso al regime forfettario 2025 - Fatture in Cloud, accesso eseguito il giorno giugno 1, 2025, https://www.fattureincloud.it/guida-regime-forfettario/requisiti-di-accesso/
+Regime forfettario 2025: requisiti nuovo regime dei minimi 2025, accesso eseguito il giorno giugno 1, 2025, https://www.danea.it/blog/regime-forfettario-requisiti/
+Aprire Partita Iva nel 2025: come si fa e quanto costa? - Fatture in Cloud, accesso eseguito il giorno giugno 1, 2025, https://www.fattureincloud.it/guida-aprire-partita-iva/come-fare/
+Modello AA9/12: a cosa serve e come usarlo | Alias Digital, accesso eseguito il giorno giugno 1, 2025, https://aliasdigital.it/blog/modello-aa9-12-cose-e-a-cosa-serve/
+MODELLO AA9/12: cos'è e come si compila? - Fiscozen, accesso eseguito il giorno giugno 1, 2025, https://www.fiscozen.it/guide/significato-modello-aa9-12/
+Quanto costa aprire la partita IVA nel 2025 e come farlo: la guida completa - Edenred Italia, accesso eseguito il giorno giugno 1, 2025, https://www.edenred.it/blog/guida-buoni-pasto/come-aprire-partita-iva/
+Regime Forfettario 2025: Ecco la guida aggiornata, accesso eseguito il giorno giugno 1, 2025, https://www.ilcommercialistaonline.it/guida-regime-forfettario/
+Calcolo Imposta Nuovo Regime Forfettario 2025 - Avvocato Andreani, accesso eseguito il giorno giugno 1, 2025, https://www.avvocatoandreani.it/servizi/calcolo-imposta-regime-forfettario.php
+Coefficienti di redditività forfettari 2025, accesso eseguito il giorno giugno 1, 2025, https://www.regimeforfettario.it/coefficienti-di-redditivita-forfettari-2025/
+Che cos'è il coefficiente redditività regime forfettario, accesso eseguito il giorno giugno 1, 2025, https://www.ilcommercialistaonline.it/coefficiente-redditivita-regime-forfettario/
+2025 - Modello per la comunicazione dei dati rilevanti ai fini dell'applicazione ed elaborazione degli indici sintetici di affidabilità fiscale - Agenzia Entrate, accesso eseguito il giorno giugno 1, 2025, https://www.agenziaentrate.gov.it/portale/documents/d/guest/istruzioni-parte-generale
+Contributi previdenziali INARCASSA 2025 - FISCOeTASSE.com, accesso eseguito il giorno giugno 1, 2025, https://www.fiscoetasse.com/new-rassegna-stampa/1817-contributi-previdenziali-inarcassa-2025.html
+Calcolo tasse regime forfettario 2025: spiegazione ed esempi - Quickfisco, accesso eseguito il giorno giugno 1, 2025, https://quickfisco.it/blog/regime-forfettario/calcolo-tasse-regime-forfettario-spiegazione-ed-esempi/
+Scadenze fiscali 2025 – Liberi professionisti in regime forfettario ..., accesso eseguito il giorno giugno 1, 2025, https://www.taxmanapp.it/blog/2025/03/12/scadenze-fiscali-2025-liberi-professionisti-in-regime-forfettario/
+Tassazione del regime forfettario: calcolo del reddito imponibile e dell'imposta da versare, accesso eseguito il giorno giugno 1, 2025, https://www.fattureincloud.it/guida-regime-forfettario/tassazione/
+Gestione separata INPS 2025: cos'è ed iscrizione | Danea Blog, accesso eseguito il giorno giugno 1, 2025, https://www.danea.it/blog/gestione-separata-inps/
+Contributi 2025 Gestione Separata Inps, artigiani e commercianti - MW Associati, accesso eseguito il giorno giugno 1, 2025, https://mwassociati.it/contributi-2025-gestione-separata-inps-artigiani-e-commercianti/
+INPS - Iscritti alla Gestione separata dei lavoratori autonomi e dei ..., accesso eseguito il giorno giugno 1, 2025, https://portale.assimpredilance.it/articoli/inps-iscritti-alla-gestione-separata-dei-lavoratori-autonomi-e-dei-titolari-di-rapporti-di-collaborazione-coordinata-e-continuativa-aliquote-contributive-e-massimale-di-reddito-da-applicare-per-l-anno-2025
+Circolare numero 27 del 30-01-2025 | Dettaglio di Circolari, Messaggi e Normativa | INPS, accesso eseguito il giorno giugno 1, 2025, https://www.inps.it/it/it/inps-comunica/atti/circolari-messaggi-e-normativa/dettaglio.circolari-e-messaggi.2025.01.circolare-numero-27-del-30-01-2025_14807.html
+Gestione Separata INPS: Guida Completa 2025 - Il Commercialista Online, accesso eseguito il giorno giugno 1, 2025, https://www.ilcommercialistaonline.it/gestione-separata-inps/
+Determinazione dei contributi in Autoliquidazione - Cassa Forense, accesso eseguito il giorno giugno 1, 2025, https://www.cassaforense.it/contributi-in-autoliquidazione/
+riforma Cassa Forense in vigore da Gennaio 2025 – Ordine degli ..., accesso eseguito il giorno giugno 1, 2025, https://www.ordineavvocatilanciano.it/riforma-cassa-forense-in-vigore-da-gennaio-2025/
+Inarcassa: come funziona la cassa di architetti ed ingegneri? - Fiscozen, accesso eseguito il giorno giugno 1, 2025, https://www.fiscozen.it/guide/inarcassa-contributi/
+Scadenze fiscali maggio 2025: le date per il calendario, accesso eseguito il giorno giugno 1, 2025, https://www.ilcommercialistaonline.it/scadenze-fiscali-maggio-2025/
+Contributi INPS per Artigiani e Commercianti 2025: aliquote, importi e esempi di calcolo, accesso eseguito il giorno giugno 1, 2025, https://www.ilcommercialistaonline.it/contributi-inps-per-artigiani-e-commercianti-2025/
+Contributi INPS 2025 - Confesercenti Sardegna, accesso eseguito il giorno giugno 1, 2025, https://www.confesercentisardegna.it/contributi-inps-2025/
+Calcolo del netto in Partita IVA: come si fa? - Fiscozen, accesso eseguito il giorno giugno 1, 2025, https://www.fiscozen.it/guide/calcolo-tasse-guadagno-netto-partita-iva/
+Artigiani e commercianti: contributi Inps per l'anno 2024 - Fisco 7, accesso eseguito il giorno giugno 1, 2025, https://www.fisco7.it/2024/03/artigiani-commercianti-contributi-inps-2024/
+Inps: Artigiani e Commercianti - Contribuzione per l'anno 2025 - Patronato ENASC, accesso eseguito il giorno giugno 1, 2025, https://enasc.it/2025/02/27/inps-artigiani-e-commercianti-contribuzione-per-lanno-2025/
+REGIME FORFETTARIO 2025: online la guida aggiornata! - AteneoWeb, accesso eseguito il giorno giugno 1, 2025, https://www.ateneoweb.com/notizie-fiscali/regime-forfettario-2025-online-la-guida-aggiornata.html
+TUIR - Testo Unico Imposte sui Redditi - shopWKI, accesso eseguito il giorno giugno 1, 2025, https://shop.wki.it/offerta/tuir-s19942/
+Regime forfettario 2025: agevolazioni e vantaggi della flat tax - Biblus Acca, accesso eseguito il giorno giugno 1, 2025, https://biblus.acca.it/nuovo-regime-forfettario-vantaggi/
+LA LEGGE DI BILANCIO 2025 - InformaImpresa, accesso eseguito il giorno giugno 1, 2025, https://www.informaimpresa.it/item/la-legge-di-bilancio-2030
+Legge 30 dicembre 2024, n. 207 - Gazzetta Ufficiale, accesso eseguito il giorno giugno 1, 2025, https://www.gazzettaufficiale.it/eli/id/2024/12/31/24G00229/sg
+Regime forfettario e ritenuta d'acconto: esonero ed errata applicazione - Fatture in Cloud, accesso eseguito il giorno giugno 1, 2025, https://www.fattureincloud.it/guida-regime-forfettario/ritenuta-acconto/
+regime forfettario 2025: vantaggi e svantaggi della flat tax, accesso eseguito il giorno giugno 1, 2025, https://www.geometrimo.it/wp-content/uploads/2024/12/Regime-forfettario-2025.pdf
+Regime Forfettario e Passaggio al Regime Ordinario | Regime Forfettario - Regime-Forfettario.it, accesso eseguito il giorno giugno 1, 2025, https://www.regime-forfettario.it/regime-forfettario-regime-ordinario/
+Dichiarazione IVA 2025 - Agenzia Entrate, accesso eseguito il giorno giugno 1, 2025, https://www.agenziaentrate.gov.it/portale/documents/20143/8487117/IVA_Annuale_2025_istr.pdf/ee981aea-3b73-e72f-bd93-3c13b586aa8e?t=1736949829762
+Abolita Certificazione Unica 2025 per Regime Forfettario - Consulens, accesso eseguito il giorno giugno 1, 2025, https://consulens.online/abolita-certificazione-unica-2025-per-regime-forfettario/
+regime contabili fatturazione professionisti - Ordine degli Ingegneri di Palermo, accesso eseguito il giorno giugno 1, 2025, https://palermo.ordingegneri.it/wp-content/uploads/sites/43/2024/06/Convegno-Ordine-Ingegneri.pdf
+Regime forfettario 2025: come accedere, uscire e regole per ..., accesso eseguito il giorno giugno 1, 2025, https://www.danea.it/blog/regime-forfettario-come-accedere-uscire-regole-passaggio/
+Regime forfettario 2025: tutte le regole - FISCOeTASSE.com, accesso eseguito il giorno giugno 1, 2025, https://www.fiscoetasse.com/approfondimenti/15066-regime-forfettario-2025-tutte-le-regole.html
+Partite IVA 2025: tutte le novità fiscali spiegate bene - Studio Manetti Consulting, accesso eseguito il giorno giugno 1, 2025, https://manetticonsulting.it/partite-iva-2025-tutte-le-novita-fiscali-spiegate-bene/
+Regime ordinario o forfettario? Le valutazioni da fare per il 2025 ..., accesso eseguito il giorno giugno 1, 2025, https://balduzzicommercialisti.it/regime-ordinario-o-forfettario-le-valutazioni-da-fare-per-il-2025/
+Tasse partita IVA 2025: calcolo e quando si pagano - Partitaiva.it, accesso eseguito il giorno giugno 1, 2025, https://www.partitaiva.it/tasse-partita-iva/
+VERIFICA REGIME FISCALE di una Partita IVA: come farlo?, accesso eseguito il giorno giugno 1, 2025, https://www.fiscozen.it/guide/come-faccio-a-sapere-il-mio-regime-fiscale/
+FEBBRAIO2025 - ODCEC Milano, accesso eseguito il giorno giugno 1, 2025, https://www.odcec.mi.it/docs/default-source/news-allegati/rivista_icds-febbraio25_pw.pdf?sfvrsn=a6476dfa_0
+Entrata, uscita e passaggio al regime forfettario 2025 - Fatture in Cloud, accesso eseguito il giorno giugno 1, 2025, https://www.fattureincloud.it/guida-regime-forfettario/regole-di-accesso-passaggio-uscita/
+Certificazione Unica forfettari: addio dal 2025 - FISCOeTASSE.com, accesso eseguito il giorno giugno 1, 2025, https://www.fiscoetasse.com/new-rassegna-stampa/1636-certificazione-unica-forfettari-addio-dal-2025.html
+Dichiarazione IVA 2025 forfettari: obbligo per cambio di regime - Fisco 7, accesso eseguito il giorno giugno 1, 2025, https://www.fisco7.it/2025/03/dichiarazione-iva-2025-forfettari-obbligo-per-cambio-di-regime/
+Tasse Partita Iva 2025: quante sono e come calcolarle? - Fatture in Cloud, accesso eseguito il giorno giugno 1, 2025, https://www.fattureincloud.it/guida-aprire-partita-iva/tasse/
+Esempio di tasse per Artigiani e Commercianti in Forfettario - Flextax.it, accesso eseguito il giorno giugno 1, 2025, https://flextax.it/esempio-di-tasse-per-artigiani-e-commercianti-in-forfettario/
+Tasse regime forfettario - Partitaiva24.it, accesso eseguito il giorno giugno 1, 2025, https://partitaiva24.it/tasse-regime-forfettario/
+IRPEF 2025 - la tassazione: cosa sapere su scaglioni, calcolo e nuove detrazioni, accesso eseguito il giorno giugno 1, 2025, https://www.ilcommercialistaonline.it/irpef-2025/
+Guida al Regime Forfettario 2025 - Fatture in Cloud, accesso eseguito il giorno giugno 1, 2025, https://www.fattureincloud.it/guida-regime-forfettario/
+Regime forfettario coefficiente di redditività - FlexTax, accesso eseguito il giorno giugno 1, 2025, https://flextax.it/regime-forfettario-coefficiente-di-redditivita/
+calcolo tassazione regime forfettario: il Tool gratuito - Il Commercialista Online, accesso eseguito il giorno giugno 1, 2025, https://www.ilcommercialistaonline.it/calcola-imposte-regime-forfetario/
+Contributi regime forfettario: vantaggi 2025 - Il Commercialista Online, accesso eseguito il giorno giugno 1, 2025, https://www.ilcommercialistaonline.it/contributi-regime-forfettario/
+Riduzione contributi INPS 2025: funzionamento e beneficiari - Soluzione Tasse, accesso eseguito il giorno giugno 1, 2025, https://www.soluzionetasse.com/contributi-inps-commercianti-aliquote/
+Circolare per il Cliente del 14 Febbraio 2025, accesso eseguito il giorno giugno 1, 2025, https://studiocbi.it/img/article/Circolare%20Fiscale%2014%20Febbraio%202025%20CBI.pdf
+Regime ordinario: come funziona, requisiti e tasse - Partitaiva.it, accesso eseguito il giorno giugno 1, 2025, https://www.partitaiva.it/regime-ordinario/
+Certificazione Unica forfettari 2025 eliminata - Regimeminimi.com, accesso eseguito il giorno giugno 1, 2025, https://www.regimeminimi.com/certificazione-unica-forfettari-2025-eliminata/
+Calcolo acconti e saldo Regime Forfettario: scadenze ed esempi - Quickfisco, accesso eseguito il giorno giugno 1, 2025, https://quickfisco.it/blog/calcolo-acconti-saldo-regime-forfettario-scadenze-esempi/
+Detrazione Iva delle fatture 2024 ricevute nel 2025 - Cesystemweb, accesso eseguito il giorno giugno 1, 2025, https://www.cesystemweb.it/news/detrazione-iva-delle-fatture-2024-ricevute-nel-2025-179
+Redditi PF 2025: le novità del Quadro LM - FISCOeTASSE.com, accesso eseguito il giorno giugno 1, 2025, https://www.fiscoetasse.com/new-rassegna-stampa/1959-redditi-pf-le-novit%C3%A0-del-quadro-lm.html
+REDDITI PF 2025 - Istruzioni commentate - Acquista OnLine - Elenco Prodotti, accesso eseguito il giorno giugno 1, 2025, https://www.eutekne.it/Ecomm/ElencoProdotti.aspx?PageToShow=QuadernoIndice&ProdId=10482&ProdType=13
+Testo Unico Imposte sui Redditi TUIR 2025 - SEAC Shop, accesso eseguito il giorno giugno 1, 2025, https://shop.seac.it/consulenza-fiscale/10454-testo-unico-imposte-sui-redditi-gli-articoli-commentati-2024-9791254652190.html
+Decreto legislativo 13 dicembre 2024, n. 192, e legge 30 dicembre 2024, n. 207 – Novità in materia d'imposta sul r - Agenzia Entrate, accesso eseguito il giorno giugno 1, 2025, https://www.agenziaentrate.gov.it/portale/documents/20143/8410823/Circolare+lavoro+dipendente+LB2025+DD+IRPEF+n.+4+del+16+maggio+2025.pdf/36979eaa-9fc5-a4ec-a7aa-136497c53f91
+www.informazionefiscale.it, accesso eseguito il giorno giugno 1, 2025, https://www.informazionefiscale.it/detrazioni-lavoro-autonomo-calcolo-importo-tabella#:~:text=La%20normativa%20di%20riferimento%20%C3%A8,autonomo%20fino%20a%205.500%20euro.
+IRPEF 2025: scaglioni, aliquote e detrazioni - DATALOG®, accesso eseguito il giorno giugno 1, 2025, https://www.datalog.it/irpef-2025/
+Modello 730 e precompilato 2025: istruzioni, novità e scadenza, accesso eseguito il giorno giugno 1, 2025, https://www.opendotcom.it/fisco/730/
+Quali sono i costi che posso scaricare in partita IVA? - Commercialista, accesso eseguito il giorno giugno 1, 2025, https://www.dangelos.it/quali-sono-i-costi-che-posso-scaricare-costi-deducibili-reddito-irpef-detraibili-iva/
+novità fiscali e dichiarazioni delle società di persone, accesso eseguito il giorno giugno 1, 2025, https://www.odcec.fe.it/webservices/send_file.php?file=/files/01134/1265-122-903746.pdf
+Riporto perdite fiscali: novità nella Legge di bilancio 2019 - FISCOeTASSE.com, accesso eseguito il giorno giugno 1, 2025, https://www.fiscoetasse.com/approfondimenti/13293-riporto-perdite-irpef-novit-nella-legge-di-bilancio-2019.html
+La riforma fiscale “ribalta” il criterio di tassazione della liquidazione ordinaria, accesso eseguito il giorno giugno 1, 2025, https://www.rivistadirittotributario.it/2024/07/18/la-riforma-fiscale-ribalta-il-criterio-di-tassazione-della-liquidazione-ordinaria/
+Riporto e perdite fiscali: una breve sintesi - FISCOeTASSE.com, accesso eseguito il giorno giugno 1, 2025, https://www.fiscoetasse.com/rassegna-stampa/31612-riporto-e-perdite-fiscali-una-breve-sintesi.html
+Perdite fiscali a riporto - Fisco 7, accesso eseguito il giorno giugno 1, 2025, https://www.fisco7.it/2016/06/perdite-fiscali-a-riporto/
+Perdite IRPEF fino a compensazione dell'80% del reddito d'impresa - Eutekne.info, accesso eseguito il giorno giugno 1, 2025, https://www.eutekne.info/Sezioni/Art_907501_perdite_irpef_fino_a_compensazione_dell_80_del_reddito_d_impresa.aspx
+Riporto perdite in dichiarazione dei redditi - Commercialista Telematico, accesso eseguito il giorno giugno 1, 2025, https://www.commercialistatelematico.com/articoli/2023/10/riporto-perdite-in-dichiarazione-dei-redditi.html
+553 I commi da 1 a 6-bis dell'art. 54 del TUIR contengono le disposizioni in materia di componenti negativi del reddito degli, accesso eseguito il giorno giugno 1, 2025, https://legacyshop.wki.it/documenti/00102010_est.pdf
+8. ISTRUZIONI PER LA COMPILAZIONE DEL QUADRO RS - Agenzia delle Entrate, accesso eseguito il giorno giugno 1, 2025, https://www.agenziaentrate.gov.it/portale/Archivio/Modelli+e+istruzioni/Modelli+2008-2016/Modelli+di+dichiarazione/2007/Unico+PF+2007/Fascicolo_3/1_Istruzioni_per_la_compilazione_dei_quadri_aggiuntivi_al_modello_base/8_Istruzione_per_la_compilazione_del_quadro_RS.html
+circolare n. 25/E - Agenzia Entrate, accesso eseguito il giorno giugno 1, 2025, https://www.agenziaentrate.gov.it/portale/documents/20143/2624559/Circolare+n.+25_20_08_2020.pdf/df9309d0-8384-ec33-3726-f0ca823c3d60
+Nuovo trattamento delle perdite fiscali e indicazione nel modello Redditi PF 2019 - Edotto, accesso eseguito il giorno giugno 1, 2025, https://www.edotto.com/articolo/nuovo-trattamento-delle-perdite-fiscali
+Il riporto delle perdite per le imprese individuali e per i lavoratori autonomi, accesso eseguito il giorno giugno 1, 2025, https://www.fiscoetasse.com/approfondimenti/10427-il-riporto-delle-perdite-per-le-imprese-individuali-e-per-i-lavoratori-autonomi.html
+Il riporto delle perdite fiscali, accesso eseguito il giorno giugno 1, 2025, http://dspace.unive.it/bitstream/handle/10579/22309/989767-1266765.pdf?sequence=2
+Circolare del 10/04/2019 n. 8 - Agenzia delle Entrate - Divisione Contribuenti, accesso eseguito il giorno giugno 1, 2025, https://def.finanze.it/DocTribFrontend/getPrassiDetail.do?id=%7BD8558B4D-5491-492C-9DB4-C39942379134%7D
+Scaglioni IRPEF 2025: guida completa per le aziende e i loro dipendenti, accesso eseguito il giorno giugno 1, 2025, https://factorial.it/blog/guida-scaglioni-irpef-per-aziende/
+Regime Semplificato 2025: quando conviene? [Guida Completa] - Consulens, accesso eseguito il giorno giugno 1, 2025, https://consulens.online/blog/come-scegliere-il-regime-fiscale-giusto/
+Contabilità ordinaria: Obbligatoria, cosa prevede - Mooncard, accesso eseguito il giorno giugno 1, 2025, https://www.mooncard.co/it/caso-di-uso/contabilita/regime-contabile/contabilita-ordinaria
+Abolizione dell'IRAP per i professionisti: chiarimenti dell'Agenzia delle entrate, accesso eseguito il giorno giugno 1, 2025, https://www.legislazionetecnica.it/8451968/news-edilizia-appalti-professioni-tecniche-sicurezza-ambiente/abolizione-dellirap-i-professionisti-chiarimenti-dellagenzia-delle-entrate
+Entrate - Circ. n. 4/E del 16.05.2025 : Novità IRPEF 2025. Lavoro dipendente, detrazioni, welfare: le ultime istruzioni dell'Agenzia delle entrate. - Lavorosi, accesso eseguito il giorno giugno 1, 2025, https://www.lavorosi.it/contribuzione-previdenziale/prelievo-e-adempimenti-fiscali/entrate-circ-n-4e-del-16052025-novita-irpef-2025-lavoro-dipendente-detrazioni-welfare/
+IRAP (Imposta Regionale Attività Produttive) - ilDiritto - Quotidiano giuridico, accesso eseguito il giorno giugno 1, 2025, https://ildiritto.it/fisco/irap-imposta-regionale-attivita-produttive/
+Le novità Irpef 2025, la circolare: nuove aliquote, detrazioni e bonus. Le tabelle | LeggiOggi, accesso eseguito il giorno giugno 1, 2025, https://www.leggioggi.it/le-novita-irpef-2025-la-circolare-agenzia-entrate/
+IRPEF 2025: tutte le novità su detrazioni, aliquote e bonus per i lavoratori - GruppoPiù, accesso eseguito il giorno giugno 1, 2025, https://www.gruppo-piu.it/post/irpef-2025-tutte-le-novit%C3%A0-su-detrazioni-aliquote-e-bonus-per-i-lavoratori
+www.ilcommercialistaonline.it, accesso eseguito il giorno giugno 1, 2025, https://www.ilcommercialistaonline.it/irpef-2025/#:~:text=Calcolo%20IRPEF%202025%3A%20come%20funziona&text=Un%20lavoratore%20con%20un%20reddito,7.000%20%C3%97%2035%25%20%3D%202.450%20euro
+Partita IVA: tutte le spese che si possono scaricare - Partitaiva.it, accesso eseguito il giorno giugno 1, 2025, https://www.partitaiva.it/partita-iva-cosa-scaricare/
+Novità in tema di detrazioni - Legge 30 dicembre 2024, n. 207 (legge di bilancio 2025) Roma, 29 maggio 2025 - Agenzia Entrate, accesso eseguito il giorno giugno 1, 2025, https://www.agenziaentrate.gov.it/portale/documents/20143/8410823/CIRCOLARE_RIORDINO_DETRAZIONI+n.+6+del+29+maggio+2025.pdf/41d27442-ed03-83bb-abd9-b2c236043a5b
+www.ilcommercialistaonline.it, accesso eseguito il giorno giugno 1, 2025, https://www.ilcommercialistaonline.it/irpef-2025/#:~:text=Esempio%20pratico%20di%20calcolo%20IRPEF,7.000%20%C3%97%2035%25%20%3D%202.450%20euro
+Professionisti - Iva - regole generali, aliquote, esenzioni, pagamento - Norme generali e aliquote - Agenzia delle Entrate, accesso eseguito il giorno giugno 1, 2025, https://www.agenziaentrate.gov.it/portale/iva-regole-generali-aliquote-esenzioni-pagamento/norme-generali-e-aliquote-professionisti
+Calendario Fiscale 2025: Scadenziario Aggiornato - Il Tuo Contabile, accesso eseguito il giorno giugno 1, 2025, https://iltuocontabile.it/calendario-fiscale/
+Le scadenze fiscali del 2025 | Aruba Magazine, accesso eseguito il giorno giugno 1, 2025, https://www.aruba.it/magazine/fatturazione-elettronica/scadenze-fiscali-2025.aspx
+Che cos'è - Iva 2025 - Agenzia Entrate, accesso eseguito il giorno giugno 1, 2025, https://www.agenziaentrate.gov.it/portale/dichiarazione-iva-2025/che-cos-e-imprese
+LIBRI, REGISTRI, SCRITTURE E DOCUMENTI CONTABILI PREVISTI DALLA NORMATIVA CIVILISTICA E FISCALE E DALLA NORMATIVA SPECIALE - TuttoCamere.it, accesso eseguito il giorno giugno 1, 2025, https://www.tuttocamere.it/files/tabelle/Libri_Sociali_Scheda2.pdf
+Registro IVA: cos'è, tenuta e conservazione - Biblus Acca, accesso eseguito il giorno giugno 1, 2025, https://biblus.acca.it/registro-iva-cos-e-tenuta-conservazione/
+Circolare n. 1/2025 – Stampa registri contabili 2023 - Studiocom, accesso eseguito il giorno giugno 1, 2025, https://www.studiocom.it/2025/01/13/circolare-n-1-2025-stampa-registri-contabili-2023/
+30 aprile 2025: termine ultimo per la detrazione dell'IVA sulle fatture ricevute nel 2024, accesso eseguito il giorno giugno 1, 2025, https://www.informazionefiscale.it/detrazione-iva-fatture-dichiarazione-2025-data-2024
+Auto aziendali: prorogata la detrazione IVA del 40% fino al 2025 - Assolombarda, accesso eseguito il giorno giugno 1, 2025, https://www.assolombarda.it/servizi/fisco/auto-aziendali-prorogata-la-detrazione-iva-del-40-fino-al-2025
+NOVITÀ PER I PROFESSIONISTI DAL 2025 - RIADDEBITO SPESE AL CLIENTE, accesso eseguito il giorno giugno 1, 2025, https://www.centrimpresa.it/centrimpresa-informa/novita-per-i-professionisti-dal-2025-riaddebito-spese-al-cliente/
+IRAP - Agenzia Entrate, accesso eseguito il giorno giugno 1, 2025, https://www.agenziaentrate.gov.it/portale/documents/20143/8661646/IRAP_2025_istruzioni.pdf/2f60cd2c-1275-f8e0-a7a8-27ad2dac60d9?t=1738661747735
+IRAP 2025 - Agenzia Entrate, accesso eseguito il giorno giugno 1, 2025, https://www.agenziaentrate.gov.it/portale/documents/20143/8827509/IRAP_2025_istruzioni.pdf/8e30a17c-3024-4ee4-e98c-72be0fc5afc7?t=1742200937734
+Irap 2025: tutte le regole per la dichiarazione - FISCOeTASSE.com, accesso eseguito il giorno giugno 1, 2025, https://www.fiscoetasse.com/new-rassegna-stampa/1935-dichiarazione-irap-2025-tutte-le-regole-per-linvio.html
+Irap 2025: tutto pronto per la dichiarazione - FISCOeTASSE.com, accesso eseguito il giorno giugno 1, 2025, https://www.fiscoetasse.com/new-rassegna-stampa/1935-dichiarazione-irap-2025-tutto-pront-per-la-dichiarazione.html
+Ritenuta d'acconto: cos'è e come funziona - Il Commercialista Online, accesso eseguito il giorno giugno 1, 2025, https://www.ilcommercialistaonline.it/ritenuta-dacconto-come-funziona/
+Regime premiale ISA: a chi spetta e quali vantaggi offre, accesso eseguito il giorno giugno 1, 2025, https://www.soluzionetasse.com/isa-perche-un-algoritmo-errato-ti-fa-pagare-di-piu/
+Regime premiale ISA 2025: Benefici e condizioni per i contribuenti - MySolution, accesso eseguito il giorno giugno 1, 2025, https://www.mysolution.it/fisco/informazioni/news/2025/04/14/isa-regime-premiale/
+Acconti IRPEF 2025 senza ricalcolo in base alle regole del 2023 - Eutekne.info, accesso eseguito il giorno giugno 1, 2025, https://www.eutekne.info/Sezioni/Art_1057005_acconti_irpef_2025_senza_ricalcolo_in_base_alle_regole_del_2023.aspx
+Riordino delle detrazioni. L'Agenzia delle entrate fa il punto sulle novità introdotte dalla Legge di Bilancio 2025. Tetto più alto per spese scolastiche e per cani guida - Finanza e Fisco, accesso eseguito il giorno giugno 1, 2025, https://www.finanzaefisco.com/riordino-delle-detrazioni-2025/
+Transizione regime forfetario/ordinario nella Dichiarazione IVA 2025 - DK Post, accesso eseguito il giorno giugno 1, 2025, https://www.dkpost.it/transizione-regime-forfetario-ordinario-nella-dichiarazione-iva-2025/
+Regime agevolato forfettario - Modalità di accesso al regime - Agenzia delle Entrate, accesso eseguito il giorno giugno 1, 2025, https://www.agenziaentrate.gov.it/portale/schede/agevolazioni/regime-agevolato-forfettario/modalita-di-accesso-al-regime
+Scadenze Fiscali maggio 2025 - FISCOeTASSE.com, accesso eseguito il giorno giugno 1, 2025, https://www.fiscoetasse.com/scadenzefiscali/2025/05
+Scadenzario Fiscale - Agenzia Entrate, accesso eseguito il giorno giugno 1, 2025, https://www1.agenziaentrate.gov.it/servizi/scadenzario/main.php
+G&P Info - Modello F24 - Graber Partner Südtirol, accesso eseguito il giorno giugno 1, 2025, https://www.graber-partner.com/it/domande-frequenti/50-modello-f24.html
+F24 nel regime forfettario. Guida Quick alla compilazione - Quickfisco, accesso eseguito il giorno giugno 1, 2025, https://quickfisco.it/blog/regime-forfettario/f24-nel-regime-forfettario/
+Scadenze Fiscali gennaio 2025 - FISCOeTASSE.com, accesso eseguito il giorno giugno 1, 2025, https://www.fiscoetasse.com/scadenzefiscali/2025/01
+Scadenze Fiscali febbraio 2025 - FISCOeTASSE.com, accesso eseguito il giorno giugno 1, 2025, https://www.fiscoetasse.com/scadenzefiscali/2025/02
+I codici tributo per Modello F24 in ordine numerico - Misterfisco, accesso eseguito il giorno giugno 1, 2025, https://www.misterfisco.it/i-codici-tributo-per-modello-f24-in-ordine-numerico/
+FASI OPERATIVE PER RIPORTARE I TRIBUTI INPS IN F24 - Manuale Prodotto - EduPass, accesso eseguito il giorno giugno 1, 2025, https://www.edupass.it/manuali/manualistica-mexal/manuale-prodotto?a=manuale-redditi/redditi/redditi-persone-fisiche---gestione-inps/gestione-inps/fasi-operative-per-riportare-i-tributi-inps-in-f24
+L'acconto del contributo Inps L. 335/95 - Gestione separata dei professionisti, accesso eseguito il giorno giugno 1, 2025, https://www.fiscoetasse.com/approfondimenti/10070-l-acconto-del-contributo-inps-l-335-95-gestione-separata-dei-professionisti.html
+FASI OPERATIVE PER RIPORTARE I TRIBUTI INPS IN F24 - Manuale Redditi - EduPass, accesso eseguito il giorno giugno 1, 2025, https://www.edupass.it/manuali/manualistica-passcom/manuale-redditi?a=manuale-redditi/redditi/redditi-persone-fisiche---gestione-inps/gestione-inps/fasi-operative-per-riportare-i-tributi-inps-in-f24
+Domanda di compensazione contributiva per artigiani e commercianti - INPS, accesso eseguito il giorno giugno 1, 2025, https://www.inps.it/it/it/dettaglio-scheda.it.schede-servizio-strumento.schede-servizi.50132.domanda-di-compensazione-contributiva-per-artigiani-e-commercianti.html
+Richiesta compensazione contributiva - INPS, accesso eseguito il giorno giugno 1, 2025, https://www.inps.it/it/it/dettaglio-approfondimento.schede-informative.49845.richiesta-compensazione-contributiva.html
+Prontuario imposte e tasse on line - Sezione Inps - Innovazione & Software srl, accesso eseguito il giorno giugno 1, 2025, http://www.globallaboratory.it/pit/tb_f24_inps.htm
+Tabella codici tributo utilizzabili per il versamento spontaneo delle somme dovute per la collaborazione volontaria - Agenzia Entrate, accesso eseguito il giorno giugno 1, 2025, https://www.agenziaentrate.gov.it/portale/schede/istanze/collaborazione-volontaria-voluntary-disclosure-/collaborazione-volontaria-infogen/tab-codici-tributo-vers-somme-dovute
