@@ -738,7 +738,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Leads management endpoints
   app.get("/api/leads", async (req: any, res) => {
     try {
-      const leads = await storage.getLeads();
+      const leads = await storage.getAllLeads();
       res.json(leads);
     } catch (error) {
       res.status(500).json({ message: "Errore nel recuperare i leads", error });
@@ -777,7 +777,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/leads/export", async (req: any, res) => {
     try {
-      const leads = await storage.getLeads();
+      const leads = await storage.getAllLeads();
       
       // Create CSV data
       const csvHeader = "ID,Nome,Cognome,Email,Settore,Fatturato,Categoria,Data Creazione,Status,Note\n";
