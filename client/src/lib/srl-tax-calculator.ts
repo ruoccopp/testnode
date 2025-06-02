@@ -356,49 +356,56 @@ function getMonthName(month: number): string {
 function createFiscalCalendar2025(iresAmount: number, irapAmount: number, vatDeadlines: any[], inpsTotalAmount: number, fiscalYear: number) {
   const calendar = [];
   
-  // Scadenze IVA
+  // Scadenze IVA per l'anno corrente
   calendar.push(...vatDeadlines.map(deadline => ({
     ...deadline,
     category: 'IVA' as const,
     description: deadline.type
   })));
   
-  // ACCONTI IRES/IRAP per anno fiscale
-  const primoAccontoIRES = iresAmount * 0.40;
-  const secondoAccontoIRES = iresAmount * 0.60;
-  const primoAccontoIRAP = irapAmount * 0.40;
-  const secondoAccontoIRAP = irapAmount * 0.60;
+  // IMPORTANTE: Per il 2025, le scadenze IRES/IRAP si riferiscono all'anno d'imposta 2024
+  // Gli acconti 2025 sono calcolati sull'imposta 2024 (che non abbiamo, quindi usiamo stima)
+  // Stima conservativa: 70% dell'imposta proiettata 2025 come base per acconti
+  const iresBase2024Stimata = iresAmount * 0.70; // Stima prudenziale
+  const irapBase2024Stimata = irapAmount * 0.70;
   
+  const primoAccontoIRES = iresBase2024Stimata * 0.40;
+  const secondoAccontoIRES = iresBase2024Stimata * 0.60;
+  const primoAccontoIRAP = irapBase2024Stimata * 0.40;
+  const secondoAccontoIRAP = irapBase2024Stimata * 0.60;
+  
+  // 30 Giugno 2025: Saldo 2024 + Primo acconto 2025
   calendar.push({
-    date: `30/06/${fiscalYear}`,
+    date: `30/06/2025`,
     amount: primoAccontoIRES,
-    type: `IRES I Acconto ${fiscalYear}`,
+    type: `IRES I Acconto 2025`,
     category: 'IRES' as const,
-    description: `Primo acconto IRES anno ${fiscalYear} (40%)`
+    description: `Primo acconto IRES 2025 (40% imposta 2024)`
   });
   
   calendar.push({
-    date: `30/06/${fiscalYear}`,
+    date: `30/06/2025`,
     amount: primoAccontoIRAP,
-    type: `IRAP I Acconto ${fiscalYear}`,
+    type: `IRAP I Acconto 2025`,
     category: 'IRAP' as const,
-    description: `Primo acconto IRAP anno ${fiscalYear} (40%)`
+    description: `Primo acconto IRAP 2025 (40% imposta 2024)`
   });
   
+  // 30 Novembre 2025: Secondo acconto 2025
   calendar.push({
-    date: `30/11/${fiscalYear}`,
+    date: `30/11/2025`,
     amount: secondoAccontoIRES,
-    type: `IRES II Acconto ${fiscalYear}`,
+    type: `IRES II Acconto 2025`,
     category: 'IRES' as const,
-    description: `Secondo acconto IRES anno ${fiscalYear} (60%)`
+    description: `Secondo acconto IRES 2025 (60% imposta 2024)`
   });
   
   calendar.push({
-    date: `30/11/${fiscalYear}`,
+    date: `30/11/2025`,
     amount: secondoAccontoIRAP,
-    type: `IRAP II Acconto ${fiscalYear}`,
+    type: `IRAP II Acconto 2025`,
     category: 'IRAP' as const,
-    description: `Secondo acconto IRAP anno ${fiscalYear} (60%)`
+    description: `Secondo acconto IRAP 2025 (60% imposta 2024)`
   });
   
   // CONTRIBUTI INPS

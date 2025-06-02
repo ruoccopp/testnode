@@ -2012,7 +2012,12 @@ export default function CalculatorSRLPage() {
           {/* Scadenze Fiscali con Indicatori di Urgenza */}
           <Card className="mb-8">
             <CardContent className="p-6">
-              <h3 className="text-xl font-bold mb-6 text-gray-900">📅 Scadenze Fiscali 2025</h3>
+              <h3 className="text-xl font-bold mb-4 text-gray-900">📅 Scadenze Fiscali 2025</h3>
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4">
+                <p className="text-sm text-amber-800">
+                  <span className="font-semibold">⚠️ Nota importante:</span> Le scadenze IRES/IRAP 2025 si basano sull'anno d'imposta <strong>2024</strong> (saldo + acconti calcolati su imposta 2024). Gli importi mostrati sono una stima basata sulla proiezione 2025.
+                </p>
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className={`p-4 rounded-lg border-2 ${getUrgencyLevel('30/06/2025').class}`}>
                   <div className="flex items-center justify-between mb-2">
