@@ -1423,61 +1423,7 @@ export default function CalculatorPage() {
             </CardContent>
           </Card>
 
-          {/* SEZIONE 5: Pianificatore delle scadenze */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <PiggyBank className="mr-2 h-5 w-5" />
-                Pianificatore delle scadenze
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                  <h4 className="font-semibold text-yellow-900 mb-3">Pianificazione Finanziaria</h4>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span>Saldo attuale:</span>
-                      <span className="font-medium">{formatCurrency(form.watch('currentBalance') || 0)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Totale da accantonare:</span>
-                      <span className="font-medium">{formatCurrency(results.totalDue)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Deficit/Surplus:</span>
-                      <span className={(form.watch('currentBalance') || 0) >= results.totalDue ? 'text-green-600 font-medium' : 'text-red-600 font-medium'}>
-                        {formatCurrency((form.watch('currentBalance') || 0) - results.totalDue)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Accantonamento mensile:</span>
-                      <span className="font-medium">{formatCurrency(Math.round(results.totalDue / 12))}</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                  <h4 className="font-semibold text-green-900 mb-3">Piano di Risparmio</h4>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span>Risparmio settimanale:</span>
-                      <span className="font-medium">{formatCurrency(Math.round(results.totalDue / 52))}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Risparmio giornaliero:</span>
-                      <span className="font-medium">{formatCurrency(Math.round(results.totalDue / 365))}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>% su fatturato mensile:</span>
-                      <span className="font-medium">{((results.totalDue / (form.watch('revenue2025') || 1)) * 100).toFixed(1)}%</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* SEZIONE 6: Richiesta di esportazione o invio via mail */}
+          {/* SEZIONE 5: Richiesta di esportazione o invio via mail */}
           <Card className="bg-green-50 border-green-200">
             <CardHeader>
               <CardTitle className="flex items-center text-green-800">
