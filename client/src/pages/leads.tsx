@@ -322,7 +322,7 @@ export default function Leads() {
                         {lead.businessSector}
                       </td>
                       <td className="py-4 text-sm text-gray-900">
-                        {formatCurrency(lead.revenue)}
+                        {formatCurrency(lead.revenue || "0")}
                       </td>
                       <td className="py-4">
                         <Badge className={STATUS_COLORS[lead.status as keyof typeof STATUS_COLORS]}>
@@ -374,7 +374,7 @@ export default function Leads() {
                                     </div>
                                     <div>
                                       <label className="text-sm font-medium text-gray-700">Fatturato</label>
-                                      <p className="text-sm text-gray-900">{formatCurrency(selectedLead.revenue)}</p>
+                                      <p className="text-sm text-gray-900">{formatCurrency(selectedLead.revenue || "0")}</p>
                                     </div>
                                     <div>
                                       <label className="text-sm font-medium text-gray-700">Categoria</label>
