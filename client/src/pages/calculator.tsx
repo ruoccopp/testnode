@@ -944,14 +944,15 @@ export default function CalculatorPage() {
             </CardContent>
           </Card>
 
-          {/* Breakdown Imposte e Contributi */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold mb-4 flex items-center">
-                  <Euro className="mr-2 h-5 w-5 text-blue-600" />
-  Dettaglio Fiscale Completo
-                </h3>
+          {/* Dettaglio Fiscale Completo Anno 2024 - Riquadro Unificato */}
+          <Card>
+            <CardContent className="p-6">
+              <h3 className="text-lg font-semibold mb-4 flex items-center">
+                <Euro className="mr-2 h-5 w-5 text-blue-600" />
+                Dettaglio Fiscale Completo Anno 2024
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Sezione Imposte */}
                 <div className="space-y-3">
                   <div className="flex justify-between">
                     <span>Reddito imponibile:</span>
@@ -959,28 +960,21 @@ export default function CalculatorPage() {
                   </div>
                   <div className="flex justify-between">
                     <span>Aliquota forfettaria:</span>
-                    <span className="font-medium">15%</span>
+                    <span className="font-medium">{form.watch('isStartup') ? '5%' : '15%'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Imposta sostitutiva:</span>
                     <span className="font-medium">{formatCurrency(results.taxAmount)}</span>
                   </div>
                   <div className="border-t pt-2">
-                    <div className="flex justify-between font-semibold text-lg">
+                    <div className="flex justify-between font-semibold">
                       <span>Totale Imposte:</span>
                       <span>{formatCurrency(results.taxAmount)}</span>
                     </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
 
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold mb-4 flex items-center">
-                  <User className="mr-2 h-5 w-5 text-orange-600" />
-                  Contributi e Altri Oneri
-                </h3>
+                {/* Sezione Contributi */}
                 <div className="space-y-3">
                   <div className="flex justify-between">
                     <span>Contributi INPS:</span>
@@ -988,18 +982,26 @@ export default function CalculatorPage() {
                   </div>
                   <div className="flex justify-between">
                     <span>Regime contributivo:</span>
-                    <span className="text-sm">Gestione separata</span>
+                    <span className="text-sm">{CONTRIBUTION_REGIMES[form.watch('contributionRegime') as keyof typeof CONTRIBUTION_REGIMES] || 'Gestione separata'}</span>
                   </div>
                   <div className="border-t pt-2">
-                    <div className="flex justify-between font-semibold text-lg">
-                      <span>Totale Altri Oneri:</span>
+                    <div className="flex justify-between font-semibold">
+                      <span>Totale Contributi:</span>
                       <span>{formatCurrency(results.inpsAmount)}</span>
                     </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+              
+              {/* Totale Generale */}
+              <div className="mt-6 p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
+                <div className="flex justify-between items-center">
+                  <span className="text-lg font-bold text-blue-900">Totale Dovuto Anno 2024:</span>
+                  <span className="text-2xl font-bold text-blue-600">{formatCurrency(results.totalDue)}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Anno Fiscale di Riferimento */}
           <Card className="bg-green-50 border-green-200">
