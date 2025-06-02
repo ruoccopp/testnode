@@ -268,10 +268,10 @@ function calculateLossesUsage(reddito: number, input: SRLTaxCalculationInput) {
   
   // Poi perdite ordinarie (limite 80%)
   const limiteOrdinary = redditoResiduoDopoPrimi3 * 0.8;
-  const perditeOrdinarie Used = Math.min(perditeOrdinarie, limiteOrdinary);
+  const perditeOrdinarieUsed = Math.min(perditeOrdinarie, limiteOrdinary);
   
-  const totalLossesUsed = perditePrimi3Used + perditeOrdinarie Used;
-  const remainingLosses = (perditeOrdinarie - perditeOrdinarie Used);
+  const totalLossesUsed = perditePrimi3Used + perditeOrdinarieUsed;
+  const remainingLosses = (perditeOrdinarie - perditeOrdinarieUsed);
   
   return { lossesUsed: totalLossesUsed, remainingLosses };
 }
