@@ -144,7 +144,7 @@ export default function HomePage() {
                   <Building className="h-10 w-10 text-purple-600" />
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                  SRL Semplificata
+                  Società S.R.L.
                 </h2>
                 <p className="text-gray-600">
                   Ideale per attività in crescita
