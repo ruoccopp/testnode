@@ -491,9 +491,8 @@ export default function CalculatorSRLPage() {
       {/* Calculator Form */}
       <Card className="mb-6 md:mb-8">
         <CardContent className="p-4 md:p-6">
-          <TooltipProvider>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-6">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-6">
               
 
 
@@ -509,8 +508,18 @@ export default function CalculatorSRLPage() {
                       name="revenue2024"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel title="Inserisci il fatturato totale dell'anno 2024. Include tutti i ricavi fatturati, incluse le fatture emesse ma non ancora pagate.">
-                            💼 Fatturato 2024 (€) <HelpCircle className="h-4 w-4 inline ml-1 text-gray-400" />
+                          <FormLabel className="flex items-center gap-1">
+                            💼 Fatturato 2024 (€)
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <HelpCircle className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p className="max-w-xs">Inserisci il fatturato totale dell'anno 2024. Include tutti i ricavi fatturati, incluse le fatture emesse ma non ancora pagate.</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
                           </FormLabel>
                           <FormControl>
                             <Input
@@ -1059,8 +1068,18 @@ export default function CalculatorSRLPage() {
                     name="revenue"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-sm md:text-base" title="Inserisci la previsione di fatturato per l'anno 2025. Include tutti i ricavi che prevedi di fatturare durante l'anno.">
-                          💼 Fatturato Annuo 2025 (€) <HelpCircle className="h-4 w-4 inline ml-1 text-gray-400" />
+                        <FormLabel className="text-sm md:text-base flex items-center gap-1">
+                          💼 Fatturato Annuo 2025 (€)
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <HelpCircle className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p className="max-w-xs">Inserisci la previsione di fatturato per l'anno 2025. Include tutti i ricavi che prevedi di fatturare durante l'anno.</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -1083,8 +1102,18 @@ export default function CalculatorSRLPage() {
                     name="costs"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel title="Inserisci tutti i costi operativi deducibili: materie prime, servizi, consulenze, utenze, affitti, ammortamenti. Non includere stipendi e compensi amministratore.">
-                          🏭 Costi Operativi (€) <HelpCircle className="h-4 w-4 inline ml-1 text-gray-400" />
+                        <FormLabel className="flex items-center gap-1">
+                          🏭 Costi Operativi (€)
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <HelpCircle className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p className="max-w-xs">Inserisci tutti i costi operativi deducibili: materie prime, servizi, consulenze, utenze, affitti, ammortamenti. Non includere stipendi e compensi amministratore.</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -1371,7 +1400,6 @@ export default function CalculatorSRLPage() {
               </Button>
             </form>
           </Form>
-          </TooltipProvider>
         </CardContent>
       </Card>
 
