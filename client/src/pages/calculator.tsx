@@ -580,6 +580,8 @@ export default function CalculatorPage() {
                               <SelectItem value="IVS_ARTIGIANI">IVS Artigiani</SelectItem>
                               <SelectItem value="IVS_COMMERCIANTI">IVS Commercianti</SelectItem>
                               <SelectItem value="GESTIONE_SEPARATA">Gestione Separata</SelectItem>
+                              <SelectItem value="CASSA_FORENSE">Cassa Forense (Avvocati)</SelectItem>
+                              <SelectItem value="INARCASSA">Inarcassa (Ingegneri e Architetti)</SelectItem>
                             </SelectContent>
                           </Select>
                         </FormItem>
