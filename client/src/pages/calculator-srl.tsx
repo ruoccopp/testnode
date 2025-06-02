@@ -76,11 +76,11 @@ const calculationSchema = z.object({
   const startYear = new Date(data.startDate).getFullYear();
   if (startYear <= 2024) {
     return data.revenue2024 !== undefined && data.revenue2024 >= 0 && 
-           data.utile2024 !== undefined && data.utile2024 >= 0;
+           data.taxableIncome2024 !== undefined && data.taxableIncome2024 >= 0;
   }
   return true;
 }, {
-  message: "Per attività iniziate nel 2024 o prima sono obbligatori: Fatturato 2024 e Utile 2024",
+  message: "Per attività iniziate nel 2024 o prima sono obbligatori: Fatturato 2024 e Reddito Imponibile 2024",
   path: ["revenue2024"]
 });
 
@@ -201,7 +201,7 @@ export default function CalculatorSRLPage() {
         startDate: data.startDate,
         startYear: startYear,
         // Dati 2024 solo se l'attività è iniziata nel 2024 o prima
-        utile2024: startYear <= 2024 ? data.utile2024 : undefined,
+        utile2024: startYear <= 2024 ? data.taxableIncome2024 : undefined,
         utile2023: startYear <= 2024 ? data.utile2023 : undefined,
         investimentiPrevisti: data.investimentiPrevisti,
         mediaULA2022_2024: startYear <= 2024 ? data.mediaULA2022_2024 : undefined,
@@ -621,7 +621,7 @@ export default function CalculatorSRLPage() {
                       name="taxableIncome2024"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>📈 Reddito Imponibile 2024 (€)</FormLabel>
+                          <FormLabel>📈 Reddito Imponibile 2024 (€) *</FormLabel>
                           <FormControl>
                             <Input
                               type="number"
