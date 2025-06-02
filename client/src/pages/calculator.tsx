@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Calculator, Building, Euro, Calendar, Download, Lock, Mail, User, Briefcase } from "lucide-react";
+import { Calculator, Building, Euro, Calendar, Download, Lock, Mail, User, Briefcase, TrendingUp, PiggyBank } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import * as XLSX from 'xlsx';
 import logoPath from "@assets/SmartRate - Colors.png";
@@ -443,6 +443,12 @@ export default function CalculatorPage() {
                               }
                             } else if (selectedCategory.sector === 'ARTIGIANATO') {
                               form.setValue('contributionRegime', 'IVS_ARTIGIANI');
+                            } else if (value === 'LEGAL_SERVICES') {
+                              // Avvocati → Cassa Forense
+                              form.setValue('contributionRegime', 'CASSA_FORENSE');
+                            } else if (value === 'ENGINEERING_ARCHITECTURE') {
+                              // Ingegneri e Architetti → Inarcassa
+                              form.setValue('contributionRegime', 'INARCASSA');
                             } else {
                               form.setValue('contributionRegime', 'GESTIONE_SEPARATA');
                             }

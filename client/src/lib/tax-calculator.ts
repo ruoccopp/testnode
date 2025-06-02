@@ -40,17 +40,63 @@ export function calculateTaxes(input: TaxCalculationInput): TaxCalculationResult
   
   if (contributionRegime === 'GESTIONE_SEPARATA') {
     // Gestione Separata: versamento annuale basato sul reddito
-    const rate = hasOtherCoverage ? 0.24 : 0.2572;
+    const rate = hasOtherCoverage ? 0.24 : 0.2607;
     const applicableIncome = Math.max(Math.min(taxableIncome, 120607), 18555);
     inpsAmount = applicableIncome * rate;
+  } else if (contributionRegime === 'CASSA_FORENSE') {
+    // Cassa Forense per Avvocati
+    let subjectiveContribution = 0;
+    let integrativeContribution = 0;
+    
+    if (taxableIncome <= 130000) {
+      subjectiveContribution = Math.max(taxableIncome * 0.16, 2750);
+    } else {
+      subjectiveContribution = 130000 * 0.16 + (taxableIncome - 130000) * 0.03;
+    }
+    
+    integrativeContribution = Math.max(taxableIncome * 0.04, 350);
+    
+    // Apply reductions
+    if (contributionReduction === '35') {
+      subjectiveContribution *= 0.65;
+      integrativeContribution *= 0.65;
+    } else if (contributionReduction === '50') {
+      subjectiveContribution *= 0.50;
+      integrativeContribution *= 0.50;
+    }
+    
+    inpsAmount = subjectiveContribution + integrativeContribution;
+  } else if (contributionRegime === 'INARCASSA') {
+    // Inarcassa per Ingegneri e Architetti
+    let subjectiveContribution = 0;
+    let integrativeContribution = 0;
+    const maternityContribution = 72;
+    
+    // Contributo soggettivo 14.5% fino a €142.650
+    const applicableIncome = Math.min(taxableIncome, 142650);
+    subjectiveContribution = applicableIncome * 0.145;
+    
+    // Contributo integrativo 4% con minimo €815
+    integrativeContribution = Math.max(taxableIncome * 0.04, 815);
+    
+    // Apply reductions
+    if (contributionReduction === '35') {
+      subjectiveContribution *= 0.65;
+      integrativeContribution *= 0.65;
+    } else if (contributionReduction === '50') {
+      subjectiveContribution *= 0.50;
+      integrativeContribution *= 0.50;
+    }
+    
+    inpsAmount = subjectiveContribution + integrativeContribution + maternityContribution;
   } else {
     // Artigiani/Commercianti: contributi fissi trimestrali + eccedenza
     const minimums = {
-      'IVS_ARTIGIANI': 4427.04,
-      'IVS_COMMERCIANTI': 4515.43
+      'IVS_ARTIGIANI': 4460.64,
+      'IVS_COMMERCIANTI': 4549.70
     };
     
-    let minimum = minimums[contributionRegime as keyof typeof minimums] || 4427.04;
+    let minimum = minimums[contributionRegime as keyof typeof minimums] || 4460.64;
     
     // Apply reductions al contributo fisso
     let quarterlyBase = minimum;
@@ -60,29 +106,32 @@ export function calculateTaxes(input: TaxCalculationInput): TaxCalculationResult
     // Contributo trimestrale fisso (diviso per 4 rate)
     inpsQuarterly = quarterlyBase / 4;
     
-    // Contributo maternità sempre dovuto per intero
-    const maternitaContribution = 7.44;
-    if (contributionReduction === '35' || contributionReduction === '50') {
-      quarterlyBase += maternitaContribution;
-    }
-    
     inpsAmount = quarterlyBase;
     
-    // Calcolo eccedenza (se reddito > minimale €18.324)
+    // Calcolo eccedenza (se reddito > minimale €18.555)
     inpsExcess = 0;
-    if (taxableIncome > 18324) {
-      const excess = (taxableIncome - 18324) * 0.24;
-      const reductionFactor = contributionReduction === '35' ? 0.65 : 
-                             contributionReduction === '50' ? 0.50 : 1;
-      inpsExcess = excess * reductionFactor;
-      inpsAmount += inpsExcess;
-    }
-    
-    // Per commercianti: contributo aggiuntivo 0.48%
-    if (contributionRegime === 'IVS_COMMERCIANTI') {
-      const additionalContribution = taxableIncome * 0.0048;
-      inpsAmount += additionalContribution;
-      inpsExcess = (inpsExcess || 0) + additionalContribution;
+    if (taxableIncome > 18555) {
+      const thresholds = {
+        'IVS_ARTIGIANI': { rate1: 0.24, rate2: 0.25, threshold: 55448 },
+        'IVS_COMMERCIANTI': { rate1: 0.2448, rate2: 0.2548, threshold: 55448 }
+      };
+      
+      const config = thresholds[contributionRegime as keyof typeof thresholds];
+      if (config) {
+        const excessBase = taxableIncome - 18555;
+        let excess = 0;
+        
+        if (taxableIncome <= config.threshold) {
+          excess = excessBase * config.rate1;
+        } else {
+          excess = (config.threshold - 18555) * config.rate1 + (taxableIncome - config.threshold) * config.rate2;
+        }
+        
+        const reductionFactor = contributionReduction === '35' ? 0.65 : 
+                               contributionReduction === '50' ? 0.50 : 1;
+        inpsExcess = excess * reductionFactor;
+        inpsAmount += inpsExcess;
+      }
     }
   }
 
