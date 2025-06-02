@@ -312,32 +312,32 @@ export default function CalculatorIndividualPage() {
       <div className="bg-white shadow-md border-b">
         <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="flex flex-col md:flex-row items-center gap-4">
-              <div className="flex gap-2">
-                <Link href="/calculator">
-                  <Button variant="outline" size="sm" className="text-xs">
-                    📊 Forfettario
-                  </Button>
-                </Link>
-                <Link href="/calculator-srl">
-                  <Button variant="outline" size="sm" className="text-xs">
-                    🏢 SRL
-                  </Button>
-                </Link>
-                <Button variant="default" size="sm" className="text-xs">
-                  👤 Ordinario
-                </Button>
-                <Link href="/leads">
-                  <Button variant="outline" size="sm" className="text-xs">
-                    🎯 Dashboard Lead
-                  </Button>
-                </Link>
-              </div>
+            <div className="flex items-center">
               <img 
                 src={logoPath} 
                 alt="SmartRate" 
                 className="h-10 md:h-12 w-auto"
               />
+            </div>
+            <div className="flex gap-2">
+              <Link href="/calculator">
+                <Button variant="outline" size="sm" className="text-xs">
+                  📊 Forfettario
+                </Button>
+              </Link>
+              <Link href="/calculator-srl">
+                <Button variant="outline" size="sm" className="text-xs">
+                  🏢 SRL
+                </Button>
+              </Link>
+              <Button variant="default" size="sm" className="text-xs">
+                👤 Ordinario
+              </Button>
+              <Link href="/leads">
+                <Button variant="outline" size="sm" className="text-xs">
+                  🎯 Dashboard Lead
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
