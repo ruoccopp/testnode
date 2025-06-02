@@ -918,7 +918,10 @@ export default function CalculatorIndividualPage() {
                       name="currentBalance"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>💳 Saldo Attuale (€)</FormLabel>
+                          <FormLabel>💳 Saldo Conto Corrente Attuale (€)</FormLabel>
+                          <p className="text-xs text-gray-600 mb-2">
+                            Liquidità disponibile per pianificare i pagamenti fiscali
+                          </p>
                           <FormControl>
                             <Input
                               type="number"
