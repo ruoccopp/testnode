@@ -1778,44 +1778,7 @@ export default function CalculatorIndividualPage() {
 
           </div>
         )}
-         {/* Report Avanzato Sbloccato */}
-         {results && isUnlocked && (
-            <Card className="bg-green-50 border-green-200">
-              <CardHeader>
-                <CardTitle className="flex items-center text-green-800">
-                  🎉 Report Ordinario Avanzato Sbloccato!
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center mb-4">
-                  <div className="text-green-700">Pianificazione fiscale completa con tutti i calcoli avanzati per la tua attività.</div>
-                </div>
 
-                <div className="flex justify-center gap-4">
-                  <Button 
-                    onClick={() => onEmailSubmit({ email: 'test@example.com' })}
-                    className="bg-green-600 hover:bg-green-700"
-                    disabled={sendEmailMutation.isPending}
-                  >
-                    📥 Scarica Excel Avanzato
-                  </Button>
-
-                  <Button 
-                    variant="outline" 
-                    className="border-green-600 text-green-600 hover:bg-green-50"
-                    onClick={() => onEmailSubmit({ email: 'test@example.com' })}
-                    disabled={sendEmailMutation.isPending}
-                  >
-                    📧 Invia via Email
-                  </Button>
-                </div>
-
-                <div className="mt-4 flex items-center justify-center text-sm text-green-600">
-                  ✅ Report avanzato inviato anche via email: 📧 Salva questa pagina nei preferiti
-                </div>
-              </CardContent>
-            </Card>
-          )}
       </div>
     </div>
   );
