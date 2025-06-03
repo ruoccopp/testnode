@@ -1199,114 +1199,12 @@ export default function CalculatorIndividualPage() {
               </Card>
             </div>
 
-            {/* Anno Fiscale di Riferimento */}
-            <Card className="bg-green-50 border-green-200">
-              <CardHeader>
-                <CardTitle className="flex items-center text-green-800">
-                  <Calendar className="mr-2 h-5 w-5" />
-                  Anno Fiscale di Riferimento: 2025
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div>
-                    <div className="text-sm text-green-700">IRPEF ({results.irpefRate.toFixed(1)}%): Anno fiscale 2025</div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-green-700">IVA (TRIMESTRALE): Liquidazioni anno 2025</div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-green-700">INPS: Contributi anno 2025</div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-green-700">IVA a Debito: €{results.vatAmount.toLocaleString()}</div>
-                  </div>
-                </div>
-                <div className="mt-4 text-sm text-green-600">
-                  <strong>Scadenze di pagamento:</strong> Calendario fiscale 2025<br/>
-                  Le imposte calcolate per il 2025 sono da versare nell'anno successivo secondo il calendario fiscale inviato sotto.
-                </div>
-              </CardContent>
-            </Card>
 
-            {/* Summary Cards con icone */}
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-              <Card className="text-center">
-                <CardContent className="p-4">
-                  <FileText className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                  <div className="text-lg font-bold text-blue-600">€{results.businessIncome.toLocaleString()}</div>
-                  <div className="text-xs text-gray-600">Utile Lordo</div>
-                </CardContent>
-              </Card>
-              <Card className="text-center">
-                <CardContent className="p-4">
-                  <Euro className="h-8 w-8 text-green-600 mx-auto mb-2" />
-                  <div className="text-lg font-bold text-green-600">€{results.irpefNetAmount.toLocaleString()}</div>
-                  <div className="text-xs text-gray-600">IRPEF ({results.irpefRate.toFixed(1)}%)</div>
-                </CardContent>
-              </Card>
-              <Card className="text-center">
-                <CardContent className="p-4">
-                  <Users className="h-8 w-8 text-purple-600 mx-auto mb-2" />
-                  <div className="text-lg font-bold text-purple-600">€{results.totalContributions.toLocaleString()}</div>
-                  <div className="text-xs text-gray-600">INPS Totale</div>
-                </CardContent>
-              </Card>
-              <Card className="text-center">
-                <CardContent className="p-4">
-                  <TrendingUp className="h-8 w-8 text-orange-600 mx-auto mb-2" />
-                  <div className="text-lg font-bold text-orange-600">€{results.vatAmount.toLocaleString()}</div>
-                  <div className="text-xs text-gray-600">IVA Totale</div>
-                </CardContent>
-              </Card>
-              <Card className="text-center">
-                <CardContent className="p-4">
-                  <PiggyBank className="h-8 w-8 text-red-600 mx-auto mb-2" />
-                  <div className="text-lg font-bold text-red-600">€{results.totalDue.toLocaleString()}</div>
-                  <div className="text-xs text-gray-600">Totale Dovuto</div>
-                </CardContent>
-              </Card>
-            </div>
 
             {/* Report Avanzato Sbloccato */}
            
 
-            {/* Email Report */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <DollarSign className="mr-2 h-5 w-5" />
-                  Ricevi Report Dettagliato via Email
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Form {...emailForm}>
-                  <form onSubmit={emailForm.handleSubmit(onEmailSubmit)} className="flex gap-4">
-                    <FormField
-                      control={emailForm.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem className="flex-1">
-                          <FormControl>
-                            <Input 
-                              placeholder="La tua email per ricevere il report Excel"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <Button 
-                      type="submit"
-                      disabled={sendEmailMutation.isPending}
-                    >
-                      {sendEmailMutation.isPending ? "Invio..." : "Invia Report"}
-                    </Button>
-                  </form>
-                </Form>
-              </CardContent>
-            </Card>
+
 
             {/* Detailed Breakdown */}
             <Card>
