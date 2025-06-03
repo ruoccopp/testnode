@@ -1261,21 +1261,66 @@ export default function CalculatorIndividualPage() {
 
                 <div className="flex justify-center gap-4">
                   <Button 
-                    onClick={() => onEmailSubmit({ email: 'test@example.com' })}
+                    onClick={handleDownload}
                     className="bg-green-600 hover:bg-green-700"
                     disabled={sendEmailMutation.isPending}
                   >
                     📥 Scarica Excel Avanzato
                   </Button>
 
-                  <Button 
-                    variant="outline" 
-                    className="border-green-600 text-green-600 hover:bg-green-50"
-                    onClick={() => onEmailSubmit({ email: 'test@example.com' })}
-                    disabled={sendEmailMutation.isPending}
-                  >
-                    📧 Invia via Email
-                  </Button>
+                  <Dialog open={showEmailDialog} onOpenChange={setShowEmailDialog}>
+                    <DialogTrigger asChild>
+                      <Button 
+                        variant="outline" 
+                        className="border-green-600 text-green-600 hover:bg-green-50"
+                        disabled={sendEmailMutation.isPending}
+                      >
+                        📧 Invia via Email
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-md">
+                      <DialogHeader>
+                        <DialogTitle>Invia Report via Email</DialogTitle>
+                      </DialogHeader>
+                      <Form {...emailForm}>
+                        <form onSubmit={emailForm.handleSubmit(onEmailSubmit)} className="space-y-4">
+                          <FormField
+                            control={emailForm.control}
+                            name="email"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Email</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    type="email" 
+                                    placeholder="inserisci la tua email"
+                                    {...field} 
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <div className="flex justify-end gap-2">
+                            <Button 
+                              type="button" 
+                              variant="outline" 
+                              onClick={() => setShowEmailDialog(false)}
+                            >
+                              Annulla
+                            </Button>
+                            <Button 
+                              type="submit"
+                              disabled={sendEmailMutation.isPending}
+                              className="bg-green-600 hover:bg-green-700"
+                            >
+                              {sendEmailMutation.isPending ? "Invio..." : "Invia Report"}
+                            </Button>
+                          </div>
+                        </form>
+                      </Form>
+                    </DialogContent>
+                  </Dialog>
                 </div>
 
                 <div className="mt-4 flex items-center justify-center text-sm text-green-600">
