@@ -829,7 +829,7 @@ export default function CalculatorIndividualPage() {
                           render={({ field }) => (
                             <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                               <FormControl>
-                                <Checkbox```typescript
+                                <Checkbox
                                   checked={field.value}
                                   onCheckedChange={field.onChange}
                                 />
@@ -1316,7 +1316,7 @@ export default function CalculatorIndividualPage() {
             </div>
 
             {/* Report Avanzato Sbloccato */}
-           
+
 
             {/* Email Report */}
             <Card>
@@ -1591,7 +1591,7 @@ export default function CalculatorIndividualPage() {
 
                               return (
                                 <tr key={index} className={`border-b hover:bg-gray-50 ${hasDeficit ? 'bg-red-50' : ''}`}>
-                                  <td className="p-3 text-sm">{event.date}</td>
+                                                                 <td className="p-3 text-sm">{event.date}</td>
                                   <td className="p-3 text-sm">
                                     <div className="flex items-center">
                                       <div className={`w-2 h-2 rounded-full mr-2 ${dotColor}`}></div>
