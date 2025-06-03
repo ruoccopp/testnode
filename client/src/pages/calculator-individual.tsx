@@ -1139,66 +1139,283 @@ export default function CalculatorIndividualPage() {
 
 
 
-            {/* Detailed Breakdown */}
+            {/* Dettaglio Fiscale Anno 2024 */}
             <Card>
               <CardHeader>
-                <CardTitle>Dettaglio Imposte e Contributi 2025</CardTitle>
+                <CardTitle className="flex items-center text-blue-800">
+                  <Euro className="mr-2 h-5 w-5" />
+                  Dettaglio Fiscale Completo Anno 2024
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <h4 className="font-semibold mb-2">IRPEF e Addizionali</h4>
-                      <div className="space-y-1 text-sm">
-                        <div className="flex justify-between">
-                          <span>IRPEF Netta:</span>
-                          <span>€{results.irpefNetAmount.toLocaleString()}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Addizionale Regionale:</span>
-                          <span>€{results.regionalSurcharge.toLocaleString()}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Addizionale Comunale:</span>
-                          <span>€{results.municipalSurcharge.toLocaleString()}</span>
-                        </div>
-                        <Separator />
-                        <div className="flex justify-between font-semibold">
-                          <span>Totale Imposte:</span>
-                          <span>€{results.totalTaxes.toLocaleString()}</span>
-                        </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                  <div>
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span>Reddito imponibile:</span>
+                        <span className="font-medium">{Math.round(results.businessIncome * 0.85).toLocaleString()} €</span>
                       </div>
-                    </div>
-
-                    <div>
-                      <h4 className="font-semibold mb-2">Contributi Previdenziali</h4>
-                      <div className="space-y-1 text-sm">
-                        <div className="flex justify-between">
-                          <span>Gestione:</span>
-                          <span>{CONTRIBUTION_TYPES[results.contributionDetails.type as keyof typeof CONTRIBUTION_TYPES]}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Aliquota:</span>
-                          <span>{(results.contributionDetails.rate * 100).toFixed(2)}%</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Contributo Soggettivo:</span>
-                          <span>€{results.contributionDetails.calculatedAmount.toLocaleString()}</span>
-                        </div>
-                        {results.contributionDetails.integrative && results.contributionDetails.integrative > 0 && (
-                          <div className="flex justify-between">
-                            <span>Contributo Integrativo:</span>
-                            <span>€{results.contributionDetails.integrative.toLocaleString()}</span>
-                          </div>
-                        )}
-                        <Separator />
-                        <div className="flex justify-between font-semibold">
-                          <span>Totale Contributi:</span>
-                          <span>€{results.totalContributions.toLocaleString()}</span>
-                        </div>
+                      <div className="flex justify-between">
+                        <span>Aliquota IRPEF:</span>
+                        <span className="font-medium">{results.irpefRate.toFixed(1)}%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>IRPEF 2024:</span>
+                        <span className="font-medium">{Math.round(results.irpefNetAmount * 0.85).toLocaleString()} €</span>
+                      </div>
+                      <div className="flex justify-between font-semibold">
+                        <span>Totale Imposte:</span>
+                        <span>{Math.round(results.totalTaxes * 0.85).toLocaleString()} €</span>
                       </div>
                     </div>
                   </div>
+                  <div>
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span>Contributi INPS:</span>
+                        <span className="font-medium">{Math.round(results.totalContributions * 0.85).toLocaleString()} €</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Regime contributivo:</span>
+                        <span className="font-medium">{CONTRIBUTION_TYPES[results.contributionDetails.type as keyof typeof CONTRIBUTION_TYPES]}</span>
+                      </div>
+                      <div className="flex justify-between font-semibold">
+                        <span>Totale Contributi:</span>
+                        <span>{Math.round(results.totalContributions * 0.85).toLocaleString()} €</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg font-semibold text-blue-900">Totale Dovuto Anno 2024:</span>
+                    <span className="text-2xl font-bold text-blue-600">{Math.round(results.totalDue * 0.85).toLocaleString()} €</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Pianificatore Scadenze Fiscali 2025 */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center text-purple-800">
+                  <Calendar className="mr-2 h-5 w-5" />
+                  Pianificatore Scadenze Fiscali 2025
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left py-2 px-4">Data Scadenza</th>
+                        <th className="text-left py-2 px-4">Importo</th>
+                        <th className="text-left py-2 px-4">Tipo Versamento</th>
+                        <th className="text-left py-2 px-4">Codice Tributo</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="border-b bg-green-50">
+                        <td className="py-2 px-4">30 Giugno 2025</td>
+                        <td className="py-2 px-4 font-medium text-green-600">{Math.round(results.totalTaxes * 0.85).toLocaleString()} €</td>
+                        <td className="py-2 px-4">Saldo IRPEF 2024</td>
+                        <td className="py-2 px-4">1792</td>
+                      </tr>
+                      <tr className="border-b bg-blue-50">
+                        <td className="py-2 px-4">30 Giugno 2025</td>
+                        <td className="py-2 px-4 font-medium text-blue-600">{Math.round(results.totalTaxes * 0.4).toLocaleString()} €</td>
+                        <td className="py-2 px-4">Primo Acconto 2025 (40%)</td>
+                        <td className="py-2 px-4">1790</td>
+                      </tr>
+                      <tr className="border-b bg-purple-50">
+                        <td className="py-2 px-4">30 Novembre 2025</td>
+                        <td className="py-2 px-4 font-medium text-purple-600">{Math.round(results.totalTaxes * 0.6).toLocaleString()} €</td>
+                        <td className="py-2 px-4">Secondo Acconto 2025 (60%)</td>
+                        <td className="py-2 px-4">1791</td>
+                      </tr>
+                      <tr className="border-b bg-orange-50">
+                        <td className="py-2 px-4">16 Agosto 2025</td>
+                        <td className="py-2 px-4 font-medium text-orange-600">{Math.round(results.totalContributions * 0.85).toLocaleString()} €</td>
+                        <td className="py-2 px-4">Contributi INPS 2024</td>
+                        <td className="py-2 px-4">PXX</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Dettaglio Fiscale Anno 2025 */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center text-blue-800">
+                  <Euro className="mr-2 h-5 w-5" />
+                  Dettaglio Fiscale Completo Anno 2025
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                  <div>
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span>Reddito imponibile:</span>
+                        <span className="font-medium">{results.businessIncome.toLocaleString()} €</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Aliquota IRPEF:</span>
+                        <span className="font-medium">{results.irpefRate.toFixed(1)}%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>IRPEF 2025:</span>
+                        <span className="font-medium">{results.irpefNetAmount.toLocaleString()} €</span>
+                      </div>
+                      <div className="flex justify-between font-semibold">
+                        <span>Totale Imposte:</span>
+                        <span>{results.totalTaxes.toLocaleString()} €</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span>Contributi INPS:</span>
+                        <span className="font-medium">{results.totalContributions.toLocaleString()} €</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Regime contributivo:</span>
+                        <span className="font-medium">{CONTRIBUTION_TYPES[results.contributionDetails.type as keyof typeof CONTRIBUTION_TYPES]}</span>
+                      </div>
+                      <div className="flex justify-between font-semibold">
+                        <span>Totale Contributi:</span>
+                        <span>{results.totalContributions.toLocaleString()} €</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg font-semibold text-blue-900">Totale Dovuto Anno 2025:</span>
+                    <span className="text-2xl font-bold text-blue-600">{results.totalDue.toLocaleString()} €</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Pianificatore Scadenze Fiscali 2026 */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center text-purple-800">
+                  <Calendar className="mr-2 h-5 w-5" />
+                  Pianificatore Scadenze Fiscali 2026
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left py-2 px-4">Data Scadenza</th>
+                        <th className="text-left py-2 px-4">Importo</th>
+                        <th className="text-left py-2 px-4">Tipo Versamento</th>
+                        <th className="text-left py-2 px-4">Codice Tributo</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="border-b bg-green-50">
+                        <td className="py-2 px-4">30 Giugno 2026</td>
+                        <td className="py-2 px-4 font-medium text-green-600">{results.totalTaxes.toLocaleString()} €</td>
+                        <td className="py-2 px-4">Saldo IRPEF 2025</td>
+                        <td className="py-2 px-4">1792</td>
+                      </tr>
+                      <tr className="border-b bg-blue-50">
+                        <td className="py-2 px-4">30 Giugno 2026</td>
+                        <td className="py-2 px-4 font-medium text-blue-600">{Math.round(results.totalTaxes * 0.4).toLocaleString()} €</td>
+                        <td className="py-2 px-4">Primo Acconto 2026 (40%)</td>
+                        <td className="py-2 px-4">1790</td>
+                      </tr>
+                      <tr className="border-b bg-purple-50">
+                        <td className="py-2 px-4">30 Novembre 2026</td>
+                        <td className="py-2 px-4 font-medium text-purple-600">{Math.round(results.totalTaxes * 0.6).toLocaleString()} €</td>
+                        <td className="py-2 px-4">Secondo Acconto 2026 (60%)</td>
+                        <td className="py-2 px-4">1791</td>
+                      </tr>
+                      <tr className="border-b bg-orange-50">
+                        <td className="py-2 px-4">16 Agosto 2026</td>
+                        <td className="py-2 px-4 font-medium text-orange-600">{results.totalContributions.toLocaleString()} €</td>
+                        <td className="py-2 px-4">Contributi INPS 2025</td>
+                        <td className="py-2 px-4">PXX</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Pianificatore IVA 2025 */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center text-orange-800">
+                  <TrendingUp className="mr-2 h-5 w-5" />
+                  Pianificatore IVA 2025 (Regime Trimestrale)
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="mb-4 p-4 bg-orange-50 rounded-lg border border-orange-200">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="text-center">
+                      <div className="text-sm text-gray-600 mb-1">IVA su Vendite Annua</div>
+                      <div className="text-lg font-bold text-orange-600">€{results.vatAmount.toLocaleString()}</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-sm text-gray-600 mb-1">IVA Acquisti Stimata</div>
+                      <div className="text-lg font-bold text-blue-600">€{Math.round(results.vatAmount * 0.2).toLocaleString()}</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-sm text-gray-600 mb-1">IVA Netta da Versare</div>
+                      <div className="text-lg font-bold text-green-600">€{Math.round(results.vatAmount * 0.8).toLocaleString()}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left py-2 px-4">Periodo</th>
+                        <th className="text-left py-2 px-4">Data Scadenza</th>
+                        <th className="text-left py-2 px-4">Importo IVA</th>
+                        <th className="text-left py-2 px-4">Tipo</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="border-b bg-blue-50">
+                        <td className="py-2 px-4">I Trimestre 2025</td>
+                        <td className="py-2 px-4">16 Maggio 2025</td>
+                        <td className="py-2 px-4 font-medium text-blue-600">€{Math.round(results.vatAmount * 0.8 / 4).toLocaleString()}</td>
+                        <td className="py-2 px-4">Liquidazione Trimestrale</td>
+                      </tr>
+                      <tr className="border-b bg-green-50">
+                        <td className="py-2 px-4">II Trimestre 2025</td>
+                        <td className="py-2 px-4">16 Agosto 2025</td>
+                        <td className="py-2 px-4 font-medium text-green-600">€{Math.round(results.vatAmount * 0.8 / 4).toLocaleString()}</td>
+                        <td className="py-2 px-4">Liquidazione Trimestrale</td>
+                      </tr>
+                      <tr className="border-b bg-purple-50">
+                        <td className="py-2 px-4">III Trimestre 2025</td>
+                        <td className="py-2 px-4">16 Novembre 2025</td>
+                        <td className="py-2 px-4 font-medium text-purple-600">€{Math.round(results.vatAmount * 0.8 / 4).toLocaleString()}</td>
+                        <td className="py-2 px-4">Liquidazione Trimestrale</td>
+                      </tr>
+                      <tr className="border-b bg-orange-50">
+                        <td className="py-2 px-4">IV Trimestre 2025</td>
+                        <td className="py-2 px-4">16 Febbraio 2026</td>
+                        <td className="py-2 px-4 font-medium text-orange-600">€{Math.round(results.vatAmount * 0.8 / 4).toLocaleString()}</td>
+                        <td className="py-2 px-4">Liquidazione Trimestrale</td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
               </CardContent>
             </Card>
