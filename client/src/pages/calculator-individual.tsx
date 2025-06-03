@@ -176,7 +176,6 @@ export default function CalculatorIndividualPage() {
       lastName: "",
       email: "",
       companyName: "",
-      vatNumber: "",
       businessSector: "",
     },
   });
@@ -265,7 +264,6 @@ export default function CalculatorIndividualPage() {
         lastName: data.lastName,
         email: data.email,
         companyName: data.companyName || '',
-        vatNumber: data.vatNumber || '',
         businessSector: data.businessSector,
         leadSource: 'individual-calculator',
         calculationType: 'individual-ordinario'
@@ -318,7 +316,14 @@ export default function CalculatorIndividualPage() {
   };
 
   const onLeadSubmit = (data: LeadForm) => {
-    submitLeadMutation.mutate(data);
+    // Automatically set business sector from ATECO code
+    const atecoCode = form.watch('atecoCode');
+    const businessSector = ATECO_CODES[atecoCode as keyof typeof ATECO_CODES] || data.businessSector;
+    
+    submitLeadMutation.mutate({
+      ...data,
+      businessSector
+    });
   };
 
   const onEmailSubmit = (data: EmailForm) => {
@@ -1144,7 +1149,13 @@ export default function CalculatorIndividualPage() {
                         <FormItem>
                           <FormLabel>Settore di Attività *</FormLabel>
                           <FormControl>
-                            <Input placeholder="es: Consulenza informatica" {...field} />
+                            <Input 
+                              placeholder="es: Consulenza informatica" 
+                              {...field} 
+                              value={ATECO_CODES[form.watch('atecoCode') as keyof typeof ATECO_CODES] || field.value}
+                              readOnly
+                              className="bg-gray-50"
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -1165,19 +1176,7 @@ export default function CalculatorIndividualPage() {
                       )}
                     />
 
-                    <FormField
-                      control={leadForm.control}
-                      name="vatNumber"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Partita IVA (opzionale)</FormLabel>
-                          <FormControl>
-                            <Input placeholder="12345678901" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+
                   </div>
 
                   <Button 
