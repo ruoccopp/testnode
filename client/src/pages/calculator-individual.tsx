@@ -193,14 +193,18 @@ export default function CalculatorIndividualPage() {
   const watchedAtecoCode = form.watch('atecoCode');
   
   useEffect(() => {
-    if (watchedAtecoCode) {
+    if (watchedAtecoCode && watchedAtecoCode.trim() !== '') {
+      console.log('ATECO Code changed:', watchedAtecoCode);
       const suggestedBusinessType = mapAtecoToBusinessType(watchedAtecoCode);
+      console.log('Suggested business type:', suggestedBusinessType);
+      
       if (suggestedBusinessType) {
-        // Only auto-set if the current business type is the default or hasn't been manually changed
         const currentBusinessType = form.getValues('businessType');
-        if (!currentBusinessType || currentBusinessType === 'professional') {
-          form.setValue('businessType', suggestedBusinessType);
-        }
+        console.log('Current business type:', currentBusinessType);
+        
+        // Always set the suggested business type when ATECO changes (allowing override)
+        form.setValue('businessType', suggestedBusinessType);
+        console.log('Set business type to:', suggestedBusinessType);
       }
     }
   }, [watchedAtecoCode, form]);
