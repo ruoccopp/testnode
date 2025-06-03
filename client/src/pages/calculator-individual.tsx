@@ -829,7 +829,7 @@ export default function CalculatorIndividualPage() {
                           render={({ field }) => (
                             <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                               <FormControl>
-                                <Checkbox```typescript
+                                <Checkbox
                                   checked={field.value}
                                   onCheckedChange={field.onChange}
                                 />
