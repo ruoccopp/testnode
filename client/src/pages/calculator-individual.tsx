@@ -19,7 +19,7 @@ import logoPath from "@assets/SmartRate - Colors.png";
 import { Link } from "wouter";
 import { calculateIndividualTaxes, IndividualTaxCalculationResult, CONTRIBUTION_RATES } from "@/lib/individual-tax-calculator";
 import { apiRequest } from "@/lib/queryClient";
-import { deduceFromAteco } from "@/lib/constants";
+import { deduceFromAteco, mapAtecoToBusinessType } from "@/lib/constants";
 
 const calculationSchema = z.object({
   // Data inizio attività
@@ -188,6 +188,22 @@ export default function CalculatorIndividualPage() {
       email: "",
     },
   });
+
+  // Watch for ATECO code changes to auto-set business type
+  const watchedAtecoCode = form.watch('atecoCode');
+  
+  useEffect(() => {
+    if (watchedAtecoCode) {
+      const suggestedBusinessType = mapAtecoToBusinessType(watchedAtecoCode);
+      if (suggestedBusinessType) {
+        // Only auto-set if the current business type is the default or hasn't been manually changed
+        const currentBusinessType = form.getValues('businessType');
+        if (!currentBusinessType || currentBusinessType === 'professional') {
+          form.setValue('businessType', suggestedBusinessType);
+        }
+      }
+    }
+  }, [watchedAtecoCode, form]);
 
   const calculateMutation = useMutation({
     mutationFn: async (data: CalculationForm) => {

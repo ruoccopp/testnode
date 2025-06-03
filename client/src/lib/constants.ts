@@ -299,3 +299,20 @@ export const deduceFromAteco = (atecoCode: string) => {
   }
   return null;
 };
+
+// Mapping from ATECO category to business type for regime ordinario
+export const mapAtecoToBusinessType = (atecoCode: string): "professional" | "business" | "artisan" | "commercial" | null => {
+  const atecoData = deduceFromAteco(atecoCode);
+  if (!atecoData) return null;
+  
+  switch (atecoData.businessType) {
+    case 'PROFESSIONAL':
+      return 'professional';
+    case 'ARTISAN':
+      return 'artisan';
+    case 'COMMERCIAL':
+      return 'commercial';
+    default:
+      return 'business';
+  }
+};
