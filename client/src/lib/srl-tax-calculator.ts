@@ -6,6 +6,7 @@ export interface SRLTaxCalculationInput {
   employeeCosts: number;
   adminSalary: number;
   region: string;
+  businessSector: string;
   vatRegime: string;
   hasVatDebt: boolean;
   vatDebt: number;

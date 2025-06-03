@@ -23,6 +23,7 @@ import { calculateSRLTaxes, IRAP_RATES, VAT_REGIMES, SRLTaxCalculationResult } f
 const calculationSchema = z.object({
   // Data inizio attività
   startDate: z.string().min(1, "Seleziona la data di inizio attività"),
+  businessSector: z.string().min(1, "Seleziona il settore merceologico"),
   
   revenue: z.number().min(0, "Il fatturato deve essere positivo"),
   costs: z.number().min(0, "I costi devono essere positivi"),
@@ -101,6 +102,31 @@ type CalculationForm = z.infer<typeof calculationSchema>;
 type LeadForm = z.infer<typeof leadSchema>;
 type EmailForm = z.infer<typeof emailSchema>;
 
+const BUSINESS_SECTORS = {
+  'MANIFATTURIERO': 'Attività Manifatturiere',
+  'COSTRUZIONI': 'Costruzioni e Affini',
+  'COMMERCIO_DETTAGLIO': 'Commercio al Dettaglio',
+  'COMMERCIO_INGROSSO': 'Commercio all\'Ingrosso',
+  'TRASPORTI': 'Trasporti e Logistica',
+  'SERVIZI_INFORMATICI': 'Servizi Informatici e Digitali',
+  'CONSULENZA_TECNICA': 'Consulenza Tecnica e Professionale',
+  'SERVIZI_FINANZIARI': 'Servizi Finanziari e Assicurativi',
+  'SERVIZI_SANITARI': 'Servizi Sanitari e Sociali',
+  'TURISMO_RISTORAZIONE': 'Turismo e Ristorazione',
+  'SERVIZI_IMMOBILIARI': 'Servizi Immobiliari',
+  'SERVIZI_COMUNICAZIONE': 'Comunicazione e Marketing',
+  'RICERCA_SVILUPPO': 'Ricerca e Sviluppo',
+  'SERVIZI_ENERGIA': 'Energia e Utilities',
+  'AGRICOLTURA': 'Agricoltura e Agroalimentare',
+  'SERVIZI_EDUCATIVI': 'Servizi Educativi e Formativi',
+  'SERVIZI_LEGALI': 'Servizi Legali e Amministrativi',
+  'INDUSTRIA_CHIMICA': 'Industria Chimica e Farmaceutica',
+  'AUTOMOTIVE': 'Automotive e Componentistica',
+  'MODA_TESSILE': 'Moda e Tessile',
+  'SERVIZI_AMBIENTALI': 'Servizi Ambientali',
+  'ALTRO': 'Altro Settore'
+};
+
 const ITALIAN_REGIONS = {
   'PIEMONTE': 'Piemonte',
   'VALLE_AOSTA': 'Valle d\'Aosta',
@@ -138,6 +164,7 @@ export default function CalculatorSRLPage() {
     resolver: zodResolver(calculationSchema),
     defaultValues: {
       startDate: "",
+      businessSector: "",
       revenue: undefined,
       costs: undefined,
       employees: 0,
@@ -191,6 +218,7 @@ export default function CalculatorSRLPage() {
         employeeCosts: data.employeeCosts,
         adminSalary: data.adminSalary,
         region: data.region,
+        businessSector: data.businessSector,
         vatRegime: data.vatRegime,
         hasVatDebt: data.hasVatDebt,
         vatDebt: data.vatDebt || 0,
@@ -401,6 +429,7 @@ export default function CalculatorSRLPage() {
       ['DATI SOCIETA\''],
       ['Fatturato Annuo:', formData.revenue || 0],
       ['Costi Operativi:', formData.costs || 0],
+      ['Settore Merceologico:', BUSINESS_SECTORS[formData.businessSector as keyof typeof BUSINESS_SECTORS] || ''],
       ['Numero Dipendenti:', formData.employees],
       ['Costi Dipendenti:', formData.employeeCosts || 0],
       ['Compenso Amministratore:', formData.adminSalary || 0],
@@ -546,38 +575,80 @@ export default function CalculatorSRLPage() {
                   <Calendar className="h-5 w-5 mr-2" />
                   📅 Informazioni Societarie
                 </h3>
-                <FormField
-                  control={form.control}
-                  name="startDate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-1">
-                        🏢 Data Inizio Attività *
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <HelpCircle className="h-4 w-4 text-gray-400 hover:text-gray-600" />
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p className="max-w-xs text-sm">
-                                Data di costituzione della SRL. Se l'attività è iniziata nel 2024 o prima, 
-                                saranno richiesti i dati fiscali 2024 per calcoli precisi degli acconti 2025.
-                              </p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          type="date"
-                          {...field}
-                          max={new Date().toISOString().split('T')[0]}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="startDate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-1">
+                          🏢 Data Inizio Attività *
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <HelpCircle className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p className="max-w-xs text-sm">
+                                  Data di costituzione della SRL. Se l'attività è iniziata nel 2024 o prima, 
+                                  saranno richiesti i dati fiscali 2024 per calcoli precisi degli acconti 2025.
+                                </p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            type="date"
+                            {...field}
+                            max={new Date().toISOString().split('T')[0]}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="businessSector"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-1">
+                          🏭 Settore Merceologico *
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <HelpCircle className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p className="max-w-xs text-sm">
+                                  Il settore di attività principale della SRL. Influenza aliquote IRAP regionali specifiche, 
+                                  deduzioni settoriali e agevolazioni fiscali mirate.
+                                </p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Seleziona il settore principale" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {Object.entries(BUSINESS_SECTORS).map(([key, label]) => (
+                              <SelectItem key={key} value={key}>
+                                {label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
 
               {/* Sezione Dati 2024 - mostrata solo se attività iniziata nel 2024 o prima */}
