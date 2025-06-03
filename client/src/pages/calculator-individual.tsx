@@ -422,7 +422,7 @@ export default function CalculatorIndividualPage() {
                               } else if (atecoData.businessType === 'ARTISAN') {
                                 form.setValue('businessType', 'artisan');
                               }
-                              
+
                               // Auto-seleziona regime contributivo
                               if (atecoData.contributionRegime === 'GESTIONE_SEPARATA') {
                                 form.setValue('contributionType', 'inps_gestione_separata');
@@ -829,7 +829,7 @@ export default function CalculatorIndividualPage() {
                           render={({ field }) => (
                             <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                               <FormControl>
-                                <Checkbox
+                                <Checkbox```typescript
                                   checked={field.value}
                                   onCheckedChange={field.onChange}
                                 />
@@ -1316,41 +1316,7 @@ export default function CalculatorIndividualPage() {
             </div>
 
             {/* Report Avanzato Sbloccato */}
-            <Card className="bg-green-50 border-green-200">
-              <CardHeader>
-                <CardTitle className="flex items-center text-green-800">
-                  🎉 Report Ordinario Avanzato Sbloccato!
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center mb-4">
-                  <div className="text-green-700">Pianificazione fiscale completa con tutti i calcoli avanzati per la tua attività.</div>
-                </div>
-
-                <div className="flex justify-center gap-4">
-                  <Button 
-                    onClick={() => onEmailSubmit({ email: 'test@example.com' })}
-                    className="bg-green-600 hover:bg-green-700"
-                    disabled={sendEmailMutation.isPending}
-                  >
-                    📥 Scarica Excel Avanzato
-                  </Button>
-
-                  <Button 
-                    variant="outline" 
-                    className="border-green-600 text-green-600 hover:bg-green-50"
-                    onClick={() => onEmailSubmit({ email: 'test@example.com' })}
-                    disabled={sendEmailMutation.isPending}
-                  >
-                    📧 Invia via Email
-                  </Button>
-                </div>
-
-                <div className="mt-4 flex items-center justify-center text-sm text-green-600">
-                  ✅ Report avanzato inviato anche via email: 📧 Salva questa pagina nei preferiti
-                </div>
-              </CardContent>
-            </Card>
+           
 
             {/* Email Report */}
             <Card>
@@ -1891,6 +1857,44 @@ export default function CalculatorIndividualPage() {
             </Card>
           </div>
         )}
+         {/* Report Avanzato Sbloccato */}
+         {results && isUnlocked && (
+            <Card className="bg-green-50 border-green-200">
+              <CardHeader>
+                <CardTitle className="flex items-center text-green-800">
+                  🎉 Report Ordinario Avanzato Sbloccato!
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center mb-4">
+                  <div className="text-green-700">Pianificazione fiscale completa con tutti i calcoli avanzati per la tua attività.</div>
+                </div>
+
+                <div className="flex justify-center gap-4">
+                  <Button 
+                    onClick={() => onEmailSubmit({ email: 'test@example.com' })}
+                    className="bg-green-600 hover:bg-green-700"
+                    disabled={sendEmailMutation.isPending}
+                  >
+                    📥 Scarica Excel Avanzato
+                  </Button>
+
+                  <Button 
+                    variant="outline" 
+                    className="border-green-600 text-green-600 hover:bg-green-50"
+                    onClick={() => onEmailSubmit({ email: 'test@example.com' })}
+                    disabled={sendEmailMutation.isPending}
+                  >
+                    📧 Invia via Email
+                  </Button>
+                </div>
+
+                <div className="mt-4 flex items-center justify-center text-sm text-green-600">
+                  ✅ Report avanzato inviato anche via email: 📧 Salva questa pagina nei preferiti
+                </div>
+              </CardContent>
+            </Card>
+          )}
       </div>
     </div>
   );
