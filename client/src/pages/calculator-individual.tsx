@@ -1422,13 +1422,74 @@ export default function CalculatorIndividualPage() {
 
 
 
-            {/* Liquidity Analysis */}
+            {/* Piano di Accantonamento Mensile */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  <PiggyBank className="mr-2 h-5 w-5" />
-                  Analisi Liquidità e Scadenze 2025
+                  <TrendingUp className="mr-2 h-5 w-5" />
+                  Piano di Accantonamento Mensile
                 </CardTitle>
+                <p className="text-sm text-gray-600">
+                  Scegli il tipo di accantonamento per ottimizzare la gestione della liquidità aziendale
+                </p>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <div className="flex items-center mb-3">
+                      <div className="w-4 h-4 bg-blue-500 rounded-full mr-3"></div>
+                      <span className="font-medium text-blue-900">Accantonamento Standard</span>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-sm">Importo mensile:</span>
+                        <span className="font-bold text-blue-600">€{Math.round(results.totalDue / 12).toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm">Accumulo annuale:</span>
+                        <span className="font-medium">{results.totalDue.toLocaleString()} €</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm">Copertura imposte:</span>
+                        <span className="font-medium text-blue-600">100%</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
+                    <div className="flex items-center mb-3">
+                      <div className="w-4 h-4 bg-orange-500 rounded-full mr-3"></div>
+                      <span className="font-medium text-orange-900">Con Margine Sicurezza (10%)</span>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-sm">Importo mensile:</span>
+                        <span className="font-bold text-orange-600">€{Math.round(results.totalDue / 12 * 1.1).toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm">Accumulo annuale:</span>
+                        <span className="font-medium">{Math.round(results.totalDue * 1.1).toLocaleString()} €</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm">Margine extra:</span>
+                        <span className="font-medium">+€{Math.round(results.totalDue * 0.1).toLocaleString()}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Scadenziere con Liquidità Progressiva */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Calendar className="mr-2 h-5 w-5" />
+                  Scadenziere con Liquidità Progressiva
+                </CardTitle>
+                <p className="text-sm text-gray-600">
+                  Piano completo dal {new Date().toLocaleDateString('it-IT')} in poi - Solo scadenze future (Saldo Attuale: €{(form.watch('currentBalance') || 0).toLocaleString()})
+                </p>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -1457,25 +1518,25 @@ export default function CalculatorIndividualPage() {
                     </div>
                   </div>
 
-                  {/* Legend */}
+                  {/* Legenda Movimenti */}
                   <div className="mb-4">
                     <h4 className="font-semibold text-gray-900 mb-3">Legenda Movimenti:</h4>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
                       <div className="flex items-center">
                         <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-                        <span>Versamenti mensili</span>
-                      </div>
-                      <div className="flex items-center">
-                        <div className="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
-                        <span>Liquidazioni IVA</span>
-                      </div>
-                      <div className="flex items-center">
-                        <div className="w-3 h-3 bg-purple-500 rounded-full mr-2"></div>
-                        <span>Acconti/Saldi IRPEF</span>
+                        <span>Versamenti mensili (€{Math.round(results.totalDue / 12).toLocaleString()})</span>
                       </div>
                       <div className="flex items-center">
                         <div className="w-3 h-3 bg-orange-500 rounded-full mr-2"></div>
                         <span>Contributi INPS</span>
+                      </div>
+                      <div className="flex items-center">
+                        <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                        <span>Acconti/Saldi IRES</span>
+                      </div>
+                      <div className="flex items-center">
+                        <div className="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
+                        <span>Liquidazioni IVA</span>
                       </div>
                     </div>
                   </div>
