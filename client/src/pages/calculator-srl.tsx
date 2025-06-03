@@ -1806,80 +1806,34 @@ export default function CalculatorSRLPage() {
                         <Mail className="h-4 w-4 mr-2" />
                         Email * (per ricevere il report)
                       </FormLabel>
-                      <div className="flex gap-2">
-                        <FormControl>
-                          <Input 
-                            type="email" 
-                            placeholder="mario.rossi@azienda.com" 
-                            {...field}
-                            disabled={emailValidated}
-                          />
-                        </FormControl>
-                        {!emailValidated && (
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => sendVerificationMutation.mutate(field.value)}
-                            disabled={!field.value || sendVerificationMutation.isPending}
-                          >
-                            {sendVerificationMutation.isPending ? "Invio..." : "Verifica"}
-                          </Button>
-                        )}
-                        {emailValidated && (
-                          <div className="flex items-center text-green-600">
-                            <span className="text-sm">✅ Verificata</span>
-                          </div>
-                        )}
-                      </div>
+                      <FormControl>
+                        <Input 
+                          type="email" 
+                          placeholder="mario.rossi@azienda.com" 
+                          {...field}
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
 
-                {sentCode && !emailValidated && (
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <label className="block text-sm font-medium text-blue-900 mb-2">
-                      Codice di verifica (inviato via email)
-                    </label>
-                    <div className="flex flex-col sm:flex-row gap-2">
-                      <Input
-                        placeholder="123456"
-                        value={verificationCode}
-                        onChange={(e) => setVerificationCode(e.target.value)}
-                        maxLength={6}
-                        className="h-12 text-center text-lg font-mono"
-                        inputMode="numeric"
-                      />
-                      <Button
-                        type="button"
-                        onClick={handleEmailVerification}
-                        disabled={!verificationCode}
-                        className="h-12 px-8 touch-manipulation"
-                      >
-                        Verifica
-                      </Button>
-                    </div>
-                  </div>
-                )}
-
-                {emailValidated && (
-                  <FormField
-                    control={leadForm.control}
-                    name="businessSector"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="flex items-center">
-                          <Briefcase className="h-4 w-4 mr-2" />
-                          Settore Aziendale *
-                        </FormLabel>
-                        <FormControl>
-                          <Input placeholder="Consulenza IT" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                )}
+                <FormField
+                  control={leadForm.control}
+                  name="businessSector"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center">
+                        <Briefcase className="h-4 w-4 mr-2" />
+                        Settore Aziendale *
+                      </FormLabel>
+                      <FormControl>
+                        <Input placeholder="Consulenza IT" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <div className="flex items-start space-x-3">
@@ -1893,24 +1847,13 @@ export default function CalculatorSRLPage() {
                   </div>
                 </div>
 
-                {!emailValidated && (
-                  <div className="bg-blue-50 p-4 rounded-lg text-center">
-                    <div className="text-blue-800 font-medium">
-                      Compila tutti i campi e verifica l'email per salvare automaticamente i dati
-                    </div>
-                  </div>
-                )}
-                
-                {emailValidated && (
-                  <div className="bg-green-50 p-4 rounded-lg text-center">
-                    <div className="text-green-800 font-medium">
-                      ✅ Dati salvati automaticamente
-                    </div>
-                    <div className="text-sm text-green-600 mt-1">
-                      I tuoi dati sono stati registrati nel nostro sistema
-                    </div>
-                  </div>
-                )}
+                <Button 
+                  type="submit" 
+                  className="w-full"
+                  disabled={submitLeadMutation.isPending}
+                >
+                  {submitLeadMutation.isPending ? "Invio in corso..." : "Sblocca Report Completo"}
+                </Button>
               </form>
             </Form>
           </CardContent>
