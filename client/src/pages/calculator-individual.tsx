@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -307,6 +307,54 @@ export default function CalculatorIndividualPage() {
       sendEmailMutation.mutate({ ...data, calculationData: results });
     }
   };
+
+  // Recalculate payment schedule based on selected accrual plan
+  const adjustedResults = useMemo(() => {
+    if (!results) return null;
+    
+    const multiplier = selectedAccrualPlan === 'safety' ? 1.1 : 1;
+    const adjustedMonthlyAccrual = Math.round((results.totalDue / 12) * multiplier);
+    
+    // Recalculate payment schedule with adjusted monthly accrual
+    const adjustedPaymentSchedule = results.paymentSchedule.map(event => {
+      if (event.category === 'ACCUMULO') {
+        return {
+          ...event,
+          amount: adjustedMonthlyAccrual
+        };
+      }
+      return event;
+    });
+
+    // Recalculate running balances
+    let runningBalance = form.watch('currentBalance') || 0;
+    const recalculatedSchedule = adjustedPaymentSchedule.map(event => {
+      const previousBalance = runningBalance;
+      
+      if (event.isIncome) {
+        runningBalance += event.amount;
+      } else {
+        runningBalance -= event.amount;
+      }
+      
+      const deficit = runningBalance < 0 ? Math.abs(runningBalance) : 0;
+      const requiredPayment = deficit > 0 ? event.amount + deficit : event.amount;
+      
+      return {
+        ...event,
+        previousBalance,
+        currentBalance: runningBalance,
+        deficit,
+        requiredPayment
+      };
+    });
+
+    return {
+      ...results,
+      monthlyAccrual: adjustedMonthlyAccrual,
+      paymentSchedule: recalculatedSchedule
+    };
+  }, [results, selectedAccrualPlan, form.watch('currentBalance')]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -1526,22 +1574,22 @@ export default function CalculatorIndividualPage() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                     <div className="bg-blue-50 p-3 rounded-lg text-center">
                       <div className="text-lg font-bold text-blue-600">
-                        €{results.paymentSchedule
+                        €{adjustedResults?.paymentSchedule
                           .filter(p => p.deficit > 0)
                           .reduce((sum, p) => sum + p.deficit, 0)
-                          .toLocaleString()}
+                          .toLocaleString() || '0'}
                       </div>
                       <div className="text-sm text-blue-700">Deficit Totale</div>
                     </div>
                     <div className="bg-green-50 p-3 rounded-lg text-center">
                       <div className="text-lg font-bold text-green-600">
-                        {results.paymentSchedule.filter(p => p.deficit > 0).length}
+                        {adjustedResults?.paymentSchedule.filter(p => p.deficit > 0).length || 0}
                       </div>
                       <div className="text-sm text-green-700">Scadenze Critiche</div>
                     </div>
                     <div className="bg-orange-50 p-3 rounded-lg text-center">
                       <div className="text-lg font-bold text-orange-600">
-                        €{Math.max(...results.paymentSchedule.map(p => p.requiredPayment)).toLocaleString()}
+                        €{adjustedResults?.paymentSchedule.length ? Math.max(...adjustedResults.paymentSchedule.map(p => p.requiredPayment)).toLocaleString() : '0'}
                       </div>
                       <div className="text-sm text-orange-700">Pagamento Max Richiesto</div>
                     </div>
@@ -1577,7 +1625,7 @@ export default function CalculatorIndividualPage() {
                       Piano dal {new Date().toLocaleDateString('it-IT')} in poi - Solo scadenze future (Saldo Iniziale: €{(form.watch('currentBalance') || 0).toLocaleString()})
                     </div>
 
-                    {results.paymentSchedule && results.paymentSchedule.length > 0 ? (
+                    {adjustedResults?.paymentSchedule && adjustedResults.paymentSchedule.length > 0 ? (
                       <div className="overflow-x-auto">
                         <table className="min-w-full bg-white border border-gray-200 rounded-lg">
                           <thead>
@@ -1592,7 +1640,7 @@ export default function CalculatorIndividualPage() {
                             </tr>
                           </thead>
                           <tbody>
-                            {results.paymentSchedule.map((event, index) => {
+                            {adjustedResults.paymentSchedule.map((event, index) => {
                               const isPayment = !event.isIncome;
                               const hasDeficit = event.deficit > 0;
 
