@@ -190,3 +190,112 @@ export const MONTHS = [
   'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
   'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'
 ] as const;
+
+// Mappatura ATECO completa con deduzione automatica categoria
+export const ATECO_MAPPING = {
+  // PROFESSIONI (78%)
+  '62': { 
+    description: 'Produzione di software e consulenza informatica',
+    category: 'PROFESSIONAL',
+    macroCategory: 'PROFESSIONAL',
+    contributionRegime: 'GESTIONE_SEPARATA'
+  },
+  '69': { 
+    description: 'Attività legali e di contabilità',
+    category: 'PROFESSIONAL', 
+    macroCategory: 'PROFESSIONAL',
+    contributionRegime: 'CASSA_FORENSE' // Default per legali
+  },
+  '70': { 
+    description: 'Attività di direzione aziendale e di consulenza gestionale',
+    category: 'PROFESSIONAL',
+    macroCategory: 'PROFESSIONAL', 
+    contributionRegime: 'GESTIONE_SEPARATA'
+  },
+  '71': { 
+    description: 'Attività degli studi di architettura e d\'ingegneria',
+    category: 'PROFESSIONAL',
+    macroCategory: 'PROFESSIONAL',
+    contributionRegime: 'INARCASSA'
+  },
+  '72': { 
+    description: 'Ricerca scientifica e sviluppo',
+    category: 'PROFESSIONAL',
+    macroCategory: 'PROFESSIONAL',
+    contributionRegime: 'GESTIONE_SEPARATA'
+  },
+  '73': { 
+    description: 'Pubblicità e ricerche di mercato',
+    category: 'PROFESSIONAL',
+    macroCategory: 'PROFESSIONAL',
+    contributionRegime: 'GESTIONE_SEPARATA'
+  },
+  '74': { 
+    description: 'Altre attività professionali, scientifiche e tecniche',
+    category: 'PROFESSIONAL',
+    macroCategory: 'PROFESSIONAL',
+    contributionRegime: 'GESTIONE_SEPARATA'
+  },
+  '86': { 
+    description: 'Assistenza sanitaria',
+    category: 'PROFESSIONAL',
+    macroCategory: 'PROFESSIONAL',
+    contributionRegime: 'GESTIONE_SEPARATA'
+  },
+  '85': { 
+    description: 'Istruzione',
+    category: 'PROFESSIONAL',
+    macroCategory: 'PROFESSIONAL',
+    contributionRegime: 'GESTIONE_SEPARATA'
+  },
+  
+  // ARTIGIANATO (86%)
+  '43': { 
+    description: 'Lavori di costruzione specializzati',
+    category: 'ARTISAN',
+    macroCategory: 'CONSTRUCTION',
+    contributionRegime: 'IVS_ARTIGIANI'
+  },
+  
+  // COMMERCIO (40-67%)
+  '47': { 
+    description: 'Commercio al dettaglio',
+    category: 'COMMERCIAL',
+    macroCategory: 'OTHER_ACTIVITIES', // 67%
+    contributionRegime: 'IVS_COMMERCIANTI'
+  },
+  '46': { 
+    description: 'Commercio all\'ingrosso', 
+    category: 'COMMERCIAL',
+    macroCategory: 'OTHER_ACTIVITIES', // 67%
+    contributionRegime: 'IVS_COMMERCIANTI'
+  },
+  '45': { 
+    description: 'Commercio e riparazione di autoveicoli',
+    category: 'COMMERCIAL',
+    macroCategory: 'OTHER_ACTIVITIES', // 67%
+    contributionRegime: 'IVS_COMMERCIANTI'
+  },
+  
+  // RISTORAZIONE (40%)
+  '56': {
+    description: 'Attività dei servizi di ristorazione',
+    category: 'COMMERCIAL',
+    macroCategory: 'FOOD_COMMERCE',
+    contributionRegime: 'IVS_COMMERCIANTI'
+  }
+} as const;
+
+// Funzione helper per dedurre categoria da ATECO
+export const deduceFromAteco = (atecoCode: string) => {
+  const mapping = ATECO_MAPPING[atecoCode as keyof typeof ATECO_MAPPING];
+  if (mapping) {
+    return {
+      macroCategory: mapping.macroCategory,
+      businessType: mapping.category,
+      contributionRegime: mapping.contributionRegime,
+      description: mapping.description
+    };
+  }
+  return null;
+};
