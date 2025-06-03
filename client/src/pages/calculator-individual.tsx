@@ -1130,74 +1130,7 @@ export default function CalculatorIndividualPage() {
           <div className="space-y-6">
 
 
-            {/* Breakdown Imposte e Contributi */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <FileText className="mr-2 h-5 w-5 text-purple-600" />
-                    Dettaglio Imposte e Contributi 2025
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex justify-between">
-                      <span>Reddito imponibile:</span>
-                      <span className="font-medium">€{results.totalTaxableIncome.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>IRPEF ({results.irpefRate.toFixed(1)}%):</span>
-                      <span className="font-medium">€{results.irpefNetAmount.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Add. Regionale:</span>
-                      <span className="font-medium">€{results.regionalSurcharge.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Add. Comunale:</span>
-                      <span className="font-medium">€{results.municipalSurcharge.toLocaleString()}</span>
-                    </div>
-                    <Separator />
-                    <div className="flex justify-between font-semibold text-lg">
-                      <span>Totale Imposte:</span>
-                      <span>€{results.totalTaxes.toLocaleString()}</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Users className="mr-2 h-5 w-5 text-orange-600" />
-                    Contributi e Altri Oneri
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex justify-between">
-                      <span>{CONTRIBUTION_TYPES[results.contributionDetails.type as keyof typeof CONTRIBUTION_TYPES]}:</span>
-                      <span className="font-medium">€{results.contributionDetails.calculatedAmount.toLocaleString()}</span>
-                    </div>
-                    {results.contributionDetails.integrative && results.contributionDetails.integrative > 0 && (
-                      <div className="flex justify-between">
-                        <span>Contributi Integrativi:</span>
-                        <span className="font-medium">€{results.contributionDetails.integrative.toLocaleString()}</span>
-                      </div>
-                    )}
-                    <div className="flex justify-between">
-                      <span>IVA Stimata:</span>
-                      <span className="font-medium">€{results.vatAmount.toLocaleString()}</span>
-                    </div>
-                    <Separator />
-                    <div className="flex justify-between font-semibold text-lg">
-                      <span>Totale Altri Oneri:</span>
-                      <span>€{(results.totalContributions + results.vatAmount).toLocaleString()}</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
 
 
 
