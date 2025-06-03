@@ -841,7 +841,7 @@ export default function CalculatorIndividualPage() {
                                 <SelectValue placeholder="Seleziona regime" />
                               </SelectTrigger>
                             </FormControl>
-                            <SelectContent```text
+                            <SelectContent>
                               {Object.entries(VAT_REGIMES).map(([key, description]) => (
                                 <SelectItem key={key} value={key}>
                                   {description}
