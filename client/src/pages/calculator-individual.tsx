@@ -1735,64 +1735,7 @@ export default function CalculatorIndividualPage() {
               </CardContent>
             </Card>
 
-            {/* Piano di Accantonamento Mensile */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Calculator className="mr-2 h-5 w-5 text-blue-600" />
-                  Piano di Accantonamento Mensile
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-sm text-gray-600 mb-4">
-                  Scegli il tipo di accantonamento per ottimizzare la gestione della liquidità aziendale
-                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                    <div className="flex items-center mb-3">
-                      <Calculator className="h-5 w-5 text-blue-600 mr-2" />
-                      <span className="font-medium text-blue-900">Accantonamento Standard</span>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="text-sm">Importo mensile:</span>
-                        <span className="font-bold text-blue-600">€{results.monthlyAccrual.toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm">Accumulo annuale:</span>
-                        <span className="font-medium">€{(results.monthlyAccrual * 12).toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm">Copertura imposte:</span>
-                        <span className="font-medium text-green-600">100%</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
-                    <div className="flex items-center mb-3">
-                      <TrendingUp className="h-5 w-5 text-orange-600 mr-2" />
-                      <span className="font-medium text-orange-900">Con Margine Sicurezza (10%)</span>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="text-sm">Importo mensile:</span>
-                        <span className="font-bold text-orange-600">€{Math.round(results.monthlyAccrual * 1.1).toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm">Margine extra:</span>
-                        <span className="font-medium">+€{Math.round(results.monthlyAccrual * 0.1).toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm">Copertura imposte:</span>
-                        <span className="font-medium text-green-600">110%</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
 
 
 
