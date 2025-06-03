@@ -82,7 +82,6 @@ const leadSchema = z.object({
   lastName: z.string().min(2, "Cognome deve avere almeno 2 caratteri"),
   email: z.string().email("Email non valida"),
   companyName: z.string().optional(),
-  vatNumber: z.string().optional(),
   businessSector: z.string().min(2, "Settore aziendale richiesto"),
 });
 
