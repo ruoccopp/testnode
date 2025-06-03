@@ -135,6 +135,7 @@ export default function CalculatorIndividualPage() {
   const [results, setResults] = useState<IndividualTaxCalculationResult | null>(null);
   const [showLeadForm, setShowLeadForm] = useState(false);
   const [isUnlocked, setIsUnlocked] = useState(false);
+  const [selectedAccrualPlan, setSelectedAccrualPlan] = useState<'standard' | 'safety'>('standard');
   const { toast } = useToast();
 
   const form = useForm<CalculationForm>({
@@ -1435,15 +1436,29 @@ export default function CalculatorIndividualPage() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                  <div 
+                    className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                      selectedAccrualPlan === 'standard' 
+                        ? 'bg-blue-50 border-blue-500' 
+                        : 'bg-blue-25 border-blue-200 hover:border-blue-300'
+                    }`}
+                    onClick={() => setSelectedAccrualPlan('standard')}
+                  >
                     <div className="flex items-center mb-3">
-                      <div className="w-4 h-4 bg-blue-500 rounded-full mr-3"></div>
+                      <div className={`w-4 h-4 rounded-full mr-3 ${
+                        selectedAccrualPlan === 'standard' ? 'bg-blue-500' : 'bg-gray-300'
+                      }`}></div>
                       <span className="font-medium text-blue-900">Accantonamento Standard</span>
+                      {selectedAccrualPlan === 'standard' && (
+                        <div className="ml-auto w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
+                          <div className="w-2 h-2 bg-white rounded-full"></div>
+                        </div>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between">
                         <span className="text-sm">Importo mensile:</span>
-                        <span className="font-bold text-blue-600">€{Math.round(results.totalDue / 12).toLocaleString()}</span>
+                        <span className="font-bold text-blue-600">{Math.round(results.totalDue / 12).toLocaleString()} €</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-sm">Accumulo annuale:</span>
@@ -1456,15 +1471,29 @@ export default function CalculatorIndividualPage() {
                     </div>
                   </div>
 
-                  <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
+                  <div 
+                    className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                      selectedAccrualPlan === 'safety' 
+                        ? 'bg-orange-50 border-orange-500' 
+                        : 'bg-orange-25 border-orange-200 hover:border-orange-300'
+                    }`}
+                    onClick={() => setSelectedAccrualPlan('safety')}
+                  >
                     <div className="flex items-center mb-3">
-                      <div className="w-4 h-4 bg-orange-500 rounded-full mr-3"></div>
+                      <div className={`w-4 h-4 rounded-full mr-3 ${
+                        selectedAccrualPlan === 'safety' ? 'bg-orange-500' : 'bg-gray-300'
+                      }`}></div>
                       <span className="font-medium text-orange-900">Con Margine Sicurezza (10%)</span>
+                      {selectedAccrualPlan === 'safety' && (
+                        <div className="ml-auto w-4 h-4 bg-orange-500 rounded-full flex items-center justify-center">
+                          <div className="w-2 h-2 bg-white rounded-full"></div>
+                        </div>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between">
                         <span className="text-sm">Importo mensile:</span>
-                        <span className="font-bold text-orange-600">€{Math.round(results.totalDue / 12 * 1.1).toLocaleString()}</span>
+                        <span className="font-bold text-orange-600">{Math.round(results.totalDue / 12 * 1.1).toLocaleString()} €</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-sm">Accumulo annuale:</span>
@@ -1524,7 +1553,7 @@ export default function CalculatorIndividualPage() {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
                       <div className="flex items-center">
                         <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-                        <span>Versamenti mensili (€{Math.round(results.totalDue / 12).toLocaleString()})</span>
+                        <span>Versamenti mensili (€{Math.round(results.totalDue / 12 * (selectedAccrualPlan === 'safety' ? 1.1 : 1)).toLocaleString()})</span>
                       </div>
                       <div className="flex items-center">
                         <div className="w-3 h-3 bg-orange-500 rounded-full mr-2"></div>
