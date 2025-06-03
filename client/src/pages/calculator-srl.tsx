@@ -158,6 +158,7 @@ export default function CalculatorSRLPage() {
   const [verificationCode, setVerificationCode] = useState("");
   const [sentCode, setSentCode] = useState("");
   const [useSafetyMargin, setUseSafetyMargin] = useState(false);
+  const [showAdvancedCalculations, setShowAdvancedCalculations] = useState(false);
   const { toast } = useToast();
 
   const form = useForm<CalculationForm>({
@@ -758,339 +759,374 @@ export default function CalculatorSRLPage() {
                 </div>
               )}
 
-              {/* Sezione IRES Premiale 2025 */}
-              <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg border-2 border-purple-300">
-                <h3 className="font-semibold text-purple-900 mb-4 flex items-center">
-                  <TrendingUp className="h-5 w-5 mr-2" />
-                  🏆 IRES Premiale 2025 (Aliquota 20% invece di 24%)
-                </h3>
-                <p className="text-sm text-purple-700 mb-4">
-                  Compila questi campi per verificare l'accesso all'IRES ridotta al 20% per l'anno 2025
+              {/* Sezione Calcoli Avanzati (Collassabile) */}
+              <div className="bg-gradient-to-r from-gray-50 to-blue-50 p-4 rounded-lg border-2 border-gray-300">
+                <div 
+                  className="flex items-center justify-between cursor-pointer"
+                  onClick={() => setShowAdvancedCalculations(!showAdvancedCalculations)}
+                >
+                  <h3 className="font-semibold text-gray-900 mb-0 flex items-center">
+                    <Calculator className="h-5 w-5 mr-2" />
+                    🔬 Calcoli Avanzati (Opzionale)
+                  </h3>
+                  <div className="flex items-center text-gray-600">
+                    <span className="text-sm mr-2">
+                      {showAdvancedCalculations ? 'Chiudi' : 'Espandi'}
+                    </span>
+                    {showAdvancedCalculations ? (
+                      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                      </svg>
+                    ) : (
+                      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    )}
+                  </div>
+                </div>
+                
+                <p className="text-sm text-gray-600 mt-2 mb-4">
+                  Sezioni specifiche per SRL di grandi dimensioni: IRES Premiale, ROL, perdite fiscali, super deduzioni
                 </p>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="utile2024"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>💰 Utile Civilistico 2024 (€)</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            placeholder="es: 800000"
-                            {...field}
-                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
-                            value={field.value || ""}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="utile2023"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>📊 Utile Civilistico 2023 (€)</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            placeholder="es: 1000000"
-                            {...field}
-                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
-                            value={field.value || ""}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="investimentiPrevisti"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>🔧 Investimenti Industria 4.0/5.0 (€)</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            placeholder="es: 250000"
-                            {...field}
-                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
-                            value={field.value || ""}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="mediaULA2022_2024"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>👥 Media ULA 2022-2024</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            placeholder="es: 18"
-                            {...field}
-                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
-                            value={field.value || ""}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="dipendentiTempo2024"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>🔄 Dipendenti T.I. Media 2024</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            placeholder="es: 20"
-                            {...field}
-                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
-                            value={field.value || ""}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="nuoveAssunzioni2025"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>➕ Nuove Assunzioni T.I. 2025</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            placeholder="es: 1"
-                            {...field}
-                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
-                            value={field.value || ""}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                
-                <div className="mt-4">
-                  <FormField
-                    control={form.control}
-                    name="hasUsedCIG"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
-                        <div className="space-y-0.5">
-                          <FormLabel className="text-base">🚫 Hai usato CIG nel 2024/2025?</FormLabel>
-                          <div className="text-sm text-muted-foreground">
-                            L'uso di Cassa Integrazione esclude dall'IRES Premiale
-                          </div>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
 
-              {/* Sezione ROL e Interessi Passivi */}
-              <div className="bg-indigo-50 p-4 rounded-lg border-2 border-indigo-200">
-                <h3 className="font-semibold text-indigo-900 mb-4 flex items-center">
-                  <Calculator className="h-5 w-5 mr-2" />
-                  📊 ROL e Gestione Interessi Passivi (Art. 96 TUIR)
-                </h3>
-                <p className="text-sm text-indigo-700 mb-4">
-                  Per un calcolo preciso della deducibilità degli interessi passivi
-                </p>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="interessiAttivi"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>💹 Interessi Attivi 2025 (€)</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            placeholder="es: 5000"
-                            {...field}
-                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
-                            value={field.value || ""}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="interessiPassivi"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>📉 Interessi Passivi 2025 (€)</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            placeholder="es: 70000"
-                            {...field}
-                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
-                            value={field.value || ""}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="rolFiscale"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>🎯 ROL Fiscale 2025 (€)</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            placeholder="es: 150000"
-                            {...field}
-                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
-                            value={field.value || ""}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
+                {showAdvancedCalculations && (
+                  <div className="space-y-6 mt-6">
+                    {/* Sezione IRES Premiale 2025 */}
+                    <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg border-2 border-purple-300">
+                      <h4 className="font-semibold text-purple-900 mb-4 flex items-center">
+                        <TrendingUp className="h-5 w-5 mr-2" />
+                        🏆 IRES Premiale 2025 (Aliquota 20% invece di 24%)
+                      </h4>
+                      <p className="text-sm text-purple-700 mb-4">
+                        Compila questi campi per verificare l'accesso all'IRES ridotta al 20% per l'anno 2025
+                      </p>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="utile2024"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>💰 Utile Civilistico 2024 (€)</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  placeholder="es: 800000"
+                                  {...field}
+                                  onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                                  value={field.value || ""}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="utile2023"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>📊 Utile Civilistico 2023 (€)</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  placeholder="es: 1000000"
+                                  {...field}
+                                  onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                                  value={field.value || ""}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="investimentiPrevisti"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>🔧 Investimenti Industria 4.0/5.0 (€)</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  placeholder="es: 250000"
+                                  {...field}
+                                  onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                                  value={field.value || ""}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="mediaULA2022_2024"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>👥 Media ULA 2022-2024</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  placeholder="es: 18"
+                                  {...field}
+                                  onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                                  value={field.value || ""}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="dipendentiTempo2024"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>🔄 Dipendenti T.I. Media 2024</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  placeholder="es: 20"
+                                  {...field}
+                                  onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                                  value={field.value || ""}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="nuoveAssunzioni2025"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>➕ Nuove Assunzioni T.I. 2025</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  placeholder="es: 1"
+                                  {...field}
+                                  onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                                  value={field.value || ""}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      
+                      <div className="mt-4">
+                        <FormField
+                          control={form.control}
+                          name="hasUsedCIG"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                              <div className="space-y-0.5">
+                                <FormLabel className="text-base">🚫 Hai usato CIG nel 2024/2025?</FormLabel>
+                                <div className="text-sm text-muted-foreground">
+                                  L'uso di Cassa Integrazione esclude dall'IRES Premiale
+                                </div>
+                              </div>
+                              <FormControl>
+                                <Switch
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                                />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
 
-              {/* Sezione Perdite Fiscali Pregresse */}
-              <div className="bg-red-50 p-4 rounded-lg border-2 border-red-200">
-                <h3 className="font-semibold text-red-900 mb-4 flex items-center">
-                  <AlertTriangle className="h-5 w-5 mr-2" />
-                  📊 Perdite Fiscali Pregresse (Art. 84 TUIR)
-                </h3>
-                <p className="text-sm text-red-700 mb-4">
-                  Perdite utilizzabili per ridurre il reddito imponibile 2025
-                </p>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="perditePregresseOrdinarie"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>📉 Perdite Ordinarie (limite 80%)</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            placeholder="es: 180000"
-                            {...field}
-                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
-                            value={field.value || ""}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="perditePrimi3Esercizi"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>🆕 Perdite Primi 3 Esercizi (100%)</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            placeholder="es: 50000"
-                            {...field}
-                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
-                            value={field.value || ""}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
+                    {/* Sezione ROL e Interessi Passivi */}
+                    <div className="bg-indigo-50 p-4 rounded-lg border-2 border-indigo-200">
+                      <h4 className="font-semibold text-indigo-900 mb-4 flex items-center">
+                        <Calculator className="h-5 w-5 mr-2" />
+                        📊 ROL e Gestione Interessi Passivi (Art. 96 TUIR)
+                      </h4>
+                      <p className="text-sm text-indigo-700 mb-4">
+                        Per un calcolo preciso della deducibilità degli interessi passivi
+                      </p>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="interessiAttivi"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>💹 Interessi Attivi 2025 (€)</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  placeholder="es: 5000"
+                                  {...field}
+                                  onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                                  value={field.value || ""}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="interessiPassivi"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>📉 Interessi Passivi 2025 (€)</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  placeholder="es: 70000"
+                                  {...field}
+                                  onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                                  value={field.value || ""}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="rolFiscale"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>🎯 ROL Fiscale 2025 (€)</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  placeholder="es: 150000"
+                                  {...field}
+                                  onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                                  value={field.value || ""}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
 
-              {/* Sezione Super Deduzione */}
-              <div className="bg-emerald-50 p-4 rounded-lg border-2 border-emerald-200">
-                <h3 className="font-semibold text-emerald-900 mb-4 flex items-center">
-                  <Users className="h-5 w-5 mr-2" />
-                  🚀 Super Deduzione Nuove Assunzioni (120%)
-                </h3>
-                <p className="text-sm text-emerald-700 mb-4">
-                  Maggiorazione 20% del costo per nuove assunzioni a tempo indeterminato
-                </p>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="costoNuoveAssunzioni"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>💰 Costo Nuovi Assunti 2025 (€)</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            placeholder="es: 60000"
-                            {...field}
-                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
-                            value={field.value || ""}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="incrementoCostoPersonale"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>📈 Incremento Totale Costo Personale (€)</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            placeholder="es: 80000"
-                            {...field}
-                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
-                            value={field.value || ""}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                    {/* Sezione Perdite Fiscali Pregresse */}
+                    <div className="bg-red-50 p-4 rounded-lg border-2 border-red-200">
+                      <h4 className="font-semibold text-red-900 mb-4 flex items-center">
+                        <AlertTriangle className="h-5 w-5 mr-2" />
+                        📊 Perdite Fiscali Pregresse (Art. 84 TUIR)
+                      </h4>
+                      <p className="text-sm text-red-700 mb-4">
+                        Perdite utilizzabili per ridurre il reddito imponibile 2025
+                      </p>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="perditePregresseOrdinarie"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>📉 Perdite Ordinarie (limite 80%)</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  placeholder="es: 180000"
+                                  {...field}
+                                  onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                                  value={field.value || ""}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="perditePrimi3Esercizi"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>🆕 Perdite Primi 3 Esercizi (100%)</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  placeholder="es: 50000"
+                                  {...field}
+                                  onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                                  value={field.value || ""}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Sezione Super Deduzione */}
+                    <div className="bg-emerald-50 p-4 rounded-lg border-2 border-emerald-200">
+                      <h4 className="font-semibold text-emerald-900 mb-4 flex items-center">
+                        <Users className="h-5 w-5 mr-2" />
+                        🚀 Super Deduzione Nuove Assunzioni (120%)
+                      </h4>
+                      <p className="text-sm text-emerald-700 mb-4">
+                        Maggiorazione 20% del costo per nuove assunzioni a tempo indeterminato
+                      </p>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="costoNuoveAssunzioni"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>💰 Costo Nuovi Assunti 2025 (€)</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  placeholder="es: 60000"
+                                  {...field}
+                                  onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                                  value={field.value || ""}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="incrementoCostoPersonale"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>📈 Incremento Totale Costo Personale (€)</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  placeholder="es: 80000"
+                                  {...field}
+                                  onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                                  value={field.value || ""}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Sezione Situazione 2025 */}
