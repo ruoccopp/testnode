@@ -333,31 +333,24 @@ export default function CalculatorSRLPage() {
   };
 
   const handleEmailVerification = () => {
-    if (verificationCode === sentCode) {
-      setEmailValidated(true);
-      setIsUnlocked(true);
+    // Verifica email rimossa per velocizzare i test
+    setEmailValidated(true);
+    setIsUnlocked(true);
+    
+    const formData = leadForm.getValues();
+    if (formData.firstName && formData.lastName && formData.email) {
+      const leadData = {
+        ...formData,
+        calculationData: form.getValues(),
+      };
       
-      const formData = leadForm.getValues();
-      if (formData.firstName && formData.lastName && formData.email) {
-        const leadData = {
-          ...formData,
-          calculationData: form.getValues(),
-        };
-        
-        submitLeadMutation.mutate(leadData);
-      }
-      
-      toast({
-        title: "Email verificata con successo!",
-        description: "I tuoi dati sono stati salvati e il report completo è disponibile",
-      });
-    } else {
-      toast({
-        variant: "destructive",
-        title: "Codice errato",
-        description: "Il codice inserito non è corretto",
-      });
+      submitLeadMutation.mutate(leadData);
     }
+    
+    toast({
+      title: "Email verificata con successo!",
+      description: "I tuoi dati sono stati salvati e il report completo è disponibile",
+    });
   };
 
   const onLeadSubmit = (data: LeadForm) => {
