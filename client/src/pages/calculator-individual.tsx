@@ -530,7 +530,7 @@ export default function CalculatorIndividualPage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>👨‍💼 Tipo Attività *</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Seleziona il tipo" />
