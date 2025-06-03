@@ -1128,54 +1128,7 @@ export default function CalculatorIndividualPage() {
         {/* Full Results */}
         {results && isUnlocked && (
           <div className="space-y-6">
-            {/* Piano di Accantonamento con Margine di Sicurezza */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <PiggyBank className="mr-2 h-5 w-5 text-yellow-600" />
-                  Piano di Accantonamento con Margine di Sicurezza
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                  <div className="bg-blue-50 p-4 rounded-lg text-center border border-blue-200">
-                    <div className="flex items-center justify-center mb-2">
-                      <Calculator className="h-5 w-5 text-blue-600 mr-1" />
-                      <span className="text-sm font-medium text-blue-900">Accantonamento Standard</span>
-                    </div>
-                    <div className="space-y-1">
-                      <div className="text-sm text-gray-600">Mensile base:</div>
-                      <div className="text-xl font-bold text-blue-600">€{results.monthlyAccrual.toLocaleString()}</div>
-                      <div className="text-xs text-gray-500">% su fatturato: {((results.monthlyAccrual * 12 / (results.businessRevenue || 1)) * 100).toFixed(1)}%</div>
-                    </div>
-                  </div>
 
-                  <div className="bg-orange-50 p-4 rounded-lg text-center border border-orange-200">
-                    <div className="flex items-center justify-center mb-2">
-                      <TrendingUp className="h-5 w-5 text-orange-600 mr-1" />
-                      <span className="text-sm font-medium text-orange-900">Con Margine Sicurezza (10%)</span>
-                    </div>
-                    <div className="space-y-1">
-                      <div className="text-sm text-gray-600">Mensile sicuro:</div>
-                      <div className="text-xl font-bold text-orange-600">€{Math.round(results.monthlyAccrual * 1.1).toLocaleString()}</div>
-                      <div className="text-xs text-gray-500">Margine extra: +€{Math.round(results.monthlyAccrual * 0.1).toLocaleString()}</div>
-                    </div>
-                  </div>
-
-                  <div className="bg-purple-50 p-4 rounded-lg text-center border border-purple-200">
-                    <div className="flex items-center justify-center mb-2">
-                      <Euro className="h-5 w-5 text-purple-600 mr-1" />
-                      <span className="text-sm font-medium text-purple-900">Distribuzione Cashflow</span>
-                    </div>
-                    <div className="space-y-1">
-                      <div className="text-sm text-gray-600">Accumulo annuale:</div>
-                      <div className="text-xl font-bold text-purple-600">€{results.totalDue.toLocaleString()}</div>
-                      <div className="text-xs text-gray-500">Copertura: 100%</div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
 
             {/* Breakdown Imposte e Contributi */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
