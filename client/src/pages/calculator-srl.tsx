@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Building2, Euro, Users, Calculator, Download, Lock, Mail, User, MapPin, Calendar, AlertTriangle, TrendingUp, HelpCircle, Hash, Briefcase } from "lucide-react";
+import { Building2, Euro, Users, Calculator, Download, Lock, Mail, User, MapPin, Calendar, AlertTriangle, TrendingUp, HelpCircle, Hash, Briefcase, FileText } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import * as XLSX from 'xlsx';
@@ -2160,6 +2160,315 @@ export default function CalculatorSRLPage() {
                     </Form>
                   </DialogContent>
                 </Dialog>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Dettaglio Fiscale Completo Anno 2024 */}
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center text-blue-800">
+                <Euro className="mr-2 h-5 w-5" />
+                Dettaglio Fiscale Completo Anno 2024
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span>Reddito imponibile:</span>
+                      <span className="font-medium">{formatCurrency(results.taxableIncomeAfterLosses)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Aliquota IRES:</span>
+                      <span className="font-medium">{results.isIresPremialeApplicable ? '20.0%' : '24.0%'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>IRES 2024:</span>
+                      <span className="font-medium">{formatCurrency(results.iresAmount)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>IRAP 2024:</span>
+                      <span className="font-medium">{formatCurrency(results.irapAmount)}</span>
+                    </div>
+                    <div className="flex justify-between font-semibold">
+                      <span>Totale Imposte:</span>
+                      <span>{formatCurrency(results.iresAmount + results.irapAmount)}</span>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span>Contributi INPS:</span>
+                      <span className="font-medium">{formatCurrency(results.inpsTotalAmount)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Regime contributivo:</span>
+                      <span className="font-medium">INPS SRL</span>
+                    </div>
+                    <div className="flex justify-between font-semibold">
+                      <span>Totale Contributi:</span>
+                      <span>{formatCurrency(results.inpsTotalAmount)}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <div className="flex justify-between items-center">
+                  <span className="text-lg font-semibold text-blue-900">Totale Dovuto Anno 2024:</span>
+                  <span className="text-2xl font-bold text-blue-600">{formatCurrency(results.iresAmount + results.irapAmount + results.inpsTotalAmount)}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Pianificatore Scadenze Fiscali 2025 */}
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center text-purple-800">
+                <Calendar className="mr-2 h-5 w-5" />
+                Pianificatore Scadenze Fiscali 2025
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left py-2 px-4">Data Scadenza</th>
+                      <th className="text-left py-2 px-4">Importo</th>
+                      <th className="text-left py-2 px-4">Tipo Versamento</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-b bg-green-50">
+                      <td className="py-2 px-4">30 Giugno 2025</td>
+                      <td className="py-2 px-4 font-medium text-green-600">{formatCurrency(results.iresAmount)}</td>
+                      <td className="py-2 px-4">Saldo IRES 2024</td>
+                    </tr>
+                    <tr className="border-b bg-blue-50">
+                      <td className="py-2 px-4">30 Giugno 2025</td>
+                      <td className="py-2 px-4 font-medium text-blue-600">{formatCurrency(results.iresFirstAcconto)}</td>
+                      <td className="py-2 px-4">Primo Acconto IRES 2025 (40%)</td>
+                    </tr>
+                    <tr className="border-b bg-orange-50">
+                      <td className="py-2 px-4">30 Giugno 2025</td>
+                      <td className="py-2 px-4 font-medium text-orange-600">{formatCurrency(results.irapAmount)}</td>
+                      <td className="py-2 px-4">Saldo IRAP 2024</td>
+                    </tr>
+                    <tr className="border-b bg-cyan-50">
+                      <td className="py-2 px-4">30 Giugno 2025</td>
+                      <td className="py-2 px-4 font-medium text-cyan-600">{formatCurrency(results.irapFirstAcconto)}</td>
+                      <td className="py-2 px-4">Primo Acconto IRAP 2025 (40%)</td>
+                    </tr>
+                    <tr className="border-b bg-purple-50">
+                      <td className="py-2 px-4">30 Novembre 2025</td>
+                      <td className="py-2 px-4 font-medium text-purple-600">{formatCurrency(results.iresSecondAcconto)}</td>
+                      <td className="py-2 px-4">Secondo Acconto IRES 2025 (60%)</td>
+                    </tr>
+                    <tr className="border-b bg-pink-50">
+                      <td className="py-2 px-4">30 Novembre 2025</td>
+                      <td className="py-2 px-4 font-medium text-pink-600">{formatCurrency(results.irapSecondAcconto)}</td>
+                      <td className="py-2 px-4">Secondo Acconto IRAP 2025 (60%)</td>
+                    </tr>
+                    <tr className="border-b bg-amber-50">
+                      <td className="py-2 px-4">16 Agosto 2025</td>
+                      <td className="py-2 px-4 font-medium text-amber-600">{formatCurrency(results.inpsTotalAmount)}</td>
+                      <td className="py-2 px-4">Contributi INPS 2024</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Dettaglio Fiscale Completo Anno 2025 */}
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center text-blue-800">
+                <Euro className="mr-2 h-5 w-5" />
+                Dettaglio Fiscale Completo Anno 2025
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span>Reddito imponibile:</span>
+                      <span className="font-medium">{formatCurrency(results.taxableIncomeAfterLosses)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Aliquota IRES:</span>
+                      <span className="font-medium">{results.isIresPremialeApplicable ? '20.0%' : '24.0%'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>IRES 2025:</span>
+                      <span className="font-medium">{formatCurrency(results.iresAmount)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>IRAP 2025:</span>
+                      <span className="font-medium">{formatCurrency(results.irapAmount)}</span>
+                    </div>
+                    <div className="flex justify-between font-semibold">
+                      <span>Totale Imposte:</span>
+                      <span>{formatCurrency(results.iresAmount + results.irapAmount)}</span>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span>Contributi INPS:</span>
+                      <span className="font-medium">{formatCurrency(results.inpsTotalAmount)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Regime contributivo:</span>
+                      <span className="font-medium">INPS SRL</span>
+                    </div>
+                    <div className="flex justify-between font-semibold">
+                      <span>Totale Contributi:</span>
+                      <span>{formatCurrency(results.inpsTotalAmount)}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <div className="flex justify-between items-center">
+                  <span className="text-lg font-semibold text-blue-900">Totale Dovuto Anno 2025:</span>
+                  <span className="text-2xl font-bold text-blue-600">{formatCurrency(results.iresAmount + results.irapAmount + results.inpsTotalAmount)}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Pianificatore Scadenze Fiscali 2026 */}
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center text-purple-800">
+                <Calendar className="mr-2 h-5 w-5" />
+                Pianificatore Scadenze Fiscali 2026
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left py-2 px-4">Data Scadenza</th>
+                      <th className="text-left py-2 px-4">Importo</th>
+                      <th className="text-left py-2 px-4">Tipo Versamento</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-b bg-green-50">
+                      <td className="py-2 px-4">30 Giugno 2026</td>
+                      <td className="py-2 px-4 font-medium text-green-600">{formatCurrency(results.iresAmount)}</td>
+                      <td className="py-2 px-4">Saldo IRES 2025</td>
+                    </tr>
+                    <tr className="border-b bg-blue-50">
+                      <td className="py-2 px-4">30 Giugno 2026</td>
+                      <td className="py-2 px-4 font-medium text-blue-600">{formatCurrency(results.iresFirstAcconto)}</td>
+                      <td className="py-2 px-4">Primo Acconto IRES 2026 (40%)</td>
+                    </tr>
+                    <tr className="border-b bg-orange-50">
+                      <td className="py-2 px-4">30 Giugno 2026</td>
+                      <td className="py-2 px-4 font-medium text-orange-600">{formatCurrency(results.irapAmount)}</td>
+                      <td className="py-2 px-4">Saldo IRAP 2025</td>
+                    </tr>
+                    <tr className="border-b bg-cyan-50">
+                      <td className="py-2 px-4">30 Giugno 2026</td>
+                      <td className="py-2 px-4 font-medium text-cyan-600">{formatCurrency(results.irapFirstAcconto)}</td>
+                      <td className="py-2 px-4">Primo Acconto IRAP 2026 (40%)</td>
+                    </tr>
+                    <tr className="border-b bg-purple-50">
+                      <td className="py-2 px-4">30 Novembre 2026</td>
+                      <td className="py-2 px-4 font-medium text-purple-600">{formatCurrency(results.iresSecondAcconto)}</td>
+                      <td className="py-2 px-4">Secondo Acconto IRES 2026 (60%)</td>
+                    </tr>
+                    <tr className="border-b bg-pink-50">
+                      <td className="py-2 px-4">30 Novembre 2026</td>
+                      <td className="py-2 px-4 font-medium text-pink-600">{formatCurrency(results.irapSecondAcconto)}</td>
+                      <td className="py-2 px-4">Secondo Acconto IRAP 2026 (60%)</td>
+                    </tr>
+                    <tr className="border-b bg-amber-50">
+                      <td className="py-2 px-4">16 Agosto 2026</td>
+                      <td className="py-2 px-4 font-medium text-amber-600">{formatCurrency(results.inpsTotalAmount)}</td>
+                      <td className="py-2 px-4">Contributi INPS 2025</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Pianificatore IVA 2025 (Regime Trimestrale) */}
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center text-orange-800">
+                <FileText className="mr-2 h-5 w-5" />
+                Pianificatore IVA 2025 (Regime Trimestrale)
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="bg-orange-50 p-4 rounded-lg mb-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                  <div>
+                    <div className="text-orange-800 font-semibold">IVA su Vendite Annua</div>
+                    <div className="text-2xl font-bold text-orange-600">{formatCurrency(results.vatOnSales || 0)}</div>
+                  </div>
+                  <div>
+                    <div className="text-orange-800 font-semibold">IVA Acquisti Stimata</div>
+                    <div className="text-2xl font-bold text-orange-600">{formatCurrency(results.vatOnPurchases || 0)}</div>
+                  </div>
+                  <div>
+                    <div className="text-orange-800 font-semibold">IVA Netta da Versare</div>
+                    <div className="text-2xl font-bold text-orange-600">{formatCurrency((results.vatOnSales || 0) - (results.vatOnPurchases || 0))}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left py-2 px-4">Periodo</th>
+                      <th className="text-left py-2 px-4">Data Scadenza</th>
+                      <th className="text-left py-2 px-4">Importo IVA</th>
+                      <th className="text-left py-2 px-4">Tipo</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-b bg-orange-50">
+                      <td className="py-2 px-4">I Trimestre 2025</td>
+                      <td className="py-2 px-4">16 Maggio 2025</td>
+                      <td className="py-2 px-4 font-medium text-orange-600">{formatCurrency(((results.vatOnSales || 0) - (results.vatOnPurchases || 0)) / 4)}</td>
+                      <td className="py-2 px-4">Liquidazione Trimestrale</td>
+                    </tr>
+                    <tr className="border-b bg-orange-50">
+                      <td className="py-2 px-4">II Trimestre 2025</td>
+                      <td className="py-2 px-4">16 Agosto 2025</td>
+                      <td className="py-2 px-4 font-medium text-orange-600">{formatCurrency(((results.vatOnSales || 0) - (results.vatOnPurchases || 0)) / 4)}</td>
+                      <td className="py-2 px-4">Liquidazione Trimestrale</td>
+                    </tr>
+                    <tr className="border-b bg-orange-50">
+                      <td className="py-2 px-4">III Trimestre 2025</td>
+                      <td className="py-2 px-4">16 Novembre 2025</td>
+                      <td className="py-2 px-4 font-medium text-orange-600">{formatCurrency(((results.vatOnSales || 0) - (results.vatOnPurchases || 0)) / 4)}</td>
+                      <td className="py-2 px-4">Liquidazione Trimestrale</td>
+                    </tr>
+                    <tr className="border-b bg-orange-50">
+                      <td className="py-2 px-4">IV Trimestre 2025</td>
+                      <td className="py-2 px-4">16 Febbraio 2026</td>
+                      <td className="py-2 px-4 font-medium text-orange-600">{formatCurrency(((results.vatOnSales || 0) - (results.vatOnPurchases || 0)) / 4)}</td>
+                      <td className="py-2 px-4">Liquidazione Trimestrale</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </CardContent>
           </Card>
