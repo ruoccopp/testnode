@@ -1387,20 +1387,20 @@ export default function CalculatorPage() {
             </CardContent>
           </Card>
 
-          {/* SEZIONE 5: Richiesta di esportazione o invio via mail */}
+          {/* SEZIONE 5: Esportazione Excel */}
           <Card className="bg-green-50 border-green-200">
             <CardHeader>
               <CardTitle className="flex items-center text-green-800">
                 <Download className="mr-2 h-5 w-5" />
-                Richiesta di esportazione o invio via mail
+                Esportazione Report
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-center mb-4">
-                <div className="text-green-700">Ottieni il report completo con tutti i calcoli fiscali dettagliati</div>
+                <div className="text-green-700">Scarica il report completo con tutti i calcoli fiscali dettagliati</div>
               </div>
               
-              <div className="flex justify-center gap-4">
+              <div className="flex justify-center">
                 <Button 
                   onClick={exportToExcel}
                   className="bg-green-600 hover:bg-green-700"
@@ -1408,53 +1408,6 @@ export default function CalculatorPage() {
                   <Download className="h-4 w-4 mr-2" />
                   Scarica Excel
                 </Button>
-                
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" className="border-green-600 text-green-600 hover:bg-green-50">
-                      <Mail className="h-4 w-4 mr-2" />
-                      Invia via Email
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Invia Report via Email</DialogTitle>
-                      <DialogDescription>
-                        Riceverai il report completo con allegato Excel direttamente nella tua casella di posta
-                      </DialogDescription>
-                    </DialogHeader>
-                    
-                    <Form {...emailForm}>
-                      <form onSubmit={emailForm.handleSubmit(onEmailSubmit)} className="space-y-4">
-                        <FormField
-                          control={emailForm.control}
-                          name="email"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Indirizzo Email</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  type="email" 
-                                  placeholder="mario.rossi@email.com" 
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <Button 
-                          type="submit" 
-                          className="w-full"
-                          disabled={sendEmailMutation.isPending}
-                        >
-                          {sendEmailMutation.isPending ? "Invio in corso..." : "Invia Report"}
-                        </Button>
-                      </form>
-                    </Form>
-                  </DialogContent>
-                </Dialog>
               </div>
             </CardContent>
           </Card>
