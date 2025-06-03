@@ -187,7 +187,7 @@ export default function CalculatorIndividualPage() {
     },
   });
 
-  // Watch for ATECO code changes to auto-set business type
+  // Watch for ATECO code changes to auto-set business type and business sector
   const watchedAtecoCode = form.watch('atecoCode');
   
   useEffect(() => {
@@ -204,8 +204,15 @@ export default function CalculatorIndividualPage() {
         form.setValue('businessType', suggestedBusinessType);
         console.log('Set business type to:', suggestedBusinessType);
       }
+
+      // Also update the lead form business sector
+      const businessSectorDescription = ATECO_CODES[watchedAtecoCode as keyof typeof ATECO_CODES];
+      if (businessSectorDescription) {
+        leadForm.setValue('businessSector', businessSectorDescription);
+        console.log('Set business sector to:', businessSectorDescription);
+      }
     }
-  }, [watchedAtecoCode, form]);
+  }, [watchedAtecoCode, form, leadForm]);
 
   const calculateMutation = useMutation({
     mutationFn: async (data: CalculationForm) => {
