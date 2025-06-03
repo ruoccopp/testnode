@@ -13,6 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Calendar, TrendingUp, Euro, FileText, HelpCircle, Building, Users, Calculator, DollarSign, PiggyBank, Clock } from "lucide-react";
 import logoPath from "@assets/SmartRate - Colors.png";
@@ -1796,10 +1797,39 @@ export default function CalculatorIndividualPage() {
               </CardContent>
             </Card>
 
+            {/* Download/Email Section */}
+            <Card className="bg-green-50 border-green-200">
+              <CardContent className="p-6">
+                <div className="text-center">
+                  <div className="text-green-700 mb-6">
+                    Pianificazione fiscale completa con tutti i calcoli avanzati per la tua attività.
+                  </div>
 
+                  <div className="flex justify-center gap-4 mb-6">
+                    <Button 
+                      onClick={() => onEmailSubmit({ email: 'test@example.com' })}
+                      className="bg-green-600 hover:bg-green-700"
+                      disabled={sendEmailMutation.isPending}
+                    >
+                      📥 Scarica Excel Avanzato
+                    </Button>
 
+                    <Button 
+                      variant="outline" 
+                      className="border-green-600 text-green-600 hover:bg-green-50"
+                      onClick={() => onEmailSubmit({ email: 'test@example.com' })}
+                      disabled={sendEmailMutation.isPending}
+                    >
+                      📧 Invia via Email
+                    </Button>
+                  </div>
 
-
+                  <div className="flex items-center justify-center text-sm text-green-600">
+                    ✅ Report avanzato inviato anche via email: 📧 Salva questa pagina nei preferiti
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
           </div>
         )}
