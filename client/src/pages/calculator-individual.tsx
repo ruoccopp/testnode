@@ -19,6 +19,7 @@ import logoPath from "@assets/SmartRate - Colors.png";
 import { Link } from "wouter";
 import { calculateIndividualTaxes, IndividualTaxCalculationResult, CONTRIBUTION_RATES } from "@/lib/individual-tax-calculator";
 import { apiRequest } from "@/lib/queryClient";
+import { deduceFromAteco } from "@/lib/constants";
 
 const calculationSchema = z.object({
   // Data inizio attività
@@ -408,7 +409,34 @@ export default function CalculatorIndividualPage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>🏷️ Codice ATECO *</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select onValueChange={(value) => {
+                            field.onChange(value);
+                            // Auto-deduzione da ATECO
+                            const atecoData = deduceFromAteco(value);
+                            if (atecoData) {
+                              // Auto-seleziona tipo attività
+                              if (atecoData.businessType === 'PROFESSIONAL') {
+                                form.setValue('businessType', 'professional');
+                              } else if (atecoData.businessType === 'COMMERCIAL') {
+                                form.setValue('businessType', 'commercial');
+                              } else if (atecoData.businessType === 'ARTISAN') {
+                                form.setValue('businessType', 'artisan');
+                              }
+                              
+                              // Auto-seleziona regime contributivo
+                              if (atecoData.contributionRegime === 'GESTIONE_SEPARATA') {
+                                form.setValue('contributionType', 'inps_gestione_separata');
+                              } else if (atecoData.contributionRegime === 'CASSA_FORENSE') {
+                                form.setValue('contributionType', 'cassa_forense');
+                              } else if (atecoData.contributionRegime === 'INARCASSA') {
+                                form.setValue('contributionType', 'inarcassa');
+                              } else if (atecoData.contributionRegime === 'IVS_ARTIGIANI') {
+                                form.setValue('contributionType', 'inps_artigiani');
+                              } else if (atecoData.contributionRegime === 'IVS_COMMERCIANTI') {
+                                form.setValue('contributionType', 'inps_commercianti');
+                              }
+                            }
+                          }} defaultValue={field.value}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Seleziona il tuo settore" />

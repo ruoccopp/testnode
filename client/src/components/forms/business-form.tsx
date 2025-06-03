@@ -31,6 +31,17 @@ interface BusinessFormProps {
   onSuccess: () => void;
 }
 
+// Mock ATECO_MAPPING and deduceFromAteco for demonstration.  Replace with actual implementation.
+const ATECO_MAPPING = {
+  '62.01.00': { description: 'Produzione di software non connesso all\'edizione', macroCategory: 'IT', contributionRegime: 'ORDINARIO' },
+  '70.22.09': { description: 'Altre attività di consulenza amministrativo-gestionale', macroCategory: 'CONSULENZA', contributionRegime: 'FORFETTARIO' },
+};
+
+const deduceFromAteco = (atecoCode: string) => {
+  return ATECO_MAPPING[atecoCode] || null;
+};
+
+
 export default function BusinessForm({ business, onSuccess }: BusinessFormProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -117,10 +128,45 @@ export default function BusinessForm({ business, onSuccess }: BusinessFormProps)
 
           <FormField
             control={form.control}
+            name="atecoCode"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>🏷️ Codice ATECO</FormLabel>
+                <Select onValueChange={(value) => {
+                  field.onChange(value);
+                  // Auto-deduzione da ATECO
+                  const atecoData = deduceFromAteco(value);
+                  if (atecoData) {
+                    // Auto-seleziona macro-categoria
+                    form.setValue('macroCategory', atecoData.macroCategory);
+                    // Auto-seleziona regime contributivo
+                    form.setValue('contributionRegime', atecoData.contributionRegime);
+                  }
+                }} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleziona il tuo settore" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {Object.entries(ATECO_MAPPING).map(([code, data]) => (
+                      <SelectItem key={code} value={code}>
+                        {code} - {data.description}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
             name="macroCategory"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Macro-categoria</FormLabel>
+                <FormLabel>Categoria Professionale</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
@@ -150,23 +196,7 @@ export default function BusinessForm({ business, onSuccess }: BusinessFormProps)
                     ))}
                   </SelectContent>
                 </Select>
-                <FormDescription>
-                  Il coefficiente di redditività determina il reddito imponibile
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="atecoCode"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Codice ATECO (opzionale)</FormLabel>
-                <FormControl>
-                  <Input placeholder="Es. 62.01.00" {...field} />
-                </FormControl>
+                <FormDescription>Auto-compilato dal codice ATECO, modificabile se necessario</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
