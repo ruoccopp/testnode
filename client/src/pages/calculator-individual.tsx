@@ -23,45 +23,45 @@ import { apiRequest } from "@/lib/queryClient";
 const calculationSchema = z.object({
   // Data inizio attività
   startDate: z.string().min(1, "Seleziona la data di inizio attività"),
-  
+
   // Dati di attività
   atecoCode: z.string().min(1, "Seleziona il codice ATECO"),
   businessType: z.enum(["professional", "business", "artisan", "commercial"]),
-  
+
   // Dati economici 2024 (anno di imposta)
   revenue2024: z.number().min(0, "I ricavi 2024 devono essere positivi"),
   documentedExpenses2024: z.number().min(0, "Le spese 2024 devono essere positive"),
   otherIncome2024: z.number().min(0).optional(),
   taxWithholdings2024: z.number().min(0).optional(),
-  
+
   // Dati economici 2025 (per pianificazione 2026)
   revenue: z.number().min(0, "I ricavi devono essere positivi").optional(),
   documentedExpenses: z.number().min(0, "Le spese devono essere positive").optional(),
-  
+
   // Altri redditi
   otherIncome: z.number().min(0).optional(),
   employmentIncome: z.number().min(0).optional(),
-  
+
   // Ritenute e acconti
   taxWithholdings: z.number().min(0).optional(),
-  
+
   // Contributi previdenziali
   contributionType: z.enum(["inps_gestione_separata", "cassa_forense", "inarcassa", "inps_artigiani", "inps_commercianti"]),
   hasOtherPension: z.boolean().default(false),
   isPensioner: z.boolean().default(false),
   rivalsa4Percent: z.boolean().default(false),
-  
+
   // Dati anno precedente
   previousYearTaxableIncome: z.number().min(0).optional(),
   previousYearIrpef: z.number().min(0).optional(),
-  
+
   // IVA
   vatRegime: z.string().min(1, "Seleziona il regime IVA"),
   vatOnSales: z.number().min(0).optional(),
   vatOnPurchases: z.number().min(0).optional(),
   hasVatDebt: z.boolean().default(false),
   vatDebt: z.number().min(0).optional(),
-  
+
   // Liquidità
   currentBalance: z.number().min(0).optional(),
 }).refine((data) => {
@@ -361,7 +361,7 @@ export default function CalculatorIndividualPage() {
           <CardContent className="p-4 md:p-6">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-6">
-                
+
                 {/* Data Inizio Attività */}
                 <div className="bg-blue-50 p-4 rounded-lg border-2 border-blue-200">
                   <h3 className="font-semibold text-blue-900 mb-4 flex items-center">
@@ -401,7 +401,7 @@ export default function CalculatorIndividualPage() {
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={form.control}
                       name="atecoCode"
@@ -426,7 +426,7 @@ export default function CalculatorIndividualPage() {
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={form.control}
                       name="businessType"
@@ -483,7 +483,7 @@ export default function CalculatorIndividualPage() {
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={form.control}
                       name="documentedExpenses2024"
@@ -571,7 +571,7 @@ export default function CalculatorIndividualPage() {
                               </FormItem>
                             )}
                           />
-                          
+
                           <FormField
                             control={form.control}
                             name="previousYearIrpef"
@@ -641,7 +641,7 @@ export default function CalculatorIndividualPage() {
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={form.control}
                       name="documentedExpenses"
@@ -676,7 +676,7 @@ export default function CalculatorIndividualPage() {
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={form.control}
                       name="otherIncome"
@@ -696,7 +696,7 @@ export default function CalculatorIndividualPage() {
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={form.control}
                       name="employmentIncome"
@@ -752,7 +752,7 @@ export default function CalculatorIndividualPage() {
                         </FormItem>
                       )}
                     />
-                    
+
                     <div className="space-y-2">
                       <FormField
                         control={form.control}
@@ -773,7 +773,7 @@ export default function CalculatorIndividualPage() {
                           </FormItem>
                         )}
                       />
-                      
+
                       <FormField
                         control={form.control}
                         name="isPensioner"
@@ -793,7 +793,7 @@ export default function CalculatorIndividualPage() {
                           </FormItem>
                         )}
                       />
-                      
+
                       {form.watch("contributionType") === "inps_gestione_separata" && (
                         <FormField
                           control={form.control}
@@ -841,7 +841,7 @@ export default function CalculatorIndividualPage() {
                                 <SelectValue placeholder="Seleziona regime" />
                               </SelectTrigger>
                             </FormControl>
-                            <SelectContent>
+                            <SelectContent```text
                               {Object.entries(VAT_REGIMES).map(([key, description]) => (
                                 <SelectItem key={key} value={key}>
                                   {description}
@@ -853,7 +853,7 @@ export default function CalculatorIndividualPage() {
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={form.control}
                       name="vatOnSales"
@@ -873,7 +873,7 @@ export default function CalculatorIndividualPage() {
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={form.control}
                       name="vatOnPurchases"
@@ -893,7 +893,7 @@ export default function CalculatorIndividualPage() {
                         </FormItem>
                       )}
                     />
-                    
+
                   </div>
                 </div>
 
@@ -978,7 +978,7 @@ export default function CalculatorIndividualPage() {
                   <div className="text-sm text-gray-600">Totale Annuo</div>
                 </div>
               </div>
-              
+
               <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
                 <p className="text-orange-800 text-center font-medium">
                   🔒 Inserisci i tuoi dati per sbloccare il report completo con pianificazione dettagliata, 
@@ -1012,7 +1012,7 @@ export default function CalculatorIndividualPage() {
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={leadForm.control}
                       name="lastName"
@@ -1026,7 +1026,7 @@ export default function CalculatorIndividualPage() {
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={leadForm.control}
                       name="email"
@@ -1040,7 +1040,7 @@ export default function CalculatorIndividualPage() {
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={leadForm.control}
                       name="businessSector"
@@ -1054,7 +1054,7 @@ export default function CalculatorIndividualPage() {
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={leadForm.control}
                       name="companyName"
@@ -1068,7 +1068,7 @@ export default function CalculatorIndividualPage() {
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={leadForm.control}
                       name="vatNumber"
@@ -1083,7 +1083,7 @@ export default function CalculatorIndividualPage() {
                       )}
                     />
                   </div>
-                  
+
                   <Button 
                     type="submit" 
                     className="w-full"
@@ -1298,7 +1298,7 @@ export default function CalculatorIndividualPage() {
                 <div className="text-center mb-4">
                   <div className="text-green-700">Pianificazione fiscale completa con tutti i calcoli avanzati per la tua attività.</div>
                 </div>
-                
+
                 <div className="flex justify-center gap-4">
                   <Button 
                     onClick={() => onEmailSubmit({ email: 'test@example.com' })}
@@ -1307,7 +1307,7 @@ export default function CalculatorIndividualPage() {
                   >
                     📥 Scarica Excel Avanzato
                   </Button>
-                  
+
                   <Button 
                     variant="outline" 
                     className="border-green-600 text-green-600 hover:bg-green-50"
@@ -1317,7 +1317,7 @@ export default function CalculatorIndividualPage() {
                     📧 Invia via Email
                   </Button>
                 </div>
-                
+
                 <div className="mt-4 flex items-center justify-center text-sm text-green-600">
                   ✅ Report avanzato inviato anche via email: 📧 Salva questa pagina nei preferiti
                 </div>
@@ -1391,7 +1391,7 @@ export default function CalculatorIndividualPage() {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div>
                       <h4 className="font-semibold mb-2">Contributi Previdenziali</h4>
                       <div className="space-y-1 text-sm">
@@ -1462,7 +1462,7 @@ export default function CalculatorIndividualPage() {
                           </div>
                         </div>
                       </div>
-                      
+
                       <div>
                         <h4 className="font-semibold mb-2">Contributi Previdenziali 2026</h4>
                         <div className="space-y-1 text-sm">
@@ -1568,7 +1568,7 @@ export default function CalculatorIndividualPage() {
                     <div className="text-sm text-gray-600 mb-4">
                       Piano dal {new Date().toLocaleDateString('it-IT')} in poi - Solo scadenze future (Saldo Iniziale: €{(form.watch('currentBalance') || 0).toLocaleString()})
                     </div>
-                    
+
                     {results.paymentSchedule && results.paymentSchedule.length > 0 ? (
                       <div className="overflow-x-auto">
                         <table className="min-w-full bg-white border border-gray-200 rounded-lg">
@@ -1587,14 +1587,14 @@ export default function CalculatorIndividualPage() {
                             {results.paymentSchedule.map((event, index) => {
                               const isPayment = !event.isIncome;
                               const hasDeficit = event.deficit > 0;
-                              
+
                               // Color based on category
                               let dotColor = 'bg-gray-400';
                               if (event.category === 'ACCUMULO') dotColor = 'bg-green-500';
                               else if (event.category === 'IVA') dotColor = 'bg-blue-500';
                               else if (event.category === 'IRPEF') dotColor = 'bg-purple-500';
                               else if (event.category === 'CONTRIBUTI') dotColor = 'bg-orange-500';
-                              
+
                               return (
                                 <tr key={index} className={`border-b hover:bg-gray-50 ${hasDeficit ? 'bg-red-50' : ''}`}>
                                   <td className="p-3 text-sm">{event.date}</td>
@@ -1691,7 +1691,7 @@ export default function CalculatorIndividualPage() {
                 <div className="text-sm text-gray-600 mb-4">
                   Scegli il tipo di accantonamento per ottimizzare la gestione della liquidità aziendale
                 </div>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                     <div className="flex items-center mb-3">
