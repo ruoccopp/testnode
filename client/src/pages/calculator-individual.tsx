@@ -1412,7 +1412,6 @@ export default function CalculatorIndividualPage() {
                         <th className="text-left py-2 px-4">Data Scadenza</th>
                         <th className="text-left py-2 px-4">Importo</th>
                         <th className="text-left py-2 px-4">Tipo Versamento</th>
-                        <th className="text-left py-2 px-4">Codice Tributo</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1420,25 +1419,21 @@ export default function CalculatorIndividualPage() {
                         <td className="py-2 px-4">30 Giugno 2025</td>
                         <td className="py-2 px-4 font-medium text-green-600">{Math.round(results.totalTaxes * 0.85).toLocaleString()} €</td>
                         <td className="py-2 px-4">Saldo IRPEF 2024</td>
-                        <td className="py-2 px-4">1792</td>
                       </tr>
                       <tr className="border-b bg-blue-50">
                         <td className="py-2 px-4">30 Giugno 2025</td>
                         <td className="py-2 px-4 font-medium text-blue-600">{Math.round(results.totalTaxes * 0.4).toLocaleString()} €</td>
                         <td className="py-2 px-4">Primo Acconto 2025 (40%)</td>
-                        <td className="py-2 px-4">1790</td>
                       </tr>
                       <tr className="border-b bg-purple-50">
                         <td className="py-2 px-4">30 Novembre 2025</td>
                         <td className="py-2 px-4 font-medium text-purple-600">{Math.round(results.totalTaxes * 0.6).toLocaleString()} €</td>
                         <td className="py-2 px-4">Secondo Acconto 2025 (60%)</td>
-                        <td className="py-2 px-4">1791</td>
                       </tr>
                       <tr className="border-b bg-orange-50">
                         <td className="py-2 px-4">16 Agosto 2025</td>
                         <td className="py-2 px-4 font-medium text-orange-600">{Math.round(results.totalContributions * 0.85).toLocaleString()} €</td>
                         <td className="py-2 px-4">Contributi INPS 2024</td>
-                        <td className="py-2 px-4">PXX</td>
                       </tr>
                     </tbody>
                   </table>
@@ -1519,7 +1514,6 @@ export default function CalculatorIndividualPage() {
                         <th className="text-left py-2 px-4">Data Scadenza</th>
                         <th className="text-left py-2 px-4">Importo</th>
                         <th className="text-left py-2 px-4">Tipo Versamento</th>
-                        <th className="text-left py-2 px-4">Codice Tributo</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1527,25 +1521,21 @@ export default function CalculatorIndividualPage() {
                         <td className="py-2 px-4">30 Giugno 2026</td>
                         <td className="py-2 px-4 font-medium text-green-600">{results.totalTaxes.toLocaleString()} €</td>
                         <td className="py-2 px-4">Saldo IRPEF 2025</td>
-                        <td className="py-2 px-4">1792</td>
                       </tr>
                       <tr className="border-b bg-blue-50">
                         <td className="py-2 px-4">30 Giugno 2026</td>
                         <td className="py-2 px-4 font-medium text-blue-600">{Math.round(results.totalTaxes * 0.4).toLocaleString()} €</td>
                         <td className="py-2 px-4">Primo Acconto 2026 (40%)</td>
-                        <td className="py-2 px-4">1790</td>
                       </tr>
                       <tr className="border-b bg-purple-50">
                         <td className="py-2 px-4">30 Novembre 2026</td>
                         <td className="py-2 px-4 font-medium text-purple-600">{Math.round(results.totalTaxes * 0.6).toLocaleString()} €</td>
                         <td className="py-2 px-4">Secondo Acconto 2026 (60%)</td>
-                        <td className="py-2 px-4">1791</td>
                       </tr>
                       <tr className="border-b bg-orange-50">
                         <td className="py-2 px-4">16 Agosto 2026</td>
                         <td className="py-2 px-4 font-medium text-orange-600">{results.totalContributions.toLocaleString()} €</td>
                         <td className="py-2 px-4">Contributi INPS 2025</td>
-                        <td className="py-2 px-4">PXX</td>
                       </tr>
                     </tbody>
                   </table>
