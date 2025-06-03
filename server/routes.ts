@@ -797,6 +797,104 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Download individual tax report as Excel
+  app.post("/api/download-report-individual", async (req: any, res) => {
+    try {
+      const { calculationData } = req.body;
+      
+      if (!calculationData) {
+        return res.status(400).json({ error: "Dati di calcolo richiesti" });
+      }
+
+      // Generate Excel file
+      const worksheetData = [
+        ['REGIME ORDINARIO - REPORT FISCALE AVANZATO'],
+        ['Data Generazione:', new Date().toLocaleDateString('it-IT')],
+        [''],
+        ['=== DATI ATTIVITÀ ==='],
+        ['Data Inizio Attività:', calculationData.startDate || '-'],
+        ['Codice ATECO:', calculationData.atecoCode || '-'],
+        ['Tipo Attività:', calculationData.businessType || '-'],
+        [''],
+        ['=== DATI ECONOMICI 2024 ==='],
+        ['Ricavi 2024:', calculationData.revenue2024 || 0],
+        ['Spese Documentate 2024:', calculationData.documentedExpenses2024 || 0],
+        ['Altri Redditi 2024:', calculationData.otherIncome2024 || 0],
+        ['Ritenute 2024:', calculationData.taxWithholdings2024 || 0],
+        [''],
+        ['=== CALCOLI FISCALI 2024 ==='],
+        ['Reddito Imponibile:', calculationData.taxableIncome || 0],
+        ['IRPEF Dovuta:', calculationData.irpefAmount || 0],
+        ['Addizionali IRPEF:', calculationData.additionalTax || 0],
+        ['Contributi INPS:', calculationData.inpsAmount || 0],
+        ['IVA a Debito:', calculationData.vatAmount || 0],
+        ['Totale Imposte:', calculationData.totalTaxes || 0],
+        [''],
+        ['=== PREVISIONI 2025 ==='],
+        ['Ricavi Previsti 2025:', calculationData.revenue2025 || 0],
+        ['Spese Previste 2025:', calculationData.documentedExpenses2025 || 0],
+        ['IRPEF Stimata 2025:', calculationData.estimatedIrpef2025 || 0],
+        ['Contributi INPS 2025:', calculationData.estimatedInps2025 || 0],
+        [''],
+        ['=== SCADENZE FISCALI 2025 ==='],
+        ['Acconto IRPEF (30/06/2025):', calculationData.firstInstallment || 0],
+        ['Saldo IRPEF (16/06/2025):', calculationData.finalBalance || 0],
+        ['Secondo Acconto (30/11/2025):', calculationData.secondInstallment || 0],
+        [''],
+        ['=== CONTRIBUTI INPS TRIMESTRALI ==='],
+        ['I Trimestre (16/05/2025):', calculationData.quarterly1 || 0],
+        ['II Trimestre (20/08/2025):', calculationData.quarterly2 || 0],
+        ['III Trimestre (16/11/2025):', calculationData.quarterly3 || 0],
+        ['IV Trimestre (16/02/2026):', calculationData.quarterly4 || 0],
+        [''],
+        ['=== LIQUIDAZIONI IVA MENSILI ==='],
+        ['Gennaio 2025:', calculationData.vatJan || 0],
+        ['Febbraio 2025:', calculationData.vatFeb || 0],
+        ['Marzo 2025:', calculationData.vatMar || 0],
+        ['Aprile 2025:', calculationData.vatApr || 0],
+        ['Maggio 2025:', calculationData.vatMay || 0],
+        ['Giugno 2025:', calculationData.vatJun || 0],
+        ['Luglio 2025:', calculationData.vatJul || 0],
+        ['Agosto 2025:', calculationData.vatAug || 0],
+        ['Settembre 2025:', calculationData.vatSep || 0],
+        ['Ottobre 2025:', calculationData.vatOct || 0],
+        ['Novembre 2025:', calculationData.vatNov || 0],
+        ['Dicembre 2025:', calculationData.vatDec || 0],
+        [''],
+        ['=== PIANO ACCANTONAMENTO ==='],
+        ['Accantonamento Mensile Consigliato:', calculationData.monthlyAccrual || 0],
+        ['Margine di Sicurezza 10%:', calculationData.monthlyAccrualSafety || 0],
+        [''],
+        ['=== RIEPILOGO LIQUIDITÀ ==='],
+        ['Totale da Accantonare 2025:', calculationData.totalToAccrue || 0],
+        ['Saldo Attuale:', calculationData.currentBalance || 0],
+        ['Saldo Previsto Fine Anno:', calculationData.projectedBalance || 0]
+      ];
+
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(worksheetData);
+      
+      // Set column widths
+      ws['!cols'] = [
+        { wch: 35 }, // Column A
+        { wch: 20 }  // Column B
+      ];
+      
+      XLSX.utils.book_append_sheet(wb, ws, 'Report Regime Ordinario');
+      
+      const excelBuffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+      
+      // Set headers for file download
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', `attachment; filename=Report_Regime_Ordinario_${new Date().getFullYear()}.xlsx`);
+      res.send(excelBuffer);
+      
+    } catch (error) {
+      console.error('Errore generazione Excel:', error);
+      res.status(500).json({ error: "Errore nella generazione del file Excel" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

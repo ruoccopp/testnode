@@ -342,13 +342,46 @@ export default function CalculatorIndividualPage() {
     }
   };
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (!results) return;
     
-    sendEmailMutation.mutate({
-      email: 'download@smartrate.com',
-      calculationData: results
-    });
+    try {
+      const response = await fetch('/api/download-report-individual', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          calculationData: results
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Download failed');
+      }
+
+      // Create blob and download
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Report_Regime_Ordinario_${new Date().getFullYear()}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      toast({
+        title: "Download completato!",
+        description: "Il report Excel è stato scaricato con successo",
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Errore nel download",
+        description: "Impossibile scaricare il file Excel",
+      });
+    }
   };
 
   // Recalculate payment schedule based on selected accrual plan
