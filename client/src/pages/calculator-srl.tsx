@@ -576,7 +576,7 @@ export default function CalculatorSRLPage() {
         <div className="flex flex-col md:flex-row md:items-start md:justify-between">
           <div className="min-w-0 flex-1">
             <h2 className="text-xl md:text-2xl lg:text-3xl font-bold leading-tight text-gray-900">
-              🏢 Calcolatore Imposte SRL AVANZATO
+              🏢 Calcolatore Imposte Società - SRL
             </h2>
             <div className="mt-2">
               <p className="text-xs md:text-sm text-gray-500 leading-relaxed">
