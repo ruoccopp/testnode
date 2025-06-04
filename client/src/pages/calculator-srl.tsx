@@ -572,9 +572,10 @@ export default function CalculatorSRLPage() {
   return (
     <div className="container mx-auto py-8 px-4">
       {/* Header */}
-      <div className="bg-white shadow-md border-b mb-8">
+      <div className="bg-white border-b border-gray-200">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="flex items-center justify-between">
+            {/* Logo */}
             <div className="flex items-center">
               <img 
                 src={logoPath} 
@@ -582,6 +583,8 @@ export default function CalculatorSRLPage() {
                 className="h-10 md:h-12 w-auto"
               />
             </div>
+            
+            {/* Navigation Buttons */}
             <div className="flex gap-2">
               <Link href="/calculator">
                 <Button variant="outline" size="sm" className="text-xs">
