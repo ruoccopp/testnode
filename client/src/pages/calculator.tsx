@@ -244,11 +244,30 @@ export default function CalculatorPage() {
   };
 
   const exportToExcel = () => {
-    if (!results || !isUnlocked) return;
+    console.log('exportToExcel chiamato', { results, isUnlocked });
+    
+    if (!results) {
+      toast({
+        title: "Errore",
+        description: "Nessun risultato da esportare. Effettua prima un calcolo.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!isUnlocked) {
+      toast({
+        title: "Errore", 
+        description: "Sblocca il report prima di esportare.",
+        variant: "destructive",
+      });
+      return;
+    }
 
-    const currentBalance = form.watch('currentBalance') || 0;
-    const revenue2025 = form.watch('revenue2025') || form.watch('revenue') || 0;
-    const formData = form.getValues();
+    try {
+      const currentBalance = form.watch('currentBalance') || 0;
+      const revenue2025 = form.watch('revenue2025') || form.watch('revenue') || 0;
+      const formData = form.getValues();
     
     // Calcolo scadenze 2025
     const giugno2025 = results.taxAmount + (results.taxAmount * 0.40);
@@ -333,22 +352,30 @@ export default function CalculatorPage() {
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.aoa_to_sheet(worksheetData);
     
-    // Formattazione delle colonne
-    ws['!cols'] = [
-      { width: 35 },
-      { width: 20 }
-    ];
+      // Formattazione delle colonne
+      ws['!cols'] = [
+        { width: 35 },
+        { width: 20 }
+      ];
 
-    XLSX.utils.book_append_sheet(wb, ws, 'Report Imposte');
-    
-    // Download del file
-    const fileName = `Report_Imposte_Forfettari_${new Date().getFullYear()}_${new Date().getMonth() + 1}_${new Date().getDate()}.xlsx`;
-    XLSX.writeFile(wb, fileName);
-    
-    toast({
-      title: "Report scaricato",
-      description: `Il file ${fileName} è stato scaricato con successo`,
-    });
+      XLSX.utils.book_append_sheet(wb, ws, 'Report Imposte');
+      
+      // Download del file
+      const fileName = `Report_Imposte_Forfettari_${new Date().getFullYear()}_${new Date().getMonth() + 1}_${new Date().getDate()}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+      
+      toast({
+        title: "Report scaricato",
+        description: `Il file ${fileName} è stato scaricato con successo`,
+      });
+    } catch (error) {
+      console.error('Errore durante l\'esportazione Excel:', error);
+      toast({
+        title: "Errore durante l'esportazione",
+        description: "Si è verificato un errore durante la creazione del file Excel. Riprova.",
+        variant: "destructive",
+      });
+    }
   };
 
   // Funzione per generare il cronoprogramma di liquidità progressiva
