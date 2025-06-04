@@ -159,6 +159,7 @@ export default function CalculatorSRLPage() {
   const [sentCode, setSentCode] = useState("");
   const [useSafetyMargin, setUseSafetyMargin] = useState(false);
   const [showAdvancedCalculations, setShowAdvancedCalculations] = useState(false);
+  const [showEmailDialog, setShowEmailDialog] = useState(false);
   const { toast } = useToast();
 
   const form = useForm<CalculationForm>({
@@ -211,6 +212,16 @@ export default function CalculatorSRLPage() {
 
   const emailForm = useForm<EmailForm>({
     resolver: zodResolver(emailSchema),
+    defaultValues: {
+      email: "",
+    },
+  });
+
+  // Separate form for email dialog
+  const emailDialogForm = useForm<{ email: string }>({
+    resolver: zodResolver(z.object({
+      email: z.string().email("Inserisci un indirizzo email valido"),
+    })),
     defaultValues: {
       email: "",
     },
@@ -2907,33 +2918,84 @@ export default function CalculatorSRLPage() {
                 <Button 
                   onClick={() => {
                     if (!results || !isUnlocked) return;
-                    
-                    const leadFormData = leadForm.getValues();
-                    if (!leadFormData.email) {
-                      toast({
-                        title: "Email richiesta",
-                        description: "Inserisci il tuo indirizzo email nel form per ricevere il report.",
-                        variant: "destructive",
-                      });
-                      return;
-                    }
-                    
-                    sendEmailMutation.mutate({
-                      email: leadFormData.email,
-                      calculationData: results
-                    });
+                    setShowEmailDialog(true);
                   }}
-                  disabled={sendEmailMutation.isPending}
                   className="bg-blue-600 hover:bg-blue-700 h-12 md:h-auto px-6 py-3 touch-manipulation"
                 >
                   <Mail className="mr-2 h-4 w-4" />
-                  {sendEmailMutation.isPending ? "Invio in corso..." : "Invia via Email"}
+                  Invia via Email
                 </Button>
               </div>
             </CardContent>
           </Card>
         </>
       )}
+
+      {/* Email Dialog Modal */}
+      <Dialog open={showEmailDialog} onOpenChange={setShowEmailDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Mail className="h-5 w-5" />
+              Invia Report SRL Avanzato via Email
+            </DialogTitle>
+            <DialogDescription>
+              Riceverai il report completo con pianificazione fiscale avanzata
+            </DialogDescription>
+          </DialogHeader>
+          
+          <Form {...emailDialogForm}>
+            <form onSubmit={emailDialogForm.handleSubmit((data) => {
+              if (!results) return;
+              
+              sendEmailMutation.mutate({
+                email: data.email,
+                calculationData: results
+              });
+              
+              setShowEmailDialog(false);
+              emailDialogForm.reset();
+            })} className="space-y-4">
+              <FormField
+                control={emailDialogForm.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Indirizzo Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="email"
+                        placeholder="mario.rossi@azienda.com"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <div className="flex gap-3 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowEmailDialog(false)}
+                  className="flex-1"
+                >
+                  Annulla
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={sendEmailMutation.isPending}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700"
+                >
+                  <Mail className="mr-2 h-4 w-4" />
+                  {sendEmailMutation.isPending ? "Invio in corso..." : "Invia Report Avanzato"}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
