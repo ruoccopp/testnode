@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -200,6 +200,14 @@ export default function CalculatorSRLPage() {
       businessSector: "",
     },
   });
+
+  // Auto-populate business sector from main form
+  useEffect(() => {
+    const businessSector = form.watch('businessSector');
+    if (businessSector && BUSINESS_SECTORS[businessSector as keyof typeof BUSINESS_SECTORS]) {
+      leadForm.setValue('businessSector', BUSINESS_SECTORS[businessSector as keyof typeof BUSINESS_SECTORS]);
+    }
+  }, [form.watch('businessSector'), leadForm]);
 
   const emailForm = useForm<EmailForm>({
     resolver: zodResolver(emailSchema),
@@ -1761,41 +1769,22 @@ export default function CalculatorSRLPage() {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={leadForm.control}
-                    name="companyName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="flex items-center">
-                          <Building2 className="h-4 w-4 mr-2" />
-                          Ragione Sociale *
-                        </FormLabel>
-                        <FormControl>
-                          <Input placeholder="ABC Srl" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={leadForm.control}
-                    name="vatNumber"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="flex items-center">
-                          <Hash className="h-4 w-4 mr-2" />
-                          Partita IVA (opzionale)
-                        </FormLabel>
-                        <FormControl>
-                          <Input placeholder="01234567890" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                <FormField
+                  control={leadForm.control}
+                  name="companyName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center">
+                        <Building2 className="h-4 w-4 mr-2" />
+                        Ragione Sociale *
+                      </FormLabel>
+                      <FormControl>
+                        <Input placeholder="ABC Srl" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 <FormField
                   control={leadForm.control}
@@ -1825,11 +1814,20 @@ export default function CalculatorSRLPage() {
                     <FormItem>
                       <FormLabel className="flex items-center">
                         <Briefcase className="h-4 w-4 mr-2" />
-                        Settore Aziendale *
+                        Settore Merceologico *
                       </FormLabel>
                       <FormControl>
-                        <Input placeholder="Consulenza IT" {...field} />
+                        <Input 
+                          placeholder="Settore merceologico" 
+                          {...field}
+                          value={field.value || form.watch('businessSector') || ''}
+                          readOnly
+                          className="bg-gray-50"
+                        />
                       </FormControl>
+                      <FormDescription className="text-xs text-gray-600">
+                        Settore rilevato automaticamente dalle informazioni societarie
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
