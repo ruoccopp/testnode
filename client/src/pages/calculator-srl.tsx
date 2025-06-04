@@ -2903,6 +2903,32 @@ export default function CalculatorSRLPage() {
                   <Download className="mr-2 h-4 w-4" />
                   Scarica Excel Avanzato
                 </Button>
+                
+                <Button 
+                  onClick={() => {
+                    if (!results || !isUnlocked) return;
+                    
+                    const leadFormData = leadForm.getValues();
+                    if (!leadFormData.email) {
+                      toast({
+                        title: "Email richiesta",
+                        description: "Inserisci il tuo indirizzo email nel form per ricevere il report.",
+                        variant: "destructive",
+                      });
+                      return;
+                    }
+                    
+                    sendEmailMutation.mutate({
+                      email: leadFormData.email,
+                      calculationData: results
+                    });
+                  }}
+                  disabled={sendEmailMutation.isPending}
+                  className="bg-blue-600 hover:bg-blue-700 h-12 md:h-auto px-6 py-3 touch-manipulation"
+                >
+                  <Mail className="mr-2 h-4 w-4" />
+                  {sendEmailMutation.isPending ? "Invio in corso..." : "Invia via Email"}
+                </Button>
               </div>
             </CardContent>
           </Card>
