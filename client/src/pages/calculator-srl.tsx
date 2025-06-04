@@ -572,46 +572,52 @@ export default function CalculatorSRLPage() {
   return (
     <div className="container mx-auto py-8 px-4">
       {/* Header */}
-      <div className="mb-6 md:mb-8">
-        <div className="flex flex-col md:flex-row md:items-start md:justify-between">
-          <div className="min-w-0 flex-1">
-            <h2 className="text-xl md:text-2xl lg:text-3xl font-bold leading-tight text-gray-900">
-              🏢 Calcolatore Imposte Ditte Individuali Regime SRL
-            </h2>
-            <div className="mt-2">
-              <p className="text-xs md:text-sm text-gray-500 leading-relaxed">
-                Pianificazione fiscale completa con dati 2024-2025 e gestione scadenze intelligente
-              </p>
-              <span className="text-xs text-blue-600 font-medium">Powered by SmartRate</span>
+      <div className="bg-white shadow-md border-b mb-8">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex items-center">
+              <img 
+                src={logoPath} 
+                alt="SmartRate" 
+                className="h-10 md:h-12 w-auto"
+              />
             </div>
-          </div>
-          <div className="flex-shrink-0 mt-4 md:mt-0 md:ml-6 flex flex-col items-center md:items-end gap-2">
-            <div className="flex gap-2 mb-2">
+            <div className="flex gap-2">
               <Link href="/calculator">
                 <Button variant="outline" size="sm" className="text-xs">
-                  Forfettario
+                  📊 Forfettario
                 </Button>
               </Link>
               <Link href="/calculator-individual">
                 <Button variant="outline" size="sm" className="text-xs">
-                  Ordinario
+                  👤 Ordinario
                 </Button>
               </Link>
               <Button variant="default" size="sm" className="text-xs bg-purple-600">
-                SRL
+                🏢 SRL
               </Button>
+              <Link href="/leads">
+                <Button variant="outline" size="sm" className="text-xs">
+                  🎯 Dashboard Lead
+                </Button>
+              </Link>
             </div>
-            <Link href="/leads">
-              <Button variant="outline" size="sm" className="text-xs">
-                Dashboard Lead
-              </Button>
-            </Link>
-            <img 
-              src={logoPath} 
-              alt="SmartRate" 
-              className="h-10 md:h-12 w-auto"
-            />
           </div>
+        </div>
+      </div>
+
+      {/* Page Title */}
+      <div className="mb-8">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 text-center mb-2">
+          Calcolatore Imposte Ditte Individuali Regime SRL
+        </h1>
+        <div className="text-center">
+          <p className="text-sm text-gray-500 leading-relaxed">
+            Calcola con precisione IRES, IRAP, contributi previdenziali, IVA e pianifica le scadenze fiscali 2025
+          </p>
+          <p className="text-sm text-gray-500">
+            per la tua ditta individuale in regime SRL
+          </p>
         </div>
       </div>
 
