@@ -12,9 +12,9 @@ import { Badge } from "@/components/ui/badge";
 import { Calculator, Calendar, Euro, FileText, Mail, TrendingUp, Users, Building, DollarSign, AlertTriangle, CheckCircle, Clock, Info } from "lucide-react";
 import { formatCurrency, formatPercentage } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
-import logoPath from "@assets/generated-icon.png";
+const logoPath = "/generated-icon.png";
 import { Link } from "wouter";
+import * as XLSX from 'xlsx';
 
 // Business activity mapping
 const businessActivities: Record<string, { coefficient: number; vatRate: number; description: string }> = {
@@ -138,14 +138,19 @@ export default function CalculatorPage() {
 
   const emailMutation = useMutation({
     mutationFn: async (data: EmailForm & { calculationData: CalculationResult }) => {
-      return apiRequest("/api/send-report", {
+      const response = await fetch("/api/send-report", {
         method: "POST",
-        body: {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
           email: data.email,
           calculationData: data.calculationData,
           calculationType: "forfettario",
-        },
+        }),
       });
+      if (!response.ok) throw new Error("Failed to send email");
+      return response.json();
     },
     onSuccess: () => {
       toast({
@@ -165,14 +170,19 @@ export default function CalculatorPage() {
 
   const leadMutation = useMutation({
     mutationFn: async (data: LeadForm & { calculationData: CalculationForm }) => {
-      return apiRequest("/api/leads", {
+      const response = await fetch("/api/leads", {
         method: "POST",
-        body: {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
           ...data,
           source: "forfettario_calculator",
           calculationData: data.calculationData,
-        },
+        }),
       });
+      if (!response.ok) throw new Error("Failed to save lead");
+      return response.json();
     },
     onSuccess: () => {
       toast({
@@ -206,6 +216,54 @@ export default function CalculatorPage() {
     emailMutation.mutate({
       ...data,
       calculationData: results,
+    });
+  };
+
+  const exportToExcel = () => {
+    if (!results) return;
+    
+    const formData = form.getValues();
+    const activity = businessActivities[formData.businessActivity];
+    
+    // Create workbook with calculation data
+    const workbook = XLSX.utils.book_new();
+    
+    // Main calculation sheet
+    const calculationData = [
+      ['REPORT FORFETTARIO AVANZATO', ''],
+      ['Data Report', new Date().toLocaleDateString('it-IT')],
+      ['', ''],
+      ['DATI AZIENDALI', ''],
+      ['Fatturato Annuo', formatCurrency(formData.revenue)],
+      ['Attività', activity?.description || ''],
+      ['Coefficiente Redditività', formatPercentage(activity?.coefficient * 100 || 0)],
+      ['Data Inizio Attività', formData.startDate],
+      ['Regione', formData.region],
+      ['', ''],
+      ['CALCOLI FISCALI', ''],
+      ['Reddito Imponibile', formatCurrency(results.taxableIncome)],
+      ['Imposta Sostitutiva (5%)', formatCurrency(results.taxAmount)],
+      ['Contributi INPS', formatCurrency(results.inpsAmount)],
+      ['Totale Dovuto', formatCurrency(results.totalDue)],
+      ['', ''],
+      ['ANALISI PERCENTUALI', ''],
+      ['Incidenza Imposte su Fatturato', formatPercentage((results.taxAmount / formData.revenue) * 100)],
+      ['Incidenza INPS su Fatturato', formatPercentage((results.inpsAmount / formData.revenue) * 100)],
+      ['Incidenza Totale su Fatturato', formatPercentage((results.totalDue / formData.revenue) * 100)],
+    ];
+    
+    const worksheet = XLSX.utils.aoa_to_sheet(calculationData);
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Calcolo Forfettario');
+    
+    // Generate filename with current date
+    const filename = `Report_Forfettario_${new Date().toISOString().slice(0, 10)}.xlsx`;
+    
+    // Download file
+    XLSX.writeFile(workbook, filename);
+    
+    toast({
+      title: "Excel scaricato",
+      description: "Il report Excel è stato scaricato con successo.",
     });
   };
 
@@ -381,13 +439,7 @@ export default function CalculatorPage() {
                   <div className="flex flex-col sm:flex-row gap-3 justify-center mb-4">
                     <Button 
                       className="bg-green-600 hover:bg-green-700 text-white"
-                      onClick={() => {
-                        // Export to Excel functionality will be implemented
-                        toast({
-                          title: "Scaricamento Excel",
-                          description: "Il report Excel è in preparazione...",
-                        });
-                      }}
+                      onClick={exportToExcel}
                     >
                       📊 Scarica Excel Avanzato
                     </Button>
