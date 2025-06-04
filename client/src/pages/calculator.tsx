@@ -427,50 +427,54 @@ export default function CalculatorPage() {
   };
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      {/* Header */}
-      <div className="mb-6 md:mb-8">
-        <div className="flex flex-col md:flex-row md:items-start md:justify-between">
-          <div className="min-w-0 flex-1">
-            <h2 className="text-xl md:text-2xl lg:text-3xl font-bold leading-tight text-gray-900">
-              Calcolatore Imposte Ditte Individuali Regime Forfettario
-            </h2>
-            <div className="mt-2">
-              <p className="text-xs md:text-sm text-gray-500 leading-relaxed">
-                Calcola imposte e contributi per il regime forfettario italiano - Risultati immediati
-              </p>
-              <span className="text-xs text-blue-600 font-medium">Powered by SmartRate</span>
+    <div className="min-h-screen bg-gray-50">
+      {/* Navigation Header */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            {/* Logo */}
+            <div className="flex items-center">
+              <img 
+                src={logoPath} 
+                alt="SmartRate" 
+                className="h-8 w-auto"
+              />
+              <span className="ml-2 text-xl font-bold text-gray-900">SmartRate</span>
             </div>
-          </div>
-          <div className="flex-shrink-0 mt-4 md:mt-0 md:ml-6 flex flex-col items-center md:items-end gap-2">
-            <div className="flex gap-2 mb-2">
+            
+            {/* Navigation Buttons */}
+            <div className="flex gap-2">
               <Button variant="default" size="sm" className="text-xs bg-blue-600">
-                Forfettario
+                🧾 Forfettario
               </Button>
               <Link href="/calculator-individual">
                 <Button variant="outline" size="sm" className="text-xs">
-                  Ordinario
+                  🏢 Ordinario
                 </Button>
               </Link>
               <Link href="/calculator-srl">
                 <Button variant="outline" size="sm" className="text-xs">
-                  SRL
+                  🏢 SRL
+                </Button>
+              </Link>
+              <Link href="/leads">
+                <Button variant="outline" size="sm" className="text-xs">
+                  📊 Dashboard Lead
                 </Button>
               </Link>
             </div>
-            <Link href="/leads">
-              <Button variant="outline" size="sm" className="text-xs">
-                Dashboard Lead
-              </Button>
-            </Link>
-            <img 
-              src={logoPath} 
-              alt="SmartRate" 
-              className="h-10 md:h-12 w-auto"
-            />
           </div>
         </div>
       </div>
+
+      {/* Main Content */}
+      <div className="container mx-auto py-8 px-4">
+        {/* Page Title */}
+        <div className="mb-8">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 text-center">
+            Calcolatore Imposte Ditte Individuali Regime Forfettario
+          </h1>
+        </div>
 
       {/* Calculator Form */}
       <Card className="mb-6 md:mb-8">
@@ -1413,6 +1417,7 @@ export default function CalculatorPage() {
           </Card>
         </div>
       )}
+      </div>
     </div>
   );
 }
