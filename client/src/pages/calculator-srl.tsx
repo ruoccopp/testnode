@@ -2669,29 +2669,7 @@ export default function CalculatorSRLPage() {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="text-lg font-bold mb-4 text-gray-900">👥 Contributi e Altri Oneri</h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">INPS Amministratore:</span>
-                    <span className="font-semibold">{formatCurrency(results.inpsAdmin)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">INPS Dipendenti:</span>
-                    <span className="font-semibold">{formatCurrency(results.inpsEmployees)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">IVA Stimata:</span>
-                    <span className="font-semibold">{formatCurrency(results.vatAmount)}</span>
-                  </div>
-                  <div className="border-t pt-2 flex justify-between">
-                    <span className="font-semibold">Totale Altri Oneri:</span>
-                    <span className="font-bold text-lg">{formatCurrency(results.inpsTotalAmount + results.vatAmount)}</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+
           </div>
 
           {/* Piano di Accantonamento */}
