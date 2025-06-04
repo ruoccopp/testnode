@@ -439,7 +439,6 @@ export default function CalculatorPage() {
                 alt="SmartRate" 
                 className="h-8 w-auto"
               />
-              <span className="ml-2 text-xl font-bold text-gray-900">SmartRate</span>
             </div>
             
             {/* Navigation Buttons */}
