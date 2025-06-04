@@ -255,14 +255,15 @@ export default function CalculatorPage() {
       return;
     }
     
-    if (!isUnlocked) {
-      toast({
-        title: "Errore", 
-        description: "Sblocca il report prima di esportare.",
-        variant: "destructive",
-      });
-      return;
-    }
+    // Rimuovo il controllo di unlock per permettere sempre l'esportazione se ci sono risultati
+    // if (!isUnlocked) {
+    //   toast({
+    //     title: "Errore", 
+    //     description: "Sblocca il report prima di esportare.",
+    //     variant: "destructive",
+    //   });
+    //   return;
+    // }
 
     try {
       const currentBalance = form.watch('currentBalance') || 0;
