@@ -2580,7 +2580,7 @@ export default function CalculatorSRLPage() {
           {/* Scadenze IVA con Urgenza */}
           <Card className="mb-8">
             <CardContent className="p-6">
-              <h3 className="text-xl font-bold mb-6 text-gray-900">📅 Scadenze IVA 2026</h3>
+              <h3 className="text-xl font-bold mb-6 text-gray-900">📅 Scadenze IVA 2025-2026</h3>
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {results.vatDeadlines.map((deadline, index) => {
                   const urgency = getUrgencyLevel(deadline.date);
