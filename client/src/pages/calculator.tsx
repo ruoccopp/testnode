@@ -1403,21 +1403,13 @@ export default function CalculatorPage() {
                 <div className="text-green-700">Scarica il report completo con tutti i calcoli fiscali dettagliati</div>
               </div>
               
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <div className="flex justify-center">
                 <Button 
                   onClick={exportToExcel}
                   className="bg-green-600 hover:bg-green-700"
                 >
                   <Download className="h-4 w-4 mr-2" />
                   Scarica Excel
-                </Button>
-                <Button 
-                  onClick={() => setShowEmailForm(true)}
-                  variant="outline"
-                  className="border-blue-500 text-blue-600 hover:bg-blue-50"
-                >
-                  <Mail className="h-4 w-4 mr-2" />
-                  Invia via Email
                 </Button>
               </div>
             </CardContent>
