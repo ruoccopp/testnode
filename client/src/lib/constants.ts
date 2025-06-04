@@ -84,26 +84,11 @@ export const SECTORS = {
 } as const;
 
 export const CONTRIBUTION_REGIMES = {
-  'IVS_ARTIGIANI': {
-    name: 'IVS Artigiani',
-    description: 'Fondo previdenziale per artigiani e attività manuali'
-  },
-  'IVS_COMMERCIANTI': {
-    name: 'IVS Commercianti',
-    description: 'Fondo previdenziale per commercianti e attività commerciali'
-  },
-  'GESTIONE_SEPARATA': {
-    name: 'Gestione Separata INPS',
-    description: 'Per professionisti senza cassa previdenziale dedicata'
-  },
-  'CASSA_FORENSE': {
-    name: 'Cassa Forense (Avvocati)',
-    description: 'Cassa previdenziale dedicata agli avvocati'
-  },
-  'INARCASSA': {
-    name: 'Inarcassa (Ingegneri/Architetti)',
-    description: 'Cassa previdenziale per ingegneri e architetti'
-  }
+  'IVS_ARTIGIANI': 'IVS Artigiani',
+  'IVS_COMMERCIANTI': 'IVS Commercianti',
+  'GESTIONE_SEPARATA': 'Gestione Separata',
+  'CASSA_FORENSE': 'Cassa Forense',
+  'INARCASSA': 'INARCASSA'
 } as const;
 
 // Costanti aggiornate 2025 dal manuale tecnico-operativo
