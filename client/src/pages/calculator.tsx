@@ -16,26 +16,22 @@ const logoPath = "/generated-icon.png";
 import { Link } from "wouter";
 import * as XLSX from 'xlsx';
 
-// Business activity mapping
-const businessActivities: Record<string, { coefficient: number; vatRate: number; description: string }> = {
-  "commercio": { coefficient: 0.40, vatRate: 22, description: "Commercio al dettaglio e all'ingrosso" },
-  "servizi": { coefficient: 0.67, vatRate: 22, description: "Servizi commerciali e professionali" },
-  "artigianato": { coefficient: 0.67, vatRate: 22, description: "Attività artigianali" },
-  "professioni": { coefficient: 0.78, vatRate: 22, description: "Libere professioni" },
-  "agricoltura": { coefficient: 0.25, vatRate: 10, description: "Attività agricole" }
-};
+// Importiamo le categorie dal file constants
+import { TAX_COEFFICIENTS, SECTORS, CONTRIBUTION_REGIMES, FORFETTARIO_LIMITS_2025 } from "@/lib/constants";
 
 const calculationSchema = z.object({
-  revenue: z.number().min(1, "Il fatturato deve essere maggiore di 0"),
-  businessActivity: z.string().min(1, "Seleziona un'attività"),
+  revenue: z.number().min(0, "Il fatturato deve essere positivo").optional(),
+  revenue2025: z.number().min(0, "Il fatturato presunto deve essere positivo").optional(),
+  category: z.string().min(1, "Seleziona una categoria"),
   startDate: z.string().min(1, "Inserisci la data di inizio attività"),
-  hasEmployees: z.boolean().optional(),
-  employeeCount: z.number().optional(),
-  region: z.string().min(1, "Seleziona una regione"),
-  previousYearRevenue: z.number().optional(),
-  isNewBusiness: z.boolean().optional(),
-  hasOtherIncome: z.boolean().optional(),
-  otherIncome: z.number().optional(),
+  isStartup: z.boolean().default(false),
+  contributionRegime: z.string().min(1, "Seleziona il regime contributivo"),
+  contributionReduction: z.string().default("NONE"),
+  hasOtherCoverage: z.boolean().default(false),
+  currentBalance: z.number().min(0, "Il saldo deve essere positivo").optional(),
+  vatRegime: z.string().default("REGIME_ORDINARIO"),
+  vatOnSales2025: z.number().min(0, "L'IVA sui ricavi deve essere positiva").optional(),
+  vatOnPurchases2025: z.number().min(0, "L'IVA sugli acquisti deve essere positiva").optional(),
 });
 
 const leadSchema = z.object({
