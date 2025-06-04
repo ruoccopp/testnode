@@ -2678,38 +2678,7 @@ export default function CalculatorSRLPage() {
             </CardContent>
           </Card>
 
-          {/* Breakdown Dettagliato con Informazioni Avanzate */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="text-lg font-bold mb-4 text-gray-900">💰 Dettaglio Imposte e Contributi 2025</h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Reddito Imponibile:</span>
-                    <span className="font-semibold">{formatCurrency(results.taxableIncome)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">IRES (24%):</span>
-                    <span className="font-semibold">{formatCurrency(results.iresAmount)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Base IRAP:</span>
-                    <span className="font-semibold">{formatCurrency(results.irapBase)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">IRAP ({((IRAP_RATES[form.watch('region') as keyof typeof IRAP_RATES] || 3.9))}%):</span>
-                    <span className="font-semibold">{formatCurrency(results.irapAmount)}</span>
-                  </div>
-                  <div className="border-t pt-2 flex justify-between">
-                    <span className="font-semibold">Totale Imposte:</span>
-                    <span className="font-bold text-lg">{formatCurrency(results.totalTaxes)}</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
 
-
-          </div>
 
           {/* Piano di Accantonamento */}
           <Card className="mb-6 md:mb-8">
