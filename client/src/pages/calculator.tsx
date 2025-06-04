@@ -303,66 +303,258 @@ export default function CalculatorPage() {
           </h1>
         </div>
 
-        {/* Calculator Form */}
-        <Card className="mb-6 md:mb-8">
-          <CardContent className="p-4 md:p-6">
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="revenue"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Fatturato 2024 (€)</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            placeholder="50000"
-                            {...field}
-                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
-                            value={field.value || ""}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="category"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Categoria Professionale</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Seleziona categoria" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {Object.entries(TAX_COEFFICIENTS).map(([key, category]) => (
-                              <SelectItem key={key} value={key}>
-                                {category.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
+      {/* Calculator Form */}
+      <Card className="mb-6 md:mb-8">
+        <CardContent className="p-4 md:p-6">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-6">
+              {/* Informazioni Attività - PRIMO BLOCCO */}
+              <div className="bg-blue-50 p-3 md:p-4 rounded-lg mb-4 md:mb-6 border-2 border-blue-200">
+                <h3 className="font-medium text-blue-900 mb-3 md:mb-4 text-sm md:text-base">📋 Informazioni Attività</h3>
+                <div className="grid grid-cols-1 gap-4">
                   <FormField
                     control={form.control}
                     name="startDate"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Data Inizio Attività</FormLabel>
+                        <FormLabel className="text-sm md:text-base">📅 Data di Inizio Attività</FormLabel>
                         <FormControl>
-                          <Input type="date" {...field} />
+                          <Input
+                            type="date"
+                            placeholder="gg/mm/aaaa"
+                            className="text-base md:text-lg h-12 md:h-auto"
+                            {...field}
+                          />
                         </FormControl>
+                        <FormDescription className="text-xs">
+                          Inserisci la data di apertura della tua Partita IVA
+                        </FormDescription>
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="category"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>📋 Categoria Professionale</FormLabel>
+                        <Select onValueChange={(value) => {
+                          field.onChange(value);
+                          // Auto-selezione del regime contributivo basato sulla categoria
+                          const selectedCategory = TAX_COEFFICIENTS[value as keyof typeof TAX_COEFFICIENTS];
+                          if (selectedCategory) {
+                            if (selectedCategory.sector === 'COMMERCIO') {
+                              if (value === 'FOOD_COMMERCE' || value === 'STREET_COMMERCE' || value === 'OTHER_ACTIVITIES') {
+                                form.setValue('contributionRegime', 'IVS_COMMERCIANTI');
+                              }
+                            } else if (selectedCategory.sector === 'ARTIGIANATO') {
+                              form.setValue('contributionRegime', 'IVS_ARTIGIANI');
+                            } else if (value === 'LEGAL_SERVICES') {
+                              // Avvocati → Cassa Forense
+                              form.setValue('contributionRegime', 'CASSA_FORENSE');
+                            } else if (value === 'ENGINEERING_ARCHITECTURE') {
+                              // Ingegneri e Architetti → Inarcassa
+                              form.setValue('contributionRegime', 'INARCASSA');
+                            } else {
+                              form.setValue('contributionRegime', 'GESTIONE_SEPARATA');
+                            }
+                          }
+                        }} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Seleziona la tua categoria di attività" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {/* Raggruppamento per settori con codici colore */}
+                            {Object.entries(SECTORS).map(([sectorKey, sector]) => (
+                              <div key={sectorKey}>
+                                <div className={`px-3 py-2 text-sm font-semibold text-${sector.color}-700 bg-${sector.color}-50 border-b border-${sector.color}-200`}>
+                                  {sector.icon} {sector.label}
+                                </div>
+                                {Object.entries(TAX_COEFFICIENTS)
+                                  .filter(([, category]) => category.sector === sectorKey)
+                                  .map(([key, category]) => (
+                                    <SelectItem key={key} value={key} className={`pl-6 border-l-2 border-${category.color}-300`}>
+                                      <div className="flex flex-col items-start w-full">
+                                        <span className="font-medium">{category.label}</span>
+                                        <span className={`text-xs text-${category.color}-600 font-medium`}>
+                                          ({(category.value * 100).toFixed(0)}%)
+                                        </span>
+                                      </div>
+                                    </SelectItem>
+                                  ))}
+                              </div>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="isStartup"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-sm md:text-base">🚀 Conferma Regime Startup</FormLabel>
+                          <FormDescription className="text-xs">
+                            Tasse al 5% per i primi 5 anni
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              {/* Fatturato */}
+              <div className="bg-blue-50 p-3 md:p-4 rounded-lg mb-4 md:mb-6">
+                <h3 className="font-medium text-blue-900 mb-3 md:mb-4 text-sm md:text-base">📊 Fatturato</h3>
+                <div className="grid grid-cols-1 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="revenue"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm md:text-base">💼 Fatturato 2024 (€)</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="es: 50000"
+                            className="text-base md:text-lg h-12 md:h-auto"
+                            inputMode="numeric"
+                            {...field}
+                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                            value={field.value || ""}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="revenue2025"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>🔮 Fatturato Presunto 2025 (€)</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="es: 60000"
+                            className="text-lg"
+                            {...field}
+                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                            value={field.value || ""}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              {/* Contributi INPS - Ora posizionato dopo la categoria */}
+              {form.watch('category') && (
+                <div className="bg-blue-50 p-4 rounded-lg mb-6">
+                  <h3 className="font-medium text-blue-900 mb-4">🏛️ Contributi INPS</h3>
+                  <div className="grid grid-cols-1 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="contributionRegime"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>🏛️ Regime Contributivo</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Seleziona il regime contributivo" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {Object.entries(CONTRIBUTION_REGIMES).map(([key, regime]) => (
+                                <SelectItem key={key} value={key}>
+                                  <div className="flex flex-col items-start">
+                                    <span className="font-medium">{regime.name}</span>
+                                    <span className="text-xs text-gray-500">{regime.description}</span>
+                                  </div>
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormDescription>
+                            Il regime viene automaticamente preselezionato in base alla tua categoria professionale
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* Agevolazioni Contributive */}
+                    <FormField
+                      control={form.control}
+                      name="contributionReduction"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>🎯 Agevolazioni Contributive Disponibili</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Seleziona se hai agevolazioni" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="NONE">Nessuna agevolazione</SelectItem>
+                              <SelectItem value="YOUNG_ENTREPRENEUR">🌟 Giovane Imprenditore (under 35)</SelectItem>
+                              <SelectItem value="WOMEN_ENTREPRENEUR">👩‍💼 Imprenditoria Femminile</SelectItem>
+                              <SelectItem value="STARTUP_INNOVATIVE">🚀 Startup Innovativa</SelectItem>
+                              <SelectItem value="SOUTH_ITALY">🏛️ Agevolazioni Sud Italia</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormDescription>
+                            Le agevolazioni riducono i contributi INPS fino al 50% per periodi limitati
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Gestione IVA Avanzata */}
+              <div className="bg-orange-50 p-4 rounded-lg mb-6 border-2 border-orange-200">
+                <h3 className="font-medium text-orange-900 mb-4">⚖️ Gestione IVA</h3>
+                <div className="grid grid-cols-1 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="vatRegime"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>📋 Regime IVA</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Seleziona regime IVA" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="REGIME_ORDINARIO">Regime Ordinario</SelectItem>
+                            <SelectItem value="REGIME_AGEVOLATO">Regime Agevolato</SelectItem>
+                            <SelectItem value="REGIME_SPECIALE">Regime Speciale</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormDescription>
+                          Il regime IVA influisce sulle liquidazioni trimestrali e sulla pianificazione fiscale
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -370,41 +562,102 @@ export default function CalculatorPage() {
 
                   <FormField
                     control={form.control}
-                    name="contributionRegime"
+                    name="vatOnSales2025"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Regime Contributivo</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Seleziona regime contributivo" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="IVS_ARTIGIANI">IVS Artigiani</SelectItem>
-                            <SelectItem value="IVS_COMMERCIANTI">IVS Commercianti</SelectItem>
-                            <SelectItem value="GESTIONE_SEPARATA">Gestione Separata</SelectItem>
-                            <SelectItem value="CASSA_FORENSE">Cassa Forense (Avvocati)</SelectItem>
-                            <SelectItem value="INARCASSA">Inarcassa (Ingegneri e Architetti)</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <FormLabel>📈 IVA sui Ricavi 2025 (€)</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="es: 12000"
+                            {...field}
+                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                            value={field.value || ""}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          IVA che dovrai versare sui ricavi previsti per il 2025
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="vatOnPurchases2025"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>📉 IVA Detraibile su Acquisti 2025 (€)</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="es: 3000"
+                            {...field}
+                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                            value={field.value || ""}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          IVA che potrai detrarre sugli acquisti aziendali del 2025
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                 </div>
+              </div>
 
-                <Button 
-                  type="submit" 
-                  className="w-full" 
-                  disabled={calculateMutation.isPending}
-                >
-                  {calculateMutation.isPending ? "Calcolo in corso..." : "Calcola Imposte"}
-                </Button>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
+              {/* Pianificazione Liquidità */}
+              <div className="bg-green-50 p-4 rounded-lg mb-6 border-2 border-green-200">
+                <h3 className="font-medium text-green-900 mb-4">💰 Pianificazione Liquidità</h3>
+                <div className="grid grid-cols-1 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="currentBalance"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>🏦 Liquidità Attuale (€)</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="es: 15000"
+                            {...field}
+                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                            value={field.value || ""}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Denaro attualmente disponibile per pagare tasse e contributi
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              <Button 
+                type="submit" 
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg text-lg" 
+                disabled={calculateMutation.isPending}
+              >
+                {calculateMutation.isPending ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                    Calcolo in corso...
+                  </>
+                ) : (
+                  <>
+                    <Calculator className="mr-2 h-5 w-5" />
+                    Calcola Imposte e Contributi
+                  </>
+                )}
+              </Button>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
 
         {/* Results */}
         {results && isUnlocked && (
