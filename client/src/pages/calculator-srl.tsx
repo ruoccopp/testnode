@@ -400,6 +400,45 @@ export default function CalculatorSRLPage() {
     return Math.round(amount * 1.1 * 100) / 100; // 10% margine di sicurezza
   };
 
+  // Calculate dynamic payment schedule based on safety margin
+  const getDynamicPaymentSchedule = (baseSchedule: any[], monthlyAccrual: number, useSafety: boolean) => {
+    if (!baseSchedule || baseSchedule.length === 0) return [];
+    
+    const adjustedMonthlyAccrual = useSafety ? calculateSafetyMargin(monthlyAccrual) : monthlyAccrual;
+    const difference = adjustedMonthlyAccrual - monthlyAccrual;
+    
+    let runningBalance = form.watch('currentBalance') || 0;
+    
+    return baseSchedule.map((payment, index) => {
+      // Adjust accumulo entries with safety margin
+      const adjustedAmount = payment.category === 'ACCUMULO' ? adjustedMonthlyAccrual : payment.amount;
+      
+      // Calculate new balances
+      const previousBalance = runningBalance;
+      const newBalance = payment.isIncome ? 
+        runningBalance + adjustedAmount : 
+        runningBalance - adjustedAmount;
+      
+      runningBalance = newBalance;
+      
+      // Calculate required payment if needed
+      const requiredPayment = payment.requiredPayment > 0 ? 
+        Math.max(0, adjustedAmount - previousBalance) : 0;
+      
+      // Calculate deficit
+      const deficit = newBalance < 0 ? Math.abs(newBalance) : 0;
+      
+      return {
+        ...payment,
+        amount: adjustedAmount,
+        previousBalance,
+        balance: newBalance,
+        requiredPayment,
+        deficit
+      };
+    });
+  };
+
   // Helper component per FormLabel con tooltip
   const TooltipFormLabel = ({ children, tooltip }: { children: React.ReactNode; tooltip: string }) => (
     <div className="flex items-center gap-1">
@@ -2787,7 +2826,7 @@ export default function CalculatorSRLPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {results.paymentSchedule.map((payment, index) => (
+                    {getDynamicPaymentSchedule(results.paymentSchedule, results.monthlyAccrual, useSafetyMargin).map((payment, index) => (
                       <tr key={index} className={`border-b hover:bg-gray-50 ${
                         payment.deficit > 0 ? 'bg-red-50' : 
                         payment.isIncome ? 'bg-green-50' : ''
@@ -2827,8 +2866,8 @@ export default function CalculatorSRLPage() {
                             <span className="text-gray-400">-</span>
                           )}
                         </td>
-                        <td className={`p-3 text-right font-semibold ${payment.newBalance < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                          {formatCurrency(payment.newBalance)}
+                        <td className={`p-3 text-right font-semibold ${payment.balance < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                          {formatCurrency(payment.balance)}
                         </td>
                         <td className="p-3 text-center">
                           {payment.isIncome ? (
