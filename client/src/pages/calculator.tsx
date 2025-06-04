@@ -15,16 +15,8 @@ import { apiRequest } from "@/lib/queryClient";
 import { Calculator, Building, Euro, Calendar, Download, Lock, Mail, User, Briefcase, TrendingUp, PiggyBank } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import * as XLSX from 'xlsx';
-// Logo SVG SmartRate
-const SmartRateLogo = () => (
-  <div className="flex items-center">
-    <div className="w-8 h-8 mr-2 bg-gradient-to-br from-blue-500 to-green-400 rounded-lg flex items-center justify-center">
-      <div className="w-4 h-4 bg-white rounded-sm transform rotate-12"></div>
-    </div>
-    <span className="text-xl font-bold text-gray-800">SmartRate</span>
-  </div>
-);
 import { Link } from "wouter";
+import logoPath from "@assets/SmartRate - Colors.png";
 
 const calculationSchema = z.object({
   revenue: z.number().min(0, "Il fatturato deve essere positivo").optional(),
@@ -470,7 +462,11 @@ export default function CalculatorPage() {
           <div className="flex items-center justify-between">
             {/* Logo */}
             <div className="flex items-center">
-              <SmartRateLogo />
+              <img 
+                src={logoPath} 
+                alt="SmartRate" 
+                className="h-10 md:h-12 w-auto"
+              />
             </div>
             
             {/* Navigation Buttons */}
