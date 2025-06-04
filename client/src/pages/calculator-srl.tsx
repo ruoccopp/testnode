@@ -609,14 +609,14 @@ export default function CalculatorSRLPage() {
       {/* Page Title */}
       <div className="mb-8">
         <h1 className="text-2xl md:text-3xl font-bold text-gray-900 text-center mb-2">
-          Calcolatore Imposte Ditte Individuali Regime SRL
+          Calcolatore Imposte SRL
         </h1>
         <div className="text-center">
           <p className="text-sm text-gray-500 leading-relaxed">
             Calcola con precisione IRES, IRAP, contributi previdenziali, IVA e pianifica le scadenze fiscali 2025
           </p>
           <p className="text-sm text-gray-500">
-            per la tua ditta individuale in regime SRL
+            per la tua società a responsabilità limitata
           </p>
         </div>
       </div>
