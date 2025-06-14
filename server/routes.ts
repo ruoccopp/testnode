@@ -546,57 +546,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let totalTaxesDue = 0;
       let totalBalance = 0;
 
-      for (const business of businesses) {
-        const invoices = await storage.getInvoicesByBusinessId(business.id);
-        const yearlyInvoices = invoices.filter(inv => inv.year === currentYear);
-        const businessRevenue = yearlyInvoices.reduce((sum, inv) => sum + parseFloat(inv.amount), 0);
-        totalRevenue += businessRevenue;
-        totalBalance += parseFloat(business.currentBalance || "0");
+for (const business of businesses) {
+  const invoices = await storage.getInvoicesByBusinessId(business.id);
+  const yearlyInvoices = invoices.filter(inv => inv.year === currentYear);
+  const businessRevenue = yearlyInvoices.reduce((sum, inv) => sum + parseFloat(inv.amount), 0);
+  totalRevenue += businessRevenue;
+  totalBalance += parseFloat(business.currentBalance || "0");
 
-        // Calculate taxes for this business
-        if (businessRevenue > 0) {
-          const coefficients = {
-            'FOOD_COMMERCE': 0.40,
-            'STREET_COMMERCE': 0.54,
-            'INTERMEDIARIES': 0.62,
-            'OTHER_ACTIVITIES': 0.67,
-            'PROFESSIONAL': 0.78,
-            'CONSTRUCTION': 0.86
-          };
-
-          const coefficient = coefficients[business.macroCategory as keyof typeof coefficients] || 0.67;
-          const taxableIncome = businessRevenue * coefficient;
-          const yearsActive = new Date().getFullYear() - new Date(business.startDate).getFullYear();
-          const taxRate = (business.isStartup && yearsActive <= 5) ? 0.05 : 0.15;
-          const taxAmount = taxableIncome * taxRate;
-
-          // INPS calculation
-          let inpsAmount = 0;
-          if (business.contributionRegime === 'GESTIONE_SEPARATA') {
-            const rate = business.hasOtherCoverage ? 0.24 : 0.26;
-            inpsAmount = Math.min(taxableIncome, 120607) * rate;
-          } else {
-            const minimums = {
-              'IVS_ARTIGIANI': 4427.04,
-              'IVS_COMMERCIANTI': 4515.43
-            };
-            
-            let minimum = minimums[business.contributionRegime as keyof typeof minimums] || 4427.04;
-            if (business.contributionReduction === '35') minimum *= 0.65;
-            else if (business.contributionReduction === '50') minimum *= 0.50;
-            
-            inpsAmount = minimum;
-            if (taxableIncome > 18324) {
-              const excess = (taxableIncome - 18324) * 0.24;
-              const reductionFactor = business.contributionReduction === '35' ? 0.65 : 
-                                     business.contributionReduction === '50' ? 0.50 : 1;
-              inpsAmount += excess * reductionFactor;
-            }
-          }
-
-          totalTaxesDue += taxAmount + inpsAmount;
-        }
-      }
+  // Calculate taxes using the library
+  if (businessRevenue > 0) {
+    const calculation = TaxCalculator.calculate({
+      revenue: businessRevenue,
+      macroCategory: business.macroCategory as any,
+      isStartup: business.isStartup || false,
+      startDate: business.startDate,
+      contributionRegime: business.contributionRegime as any,
+      contributionReduction: business.contributionReduction as any || 'NONE',
+      hasOtherCoverage: business.hasOtherCoverage || false,
+      year: currentYear
+    });
+    
+    totalTaxesDue += calculation.totalDue;
+  }
+}
 
       const upcomingDeadlines = await storage.getUpcomingDeadlines(req.user.userId);
       const nextDeadline = upcomingDeadlines.length > 0 ? upcomingDeadlines[0] : null;
