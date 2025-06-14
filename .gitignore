@@ -4,3 +4,56 @@ dist
 server/public
 vite.config.ts.*
 *.tar.gz
+
+
+
+attached_assets/
+
+# === Node modules ===
+node_modules/
+.pnpm/
+.yarn/
+.yarnrc.yml
+package-lock.json
+
+# === Build output ===
+dist/
+build/
+.next/
+out/
+.vite/
+.turbo/
+
+# === TypeScript ===
+*.tsbuildinfo
+
+# === Environment variables ===
+.env
+.env.*
+!.env.example
+
+# === Logs ===
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# === IDE / Editor config ===
+.vscode/
+.idea/
+*.sw?
+*.sublime-project
+*.sublime-workspace
+
+# === OS / Filesystem ===
+.DS_Store
+Thumbs.db
+
+# === Coverage / Test ===
+coverage/
+test-results/
+
+# === Drizzle ORM ===
+drizzle/migrations/sql/ # se non vuoi versionare gli script SQL generati
+drizzle/migrations/*.lock
