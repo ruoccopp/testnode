@@ -1758,7 +1758,16 @@ export default function CalculatorIndividualPage() {
                   <div className="space-y-3">
                     <h4 className="font-semibold text-gray-900">Scadenziere con Liquidità Progressiva</h4>
                     <div className="text-sm text-gray-600 mb-4">
-                      Piano dal {new Date().toLocaleDateString('it-IT')} in poi - Solo scadenze future (Saldo Iniziale: €{(form.watch('currentBalance') || 0).toLocaleString()})
+                      <p className="mb-2">Piano dal {new Date().toLocaleDateString('it-IT')} in poi - Solo scadenze future (Saldo Iniziale: €{(form.watch('currentBalance') || 0).toLocaleString()})</p>
+                      <div className="bg-blue-50 p-3 rounded-lg">
+                        <p className="font-medium text-blue-900 mb-1">Come leggere la tabella:</p>
+                        <ul className="text-xs text-blue-800 space-y-1">
+                          <li><strong>Saldo Prima:</strong> Il saldo del tuo conto prima dell'operazione</li>
+                          <li><strong>Operazione:</strong> Accumuli suggeriti (+) o pagamenti effettivi delle tasse (-)</li>
+                          <li><strong>Saldo Dopo:</strong> Il nuovo saldo dopo l'operazione</li>
+                          <li><strong>SUGGERITO:</strong> Indica accumuli mensili raccomandati, non soldi che hai già</li>
+                        </ul>
+                      </div>
                     </div>
 
                     {adjustedResults?.paymentSchedule && adjustedResults.paymentSchedule.length > 0 ? (
@@ -1794,7 +1803,14 @@ export default function CalculatorIndividualPage() {
                                     <div className="flex items-center">
                                       <div className={`w-2 h-2 rounded-full mr-2 ${dotColor}`}></div>
                                       <div>
-                                        <div className="font-medium">{event.type}</div>
+                                        <div className="font-medium">
+                                          {event.type}
+                                          {event.type === 'Accumulo Mensile' && (
+                                            <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                                              SUGGERITO
+                                            </span>
+                                          )}
+                                        </div>
                                         <div className="text-xs text-gray-500">{event.description}</div>
                                       </div>
                                     </div>
