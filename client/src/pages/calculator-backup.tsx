@@ -15,7 +15,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { Calculator, Building, Euro, Calendar, Download, Lock, Mail, User, Briefcase, TrendingUp, PiggyBank } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import * as XLSX from 'xlsx';
-import logoPath from "@assets/SmartRate - Colors.png";
+
 import { Link } from "wouter";
 
 const calculationSchema = z.object({

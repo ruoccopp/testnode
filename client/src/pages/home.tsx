@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calculator, Building, Users, TrendingUp, CheckCircle, ArrowRight, User } from "lucide-react";
 import { Link } from "wouter";
-import logoPath from "@assets/SmartRate - Colors.png";
+
 
 export default function HomePage() {
   return (
@@ -10,7 +10,7 @@ export default function HomePage() {
       {/* Header */}
       <div className="container mx-auto px-4 py-6">
         <div className="flex items-center justify-center mb-8">
-          <img src={logoPath} alt="SmartRate" className="h-16 w-auto" />
+          <div className="text-4xl font-bold text-blue-600">SmartRate</div>
         </div>
         
         <div className="text-center mb-12">

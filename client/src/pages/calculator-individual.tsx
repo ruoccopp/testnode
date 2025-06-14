@@ -16,7 +16,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Calendar, TrendingUp, Euro, FileText, HelpCircle, Building, Users, Calculator, DollarSign, PiggyBank, Clock } from "lucide-react";
-import logoPath from "@assets/SmartRate - Colors.png";
+
 import { Link } from "wouter";
 import { calculateIndividualTaxes, IndividualTaxCalculationResult, CONTRIBUTION_RATES } from "@/lib/individual-tax-calculator";
 import { apiRequest } from "@/lib/queryClient";

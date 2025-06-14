@@ -16,7 +16,7 @@ import { Building2, Euro, Users, Calculator, Download, Lock, Mail, User, MapPin,
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import * as XLSX from 'xlsx';
-import logoPath from "@assets/SmartRate - Colors.png";
+
 import { Link } from "wouter";
 import { calculateSRLTaxes, IRAP_RATES, VAT_REGIMES, SRLTaxCalculationResult } from "@/lib/srl-tax-calculator";
 

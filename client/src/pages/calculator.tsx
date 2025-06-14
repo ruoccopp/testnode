@@ -16,7 +16,7 @@ import { Calculator, Building, Euro, Calendar, Download, Lock, Mail, User, Brief
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import * as XLSX from 'xlsx';
 import { Link } from "wouter";
-import logoPath from "@assets/SmartRate - Colors.png";
+
 
 const calculationSchema = z.object({
   revenue: z.number().min(0, "Il fatturato deve essere positivo").optional(),
