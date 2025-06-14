@@ -55,3 +55,4 @@ test-results/
 drizzle/migrations/sql/ # se non vuoi versionare gli script SQL generati
 drizzle/migrations/*.lock
 DOCUMENTAZIONE_FUNZIONALITA.md
+.replit
