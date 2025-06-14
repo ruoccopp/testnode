@@ -7,6 +7,9 @@ import jwt from "jsonwebtoken";
 import { sendEmail, generateReportEmailHTML } from './email';
 import * as XLSX from 'xlsx';
 
+import { TaxCalculator, validateTaxInput, type TaxCalculationInput } from '@shared/lib/tax-calculator';
+
+
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
 // Middleware for JWT authentication
@@ -232,104 +235,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Tax calculation routes
   app.post("/api/calculations/tax", async (req: any, res) => {
     try {
-      const { businessId, revenue, year, macroCategory, isStartup, startDate, contributionRegime, contributionReduction, hasOtherCoverage } = req.body;
+      const { businessId, revenue, year, ...taxParams } = req.body;
       
-      // Use the actual data from the frontend
-      const business = {
-        macroCategory: macroCategory || 'PROFESSIONAL',
-        isStartup: isStartup || false,
-        startDate: startDate || '2020-01-01',
-        contributionRegime: contributionRegime || 'GESTIONE_SEPARATA',
-        contributionReduction: contributionReduction || 'NONE',
-        hasOtherCoverage: hasOtherCoverage || false
-      };
-
-      // Calculate taxes based on Italian forfettario regime
-      const coefficients = {
-        'FOOD_COMMERCE': 0.40,
-        'STREET_COMMERCE': 0.54,
-        'INTERMEDIARIES': 0.62,
-        'OTHER_ACTIVITIES': 0.67,
-        'PROFESSIONAL': 0.78,
-        'CONSTRUCTION': 0.86
-      };
-
-      const coefficient = coefficients[business.macroCategory as keyof typeof coefficients] || 0.67;
-      const taxableIncome = revenue * coefficient;
-      
-      // Check if startup benefit applies (5% tax rate for first 5 years)
-      const yearsActive = new Date().getFullYear() - new Date(business.startDate).getFullYear();
-      const taxRate = (business.isStartup && yearsActive <= 5) ? 0.05 : 0.15;
-      const taxAmount = taxableIncome * taxRate;
-
-      // Calculate INPS contributions
-      let inpsAmount = 0;
-      if (business.contributionRegime === 'GESTIONE_SEPARATA') {
-        // Aliquote 2025: 25,72% per chi non ha altra copertura, 24% per chi ha altra copertura
-        const rate = business.hasOtherCoverage ? 0.24 : 0.2572;
-        // Minimale €18.555, Massimale €120.607
-        const applicableIncome = Math.max(Math.min(taxableIncome, 120607), 18555);
-        inpsAmount = applicableIncome * rate;
-      } else {
-        const minimums = {
-          'IVS_ARTIGIANI': 4427.04,
-          'IVS_COMMERCIANTI': 4515.43
-        };
-        
-        let minimum = minimums[business.contributionRegime as keyof typeof minimums] || 4427.04;
-        
-        // Applicazione delle riduzioni contributive
-        if (business.contributionReduction === 'REDUCTION_35') {
-          minimum *= 0.65; // Riduzione 35%
-        } else if (business.contributionReduction === 'REDUCTION_50') {
-          minimum *= 0.50; // Riduzione 50% per nuovi iscritti 2025
-        }
-        
-        inpsAmount = minimum;
-        
-        // Eccedenza oltre minimale €18.324
-        if (taxableIncome > 18324) {
-          const excess = (taxableIncome - 18324) * 0.24;
-          let reductionFactor = 1;
-          
-          if (business.contributionReduction === 'REDUCTION_35') {
-            reductionFactor = 0.65;
-          } else if (business.contributionReduction === 'REDUCTION_50') {
-            reductionFactor = 0.50;
-          }
-          
-          inpsAmount += excess * reductionFactor;
-        }
-        
-        // Contributo aggiuntivo commercianti 0.48%
-        if (business.contributionRegime === 'IVS_COMMERCIANTI') {
-          inpsAmount += taxableIncome * 0.0048;
-        }
+      // Validazione
+      const errors = validateTaxInput({ revenue, ...taxParams });
+      if (errors.length > 0) {
+        return res.status(400).json({ message: errors.join(', ') });
       }
-
-      const totalDue = taxAmount + inpsAmount;
-
-      const calculation = {
+      
+      // Prepara input per il calculator
+      const calculationInput: TaxCalculationInput = {
+        revenue,
+        macroCategory: taxParams.macroCategory || 'PROFESSIONAL',
+        isStartup: taxParams.isStartup || false,
+        startDate: taxParams.startDate || new Date().toISOString(),
+        contributionRegime: taxParams.contributionRegime || 'GESTIONE_SEPARATA',
+        contributionReduction: taxParams.contributionReduction || 'NONE',
+        hasOtherCoverage: taxParams.hasOtherCoverage || false,
+        year
+      };
+      
+      // Calcola usando la libreria
+      const calculation = TaxCalculator.calculate(calculationInput);
+      
+      // Salva nel database
+      const savedCalculation = await storage.createTaxCalculation({
         businessId,
         year,
-        revenue: revenue.toString(),
-        taxableIncome: taxableIncome.toString(),
-        taxRate: taxRate.toString(),
-        taxAmount: taxAmount.toString(),
-        inpsAmount: inpsAmount.toString(),
-        totalDue: totalDue.toString()
-      };
+        revenue: calculation.revenue.toString(),
+        taxableIncome: calculation.taxableIncome.toString(),
+        taxRate: calculation.taxRate.toString(),
+        taxAmount: calculation.taxAmount.toString(),
+        inpsAmount: calculation.inpsAmount.toString(),
+        totalDue: calculation.totalDue.toString()
+      });
 
-      const savedCalculation = await storage.createTaxCalculation(calculation);
-
+      // Rispondi con i calcoli
       res.json({
         ...savedCalculation,
-        revenue: parseFloat(savedCalculation.revenue),
-        taxableIncome: parseFloat(savedCalculation.taxableIncome),
-        taxRate: parseFloat(savedCalculation.taxRate),
-        taxAmount: parseFloat(savedCalculation.taxAmount),
-        inpsAmount: parseFloat(savedCalculation.inpsAmount),
-        totalDue: parseFloat(savedCalculation.totalDue)
+        revenue: calculation.revenue,
+        taxableIncome: calculation.taxableIncome,
+        taxRate: calculation.taxRate,
+        taxAmount: calculation.taxAmount,
+        inpsAmount: calculation.inpsAmount,
+        totalDue: calculation.totalDue
       });
     } catch (error) {
       res.status(400).json({ message: "Failed to calculate taxes", error });
