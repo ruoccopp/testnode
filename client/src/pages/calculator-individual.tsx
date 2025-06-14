@@ -439,11 +439,7 @@ export default function CalculatorIndividualPage() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center">
-              <img 
-                src={logoPath} 
-                alt="SmartRate" 
-                className="h-10 md:h-12 w-auto"
-              />
+              <div className="text-2xl font-bold text-green-600">SmartRate</div>
             </div>
             <div className="flex gap-2">
               <Link href="/calculator">

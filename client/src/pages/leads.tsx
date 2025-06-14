@@ -161,11 +161,7 @@ export default function Leads() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <img 
-              src={logoPath} 
-              alt="SmartRate" 
-              className="h-8 md:h-10 w-auto"
-            />
+            <div className="text-xl font-bold text-blue-600">SmartRate</div>
           </div>
         </div>
       </div>

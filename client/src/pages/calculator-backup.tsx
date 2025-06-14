@@ -434,11 +434,7 @@ export default function CalculatorPage() {
           <div className="flex items-center justify-between">
             {/* Logo */}
             <div className="flex items-center">
-              <img 
-                src={logoPath} 
-                alt="SmartRate" 
-                className="h-10 md:h-12 w-auto"
-              />
+              <div className="text-2xl font-bold text-blue-600">SmartRate</div>
             </div>
             
             {/* Navigation Buttons */}
