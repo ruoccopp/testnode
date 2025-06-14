@@ -15,7 +15,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { Calculator, Building, Euro, Calendar, Download, Lock, Mail, User, Briefcase, TrendingUp, PiggyBank } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import * as XLSX from 'xlsx';
-import logoPath from "@assets/SmartRate - Colors.png";
+
 import { Link } from "wouter";
 
 const calculationSchema = z.object({
@@ -434,11 +434,7 @@ export default function CalculatorPage() {
           <div className="flex items-center justify-between">
             {/* Logo */}
             <div className="flex items-center">
-              <img 
-                src={logoPath} 
-                alt="SmartRate" 
-                className="h-10 md:h-12 w-auto"
-              />
+              <div className="text-2xl font-bold text-blue-600">SmartRate</div>
             </div>
             
             {/* Navigation Buttons */}

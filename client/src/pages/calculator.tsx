@@ -16,7 +16,7 @@ import { Calculator, Building, Euro, Calendar, Download, Lock, Mail, User, Brief
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import * as XLSX from 'xlsx';
 import { Link } from "wouter";
-import logoPath from "@assets/SmartRate - Colors.png";
+
 
 const calculationSchema = z.object({
   revenue: z.number().min(0, "Il fatturato deve essere positivo").optional(),
@@ -462,11 +462,7 @@ export default function CalculatorPage() {
           <div className="flex items-center justify-between">
             {/* Logo */}
             <div className="flex items-center">
-              <img 
-                src={logoPath} 
-                alt="SmartRate" 
-                className="h-10 md:h-12 w-auto"
-              />
+              <div className="text-2xl font-bold text-blue-600">SmartRate</div>
             </div>
             
             {/* Navigation Buttons */}
@@ -1349,9 +1345,18 @@ export default function CalculatorPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-gray-600 mb-4">
-                Piano completo dal {new Date().toLocaleDateString('it-IT')} in poi - Solo scadenze future (Saldo Attuale: {formatCurrency(form.watch('currentBalance') || 0)})
-              </p>
+              <div className="text-sm text-gray-600 mb-4">
+                <p className="mb-2">Piano completo dal {new Date().toLocaleDateString('it-IT')} in poi - Solo scadenze future (Saldo Attuale: {formatCurrency(form.watch('currentBalance') || 0)})</p>
+                <div className="bg-blue-50 p-3 rounded-lg">
+                  <p className="font-medium text-blue-900 mb-1">Come leggere la tabella:</p>
+                  <ul className="text-xs text-blue-800 space-y-1">
+                    <li><strong>Saldo Prima:</strong> Il saldo del tuo conto prima dell'operazione</li>
+                    <li><strong>Operazione:</strong> Versamenti suggeriti (+) o pagamenti effettivi delle tasse (-)</li>
+                    <li><strong>Saldo Dopo:</strong> Il nuovo saldo dopo l'operazione</li>
+                    <li><strong>SUGGERITO:</strong> Indica versamenti mensili raccomandati, non soldi che hai già</li>
+                  </ul>
+                </div>
+              </div>
               
               {/* Legenda */}
               <div className="bg-gray-50 rounded-lg p-4 mb-6">
@@ -1392,7 +1397,14 @@ export default function CalculatorPage() {
                         <td className="p-3">
                           <div className="flex items-center">
                             <span className={`inline-block w-3 h-3 rounded-full mr-2 ${entry.color}`}></span>
-                            <span className="text-xs">{entry.description}</span>
+                            <div>
+                              <span className="text-xs">{entry.description}</span>
+                              {entry.description.includes('Versamento Mensile') && (
+                                <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                                  SUGGERITO
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </td>
                         <td className={`p-3 text-right font-semibold ${entry.amount > 0 ? 'text-green-600' : 'text-red-600'}`}>

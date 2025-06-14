@@ -10,7 +10,7 @@ import * as XLSX from 'xlsx';
 import { TaxCalculator, validateTaxInput, type TaxCalculationInput } from '@shared/lib/tax-calculator';
 
 
-const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
+const JWT_SECRET = process.env.JWT_SECRET || "my-development-secret-key-change-in-production-2024";
 
 // Middleware for JWT authentication
 const authenticateToken = (req: any, res: any, next: any) => {

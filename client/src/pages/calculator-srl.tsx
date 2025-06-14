@@ -16,7 +16,7 @@ import { Building2, Euro, Users, Calculator, Download, Lock, Mail, User, MapPin,
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import * as XLSX from 'xlsx';
-import logoPath from "@assets/SmartRate - Colors.png";
+
 import { Link } from "wouter";
 import { calculateSRLTaxes, IRAP_RATES, VAT_REGIMES, SRLTaxCalculationResult } from "@/lib/srl-tax-calculator";
 
@@ -491,7 +491,7 @@ export default function CalculatorSRLPage() {
       [''],
       
       // Pianificazione avanzata (se abilitata)
-      ...(formData.advancedPlanning ? [
+      ...(true ? [
         ['PIANIFICAZIONE AVANZATA 2024-2025'],
         ['Dati 2024 (definitivi):'],
         ['- Fatturato 2024:', formData.revenue2024 || 0],
@@ -576,11 +576,7 @@ export default function CalculatorSRLPage() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center">
-              <img 
-                src={logoPath} 
-                alt="SmartRate" 
-                className="h-10 md:h-12 w-auto"
-              />
+              <div className="text-2xl font-bold text-purple-600">SmartRate</div>
             </div>
             <div className="flex gap-2">
               <Link href="/calculator">
@@ -2669,7 +2665,7 @@ export default function CalculatorSRLPage() {
                 </div>
               </div>
 
-              {form.watch('advancedPlanning') && (
+              {true && (
                 <div className="mt-6 bg-yellow-50 p-4 rounded-lg border-2 border-yellow-200">
                   <h4 className="font-semibold text-yellow-900 mb-3">⚡ Ottimizzazione Cashflow Basata su Dati Reali</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
