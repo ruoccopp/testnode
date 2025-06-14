@@ -4,10 +4,7 @@ dist
 server/public
 vite.config.ts.*
 *.tar.gz
-
-
-
-attached_assets/
+attached_assets
 
 # === Node modules ===
 node_modules/
