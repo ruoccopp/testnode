@@ -251,10 +251,10 @@ export default function CalculatorIndividualPage() {
     },
     onSuccess: (data) => {
       setResults(data);
-      setShowLeadForm(true);
+      setIsUnlocked(true);
       toast({
-        title: "Anteprima calcolo completata",
-        description: "Inserisci i tuoi dati per vedere il report completo",
+        title: "Calcolo completato!",
+        description: "Report completo generato con successo",
       });
     },
     onError: (error: any) => {
