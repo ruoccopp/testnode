@@ -4,7 +4,7 @@ hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
 
 [nix]
 channel = "stable-24_05"
-packages = ["postgresql", "php82", "php82Packages.composer"]
+packages = ["postgresql", "php82", "php82Packages.composer", "sqlite"]
 
 [deployment]
 deploymentTarget = "autoscale"
